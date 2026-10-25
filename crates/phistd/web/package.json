@@ -1,0 +1,30 @@
+{
+  "name": "phinet-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5183",
+    "build": "node rustdoc.mjs && tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "sync-hub": "node sync-hub.mjs",
+    "rustdoc": "node rustdoc.mjs"
+  },
+  "dependencies": {
+    "@phiace/phidoc": "file:../../phidoc",
+    "@phiace/puijs": "^0.3.12",
+    "lucide-react": "^1.34.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "sass": "^1.77.0",
+    "typescript": "^5.5.0",
+    "vite": "^6.0.0"
+  }
+}

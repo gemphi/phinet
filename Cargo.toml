@@ -1,0 +1,36 @@
+# Phinet — Phient's Phasor Language Models: one workspace, PML: Phi machine learning.
+#
+# In Phient's world, a word (w) is a seed: what it relates to, under what
+# conditions (c), grows from it. The Phical paradigm, X ⇒ Y, drives and
+# composes Phient's Phasor Language Models: Phinet, Phiano, PhiTon.
+#
+# phinet is this workspace: the holder that distributes the modes below.
+# No crate carries its name; each is one mode, organised by use, and the
+# dependencies run strictly downward (docs/159, docs/168):
+#
+# | use                 | crate          | what it holds                                                        | answers                  |
+# |---------------------|----------------|----------------------------------------------------------------------|--------------------------|
+# | the numbers         | crates/phistd  | complex tensors, tape autograd, unitary FFT, the one seed and hash,  | torch                    |
+# |                     |                | Quantum/Q64, hexagrams, codons, hrr                                  |                          |
+# | the sphere          | crates/phifno  | real spherical harmonics, grids, analysis/synthesis                  | torch-harmonics          |
+# | the operators       | crates/phical  | FNO (circle/sphere/anisotropic), Joint, Mirror, relations and laws,  | neuraloperator, makani   |
+# |                     |                | Liskov's three, Q64 juncture, heat                                   |                          |
+# | the world           | crates/phiecs  | words as entities: World, Phasor, Relation/Register, Row, Graph,     | —                        |
+# |                     |                | Quest (asks an oracle), Persona (the quest's plan)                   |                          |
+# | the eye             | crates/phioml  | active vision: the AOC signal, resonance by rotation, the flow field | phi-oml (CoreML's place) |
+# |                     |                | told as rows                                                         |                          |
+# | the brain           | crates/phient  | the ollama of Phient systems: the arena of models, the study         | context-language-models  |
+# |                     |                | protocol, prose knowing, Tally/levels/cast, code as rows             |                          |
+# | the body            | phiecs::kit    | Apple's frameworks as a world: the face, the joints, the track, the  | apple-source, rust-ios-ar|
+# |                     |                | device, told as rows                                                 |                          |
+# | the light           | crates/phiton  | light as the unit system                                             | —                        |
+# | the agents and apps | crates/phiano  | sys (Agent, Being, the race, the circus, the set game, the Lisp,     | —                        |
+# |                     |                | the eye's see), 256 personas, students, games, servers, the binaries |                          |
+#
+# phistd ← phifno ← phical ← {phiecs ← phioml, phient, phiclm} ← phiano; phiton ← phiano.
+[workspace]
+resolver = "2"
+members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phioml", "crates/phient", "crates/phiclm", "crates/phiton", "crates/phiano"]
+
+[profile.release]
+opt-level = 3

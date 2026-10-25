@@ -1,0 +1,9 @@
+[package]
+name = "phiton"
+version = "0.1.0"
+edition = "2021"
+description = "PhiTon: light as Phient's unit system — a phase as a wavelength, a spectral band and a colour, with the fine-structure shift. A child of phinet in the PML family."
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }

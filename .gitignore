@@ -1,0 +1,8 @@
+/target
+/_xfer
+/_to_delete
+**/target
+/quests
+/"quests
+/.sync
+Cargo.lock.orig

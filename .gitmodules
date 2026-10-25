@@ -1,0 +1,15 @@
+[submodule "crates/phiano"]
+	path = crates/phiano
+	url = https://github.com/gemphi/phiano.git
+[submodule "crates/phifno"]
+	path = crates/phifno
+	url = https://github.com/gemphi/phifno.git
+[submodule "crates/phiecs"]
+	path = crates/phiecs
+	url = https://github.com/gemphi/phiecs.git
+[submodule "crates/phiclm"]
+	path = crates/phiclm
+	url = https://github.com/gemphi/phiclm.git
+[submodule "crates/phient"]
+	path = crates/phient
+	url = https://github.com/gemphi/phient.git
