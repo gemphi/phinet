@@ -4,7 +4,7 @@
 
 ```mermaid
 graph TD
-    lib["lib.rs<br/>c64 · Function · fnv1a · mix64 · GOLDEN_ANGLE<br/>seed_phase · seed_angles · normalise · unit_random · unit_phase<br/>stack · unstack · cosine"]
+    lib["lib.rs<br/>c64 · Function · fnv1a · mix64 · decoy · GOLDEN_ANGLE<br/>seed_phase · seed_angles · normalise · unit_random · unit_phase<br/>stack · unstack · cosine"]
     subgraph engine["the engine"]
         tensor["tensor/<br/>mod · tape · fft · squash · adam<br/>ops/ basic · score · loss<br/>backward/ score · loss<br/>tests/ fft · grad · loss · optim"]
     end

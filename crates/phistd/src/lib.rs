@@ -80,6 +80,23 @@ pub fn mix64(h: u64) -> u64 {
     z ^ (z >> 31)
 }
 
+/// A decoy for contrastive training: an index drawn from `pool` that is not
+/// `target`, redrawn through [`mix64`] until it differs. A one-item pool has
+/// no other, so it answers its only item.
+///
+/// ```
+/// assert_eq!(phistd::decoy(&[3, 5], 3, 0), 5);
+/// assert_eq!(phistd::decoy(&[7], 7, 1), 7);
+/// ```
+pub fn decoy(pool: &[usize], target: usize, mut r: u64) -> usize {
+    let mut d = pool[(r % pool.len() as u64) as usize];
+    while d == target && pool.len() > 1 {
+        r = mix64(r);
+        d = pool[(r % pool.len() as u64) as usize];
+    }
+    d
+}
+
 /// The golden angle, 2π/φ²: successive channels seeded a golden angle apart
 /// never cluster, however correlated their hash bits.
 pub const GOLDEN_ANGLE: f64 = 2.399_963_229_728_653;

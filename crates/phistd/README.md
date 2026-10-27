@@ -48,7 +48,7 @@ The operator that learns a circular shift (what the identity cannot do and a spe
 | `phasor` | the phasor ranges: `Resolution` `P16 P32 P64 P128` × `Quantum` `Q16 Q32 Q64`, twelve `Range`s (`Range::ALL`), `resample`, `quantise`, `sector_of`. |
 | `hexagram` | the sixty-four operations: I Ching hexagrams as spectral gates (`apply`, `gate`, `changing_lines`), the hexagram a function is (`hexagram_of`, `lines`), `novelty`; the figure (`Hexagram`, `Trigram`) and its name (`archetype_name`). |
 | `codon` | the sixty-four as three bases: `codon`, `codon_index`, `hexagram_glyph`; where each sits on the B-DNA helix (`helix_position`, `PITCH_PER_TURN`, `RISE`). |
-| the crate root | `c64`, `Function`, the one seed and hash (`fnv1a`, `mix64`, `seed_phase`, `seed_angles`, `GOLDEN_ANGLE`), the angle wrapped to (−π, π] (`wrap`), and function helpers (`unit_random`, `unit_phase`, `normalise`, `stack`, `unstack`, `cosine`). |
+| the crate root | `c64`, `Function`, the one seed and hash (`fnv1a`, `mix64`, `seed_phase`, `seed_angles`, `GOLDEN_ANGLE`), the angle wrapped to (−π, π] (`wrap`), the contrastive decoy draw (`decoy`), and function helpers (`unit_random`, `unit_phase`, `normalise`, `stack`, `unstack`, `cosine`). |
 
 ## Conventions
 
