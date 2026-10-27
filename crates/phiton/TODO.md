@@ -37,6 +37,9 @@ graph LR
 - [x] `spectral_distance`'s doc says `|λa − λb|` on a line, not a circle.
 - [x] `coupling`'s doc formula has the `/ 100`.
 
+## conjugate
+- [x] phical's phase-conjugate mirror (`Mirror`, `Told`, `Moment`) moved here, beside `chiton`, by the user's decision; its decoy draw is `phistd::decoy`.
+
 ## p64
 - [x] `SpeechAct::classify`, `ParagraphType`'s and `SentenceType`'s base types were `else if` ladders; they are `match` now, same order, same answers (an empty paragraph is still mixed).
 - [x] `SearleClassifier::classify_full` parsed the sentence four times; it parses once.

@@ -9,3 +9,5 @@ license = "MIT OR Apache-2.0"
 # The numbers: the holographic binding (hrr) works on phistd's functions.
 phistd = { path = "../phistd" }
 serde = { version = "1.0", features = ["derive"] }
+# The phase-conjugate mirror saves and loads its spectra (conjugate).
+bincode = "1.3"

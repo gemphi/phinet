@@ -10,13 +10,14 @@ graph TD
         bands["bands.rs<br/>SpectralBand · BANDS 16"]
         types["types.rs<br/>PhitonColor · LightQuantum · wavelength_to_rgb"]
         chiton["chiton.rs<br/>Chiton"]
+        conjugate["conjugate/<br/>mod · train · tests<br/>Mirror · Told · Moment"]
         spectrum["spectrum.rs<br/>PhitonSpectrum"]
         hrr["hrr.rs<br/>role · bind · unbind · compose · holography"]
         physics["physics/<br/>Physics · PhysicsOp · ColorSpaceTimeManifold · Topology<br/>standing: harmonic_rotation"]
         p64["p64/<br/>Level P16 P32 P64 · syntax · searle · lexicon · topology · iching · words"]
         tests["tests.rs<br/>7 test functions"]
     end
-    serde["serde<br/>Serialize · Deserialize"]
+    serde["serde · bincode<br/>Serialize · Deserialize · Mirror save, load"]
     phistd["phistd<br/>c64 · Function · GOLDEN_ANGLE · hexagram"]
     phiano["phiano<br/>pub use ::phiton<br/>gemgum · compose · config"]
 
@@ -33,6 +34,8 @@ graph TD
     chiton -->|"ALPHA · PHI · TWO_PI"| units
     chiton -->|"super::Phiton"| lib
     hrr -->|"c64 · unit_phase · normalise"| phistd
+    conjugate -->|"c64 · mix64 · unit_random · normalise · decoy"| phistd
+    conjugate --> serde
     physics -->|"ALPHA · quantum · effective_phase"| units
     physics -->|"LightQuantum · Chiton"| chiton
     physics -->|"GOLDEN_ANGLE"| phistd
@@ -57,6 +60,7 @@ graph LR
     A --> B["bands.md<br/>bands.rs"]
     A --> T["types.md<br/>types.rs"]
     A --> C["chiton.md<br/>chiton.rs"]
+    A --> CJ["conjugate.md<br/>conjugate/"]
     A --> S["spectrum.md<br/>spectrum.rs"]
     A --> X["tests.md<br/>tests.rs"]
     A --> HR["hrr.md<br/>hrr.rs"]
@@ -71,6 +75,7 @@ graph LR
 | the 16 spectral bands | [docs/phiton/bands.md](../../docs/phiton/bands.md) |
 | colour and quantum | [docs/phiton/types.md](../../docs/phiton/types.md) |
 | the wave | [docs/phiton/chiton.md](../../docs/phiton/chiton.md) |
+| the phase-conjugate mirror | [docs/phiton/conjugate.md](../../docs/phiton/conjugate.md) |
 | the spectrum mapper | [docs/phiton/spectrum.md](../../docs/phiton/spectrum.md) |
 | the tests | [docs/phiton/tests.md](../../docs/phiton/tests.md) |
 | holographic binding | [docs/phiton/hrr.md](../../docs/phiton/hrr.md) |

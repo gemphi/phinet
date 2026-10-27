@@ -27,6 +27,7 @@
 
 pub mod bands;
 pub mod chiton;
+pub mod conjugate;
 pub mod hrr;
 pub mod p64;
 pub mod physics;

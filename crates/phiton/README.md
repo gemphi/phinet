@@ -22,12 +22,13 @@ reads language in the circle's 64 sectors (`p64`, which was phiano's `phinum`).
 | `units` | `ALPHA` (1/137), `PHI`, `PHI_CONJUGATE` (1/φ), `TWO_PI`, `BAND_N_EFFECTIVE_MAX` (13), `PHASE_CHANNELS` (64), `CHANNEL_QUANTA` (256), `quantum`, `effective_phase` |
 | `bands`, `types`, `spectrum` | the 16 named bands, colour and quantum, the spectrum mapper |
 | `chiton` | the wave: `from_quantum` (↺), `roll` (↻), `opposite`, `resonance`, `standing_wave_amplitude` |
+| `conjugate` | the phase-conjugate mirror beside it: `Mirror`, a relation as an all-pass filter `e^{iθ_k}`, read forward by `H`, backwards by `H̄` (the time-reversed wave, never trained) and `n` steps on by `Hⁿ`; closed-form training (`Moment`, `Told`) |
 | `hrr` | holographic binding on the circle: `role`, `bind`, `unbind`, `compose` |
 | `physics` | `Physics`, `PhysicsOp`, `ColorSpaceTimePoint`, `ColorSpaceTimeManifold`, `Topology`; `standing::harmonic_rotation` (Bentov's integer modes) |
 | `p64` | `Level {P16, P32, P64}`, `Engine`, `Config`, `Lexicon`, `SyntaxParser`, `SpeechAct`, `SentenceType`, `SpiderNet`, `words::Tokenizer` |
 
 phiano re-exports it as `phiano::phiton`; phiecs's spectral phasor reads its
-fine-structure phase and colour. It depends on phistd for the numbers.
+fine-structure phase and colour. It depends on phistd for the numbers, and on bincode for the mirror's saved spectra.
 
 ```
 cargo test --release -p phiton
