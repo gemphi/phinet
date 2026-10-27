@@ -32,6 +32,19 @@ pub fn hexagram_glyph(k: usize) -> String {
     crate::hexagram::glyph((k % 64) as u8).to_string()
 }
 
+/// B-DNA: codons per turn of the helix.
+pub const PITCH_PER_TURN: f64 = 10.5;
+/// B-DNA: rise per codon along the axis, in nanometres.
+pub const RISE: f64 = 0.34;
+/// Radius of the helix, in nanometres.
+const RADIUS: f64 = 1.0;
+
+/// Where codon `k` sits on the helix: angle `2πk / 10.5`, rise `0.34 k`.
+pub fn helix_position(k: usize) -> [f64; 3] {
+    let theta = 2.0 * std::f64::consts::PI * k as f64 / PITCH_PER_TURN;
+    [RADIUS * theta.cos(), RADIUS * theta.sin(), RISE * k as f64]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -48,5 +61,13 @@ mod tests {
         assert_eq!(codon_index("AXA"), None);
         assert_eq!(hexagram_glyph(0), "䷁");
         assert_eq!(hexagram_glyph(63), "䷀");
+    }
+
+    #[test]
+    fn the_helix_turns_every_ten_and_a_half() {
+        let a = helix_position(0);
+        let b = helix_position(21);
+        assert!((a[0] - b[0]).abs() < 1e-9 && (a[1] - b[1]).abs() < 1e-9);
+        assert!((b[2] - 21.0 * RISE).abs() < 1e-12);
     }
 }

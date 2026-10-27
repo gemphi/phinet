@@ -21,7 +21,7 @@
 //! each part on its own. No Wirtinger calculus is needed because every
 //! parameter update is a real-vector update on `(Re, Im)`.
 //!
-//! No dependencies: the FFT is a radix-2 Cooley–Tukey on a power-of-two length,
+//! The FFT needs nothing outside this crate: a radix-2 Cooley–Tukey on a power-of-two length,
 //! scaled by `1/√N` in both directions so that it is unitary and its adjoint is
 //! its inverse.
 mod adam;

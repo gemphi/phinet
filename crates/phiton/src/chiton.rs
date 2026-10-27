@@ -1,26 +1,26 @@
-/// Chiton — the wave/spin complement of light.
-///
-/// Where [`super::Phiton`] is the "roll" (particle, discrete quantum,
-/// circular polarization), Chiton is the "wave" (continuous oscillation,
-/// frequency, period). Together they form the 2-in-1 architecture of
-/// light's wave-particle duality.
-///
-/// # The 2-in-1 Architecture
-///
-/// ```text
-///   Phiton (roll/particle)     Chiton (wave/oscillation)
-///   ─────────────────────      ─────────────────────────
-///   phase angle θ              frequency ν = c/λ
-///   wavelength λ               period T = 1/ν
-///   band_n (quantum number)    angular frequency ω = 2πν
-///   discrete color             continuous oscillation
-///   spin ↻ (clockwise)         spin ↺ (counter-clockwise)
-/// ```
-///
-/// The opposite spins of phiton and chiton create the standing wave
-/// patterns that make linguistic word mapping and intelligence plausible:
-/// words occupy stable positions in the interference space created by
-/// the two counter-rotating aspects of light.
+//! Chiton — the wave/spin complement of light.
+//!
+//! Where [`super::Phiton`] is the "roll" (particle, discrete quantum,
+//! circular polarization), Chiton is the "wave" (continuous oscillation,
+//! frequency, period). Together they form the 2-in-1 architecture of
+//! light's wave-particle duality.
+//!
+//! # The 2-in-1 Architecture
+//!
+//! ```text
+//!   Phiton (roll/particle)     Chiton (wave/oscillation)
+//!   ─────────────────────      ─────────────────────────
+//!   phase angle θ              frequency ν = c/λ
+//!   wavelength λ               period T = 1/ν
+//!   band_n (quantum number)    angular frequency ω = 2πν
+//!   discrete color             continuous oscillation
+//!   spin ↻ (clockwise)         spin ↺ (counter-clockwise)
+//! ```
+//!
+//! The opposite spins of phiton and chiton create the standing wave
+//! patterns that make linguistic word mapping and intelligence plausible:
+//! words occupy stable positions in the interference space created by
+//! the two counter-rotating aspects of light.
 
 use super::types::LightQuantum;
 use crate::units::{ALPHA, PHI, TWO_PI};
@@ -55,6 +55,18 @@ impl Chiton {
             spin_clockwise: false,
             wavelength_nm: quantum.wavelength_nm,
         }
+    }
+
+    /// The phiton's own rotation as a wave: the same quantum, spin ↻. With
+    /// [`Chiton::from_quantum`]'s ↺ it is the pair the standing wave is made
+    /// of, the one `resonance` weighs fully.
+    pub fn roll(quantum: &LightQuantum) -> Self {
+        Self { spin_clockwise: true, ..Self::from_quantum(quantum) }
+    }
+
+    /// The same wave with the opposite spin: a wave's roll, a roll's wave.
+    pub fn opposite(&self) -> Self {
+        Self { spin_clockwise: !self.spin_clockwise, ..*self }
     }
 
     /// Creates a chiton from a phase angle and band level.

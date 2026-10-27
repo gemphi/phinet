@@ -39,3 +39,28 @@ use super::*;
             .count();
         assert!(moved > 8, "items moved: {moved} of 16");
     }
+
+    #[test]
+    fn test_each_example_keeps_its_own_context_weights() {
+        // Two examples in one batch with different weights: each context
+        // function is unit(Σ w · item) with its OWN weights.
+        let space = 16;
+        let table: Vec<Function> = (0..4).map(|i| unit_random(space, i as u64 + 10)).collect();
+        let cfg = FnoConfig { space, width: 2, layers: 1, modes: 4, margin: 0.3, lr: 1e-2, tie: Tie::Circle };
+        let mut joint = Joint::new(Fno::new(cfg, 1), &table, 2);
+        let a = IndexExample { ctx: vec![(0, 0.25), (1, 1.0)], target: 2 };
+        let b = IndexExample { ctx: vec![(2, 3.0), (3, 0.5)], target: 0 };
+        let v = joint.context_on_tape(&[&a, &b]);
+        let got = crate::unstack(joint.fno.tape.value(v));
+        for (ex, row) in [(&a, &got[0]), (&b, &got[1])] {
+            let mut want = vec![c64::new(0.0, 0.0); space];
+            for &(item, w) in &ex.ctx {
+                for (k, z) in want.iter_mut().enumerate() {
+                    *z += table[item][k] * w;
+                }
+            }
+            crate::normalise(&mut want);
+            assert!(row.iter().zip(&want).all(|(p, q)| (p - q).norm() < 1e-9), "target {}", ex.target);
+        }
+    }
+

@@ -19,6 +19,14 @@
 use crate::tensor::fft_inplace;
 use crate::{c64, Function};
 
+mod figure;
+mod names;
+mod trigram;
+
+pub use figure::Hexagram;
+pub use names::archetype_name;
+pub use trigram::Trigram;
+
 /// Number of hexagrams / lines.
 pub const HEXAGRAMS: usize = 64;
 

@@ -53,9 +53,6 @@ impl Tape {
         self.push(t, Op::MeanReal(x), rg)
     }
 
-    /// Selects rows `idx` of a `[V,1,s]` table into `[b,1,s]`. The backward
-    /// pass scatter-adds into the table, which is what lets the table's rows —
-    /// the words themselves — be parameters.
     /// Expands `r [i,o,g]` to `[i,o,group.len()]` by `y[..,k] = r[..,group[k]]`.
     /// The gradient of each group weight is the sum over the modes tied to it.
     pub fn tie(&mut self, r: Var, group: &[usize]) -> Var {
@@ -73,6 +70,9 @@ impl Tape {
         self.push(out, Op::Tie(r, group.to_vec()), rg)
     }
 
+    /// Selects rows `idx` of a `[V,1,s]` table into `[b,1,s]`. The backward
+    /// pass scatter-adds into the table, which is what lets the table's rows —
+    /// the words themselves — be parameters.
     pub fn gather(&mut self, table: Var, idx: &[usize]) -> Var {
         let tv = &self.nodes[table.0].value;
         assert_eq!(tv.shape[1], 1, "gather: table must be [V,1,s]");

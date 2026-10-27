@@ -1,10 +1,10 @@
-/// PhitonSpectrum — continuous spectral mapping across the phase circle.
-///
-/// Provides the bridge between the phase-space model (sectors, phases)
-/// and the physical light spectrum (wavelengths, frequencies, energies).
-/// The spectrum is continuous, not discrete — any phase angle maps to
-/// a precise wavelength, and the fine-structure constant provides
-/// quantum sub-band corrections.
+//! PhitonSpectrum — continuous spectral mapping across the phase circle.
+//!
+//! Provides the bridge between the phase-space model (sectors, phases)
+//! and the physical light spectrum (wavelengths, frequencies, energies).
+//! The spectrum is continuous, not discrete — any phase angle maps to
+//! a precise wavelength, and the fine-structure constant provides
+//! quantum sub-band corrections.
 
 use super::bands::SpectralBand;
 use super::types::{LightQuantum, PhitonColor};
@@ -34,10 +34,11 @@ impl PhitonSpectrum {
     ///
     /// Useful for rendering legends, UI palettes, or debugging.
     pub fn band_colors(sector_count: u16) -> Vec<PhitonColor> {
-        let color_count = SpectralBand::BANDS.len() as u16;
+        let color_count = SpectralBand::BANDS.len() as u32;
         (0..color_count)
             .map(|i| {
-                let sector = (i * sector_count) / color_count;
+                // In u32: `i * sector_count` passes u16::MAX once the count is above 4,369.
+                let sector = (i * sector_count as u32 / color_count) as u16;
                 Self::sector_to_color(sector, sector_count, 0)
             })
             .collect()
@@ -45,8 +46,9 @@ impl PhitonSpectrum {
 
     /// Computes the spectral distance between two phase angles.
     ///
-    /// Returns the wavelength difference in nm, accounting for circular
-    /// wrap-around and fine-structure sub-band shifts.
+    /// Returns the wavelength difference in nm, `|λa − λb|`, each wavelength
+    /// carrying its sub-band shift. The spectrum is a line here, not a
+    /// circle: violet and crimson are 370 nm apart, not neighbours.
     pub fn spectral_distance(phase_a: f64, band_a: u32, phase_b: f64, band_b: u32) -> f64 {
         let wa = super::Phiton::phase_to_wavelength(phase_a, band_a);
         let wb = super::Phiton::phase_to_wavelength(phase_b, band_b);
@@ -57,7 +59,7 @@ impl PhitonSpectrum {
     ///
     /// Uses the fine-structure constant α as the coupling constant and
     /// the golden ratio φ for natural distance weighting:
-    ///   coupling = α / (1 + φ · Δλ)
+    ///   coupling = α / (1 + φ · Δλ / 100), Δλ in nm
     pub fn coupling(a: &LightQuantum, b: &LightQuantum) -> f64 {
         let delta_lambda = (a.wavelength_nm - b.wavelength_nm).abs();
         ALPHA / (1.0 + PHI * delta_lambda / 100.0)

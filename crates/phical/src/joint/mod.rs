@@ -43,6 +43,7 @@ impl Joint {
     /// `window` is the most context items an example carries; the `j`-th most
     /// recent item is weighted by its stored weight (see [`IndexExample`]).
     pub fn new(mut fno: Fno, table: &[Function], window: usize) -> Self {
+        assert!(window > 0, "Joint::new: the window must hold at least one context item");
         let s = fno.config.space;
         let v = table.len();
         let mut t = Tensor::zeros([v + 1, 1, s]);
@@ -90,17 +91,23 @@ impl Joint {
                     }
                 })
                 .collect();
-            // All examples share the weight schedule of the first that has
-            // this position; the padding row is zero so weight is moot there.
-            let weight = batch.iter().find_map(|ex| {
-                let n = ex.ctx.len();
-                match j < n {
-                    true => Some(ex.ctx[n - 1 - j].1),
-                    false => None,
-                }
-            });
+            // Each example's own weight for this position, as a constant row
+            // under its gathered item (the padding row is zero, so 0 there).
+            let s = self.fno.config.space;
+            let weight: Vec<c64> = batch
+                .iter()
+                .flat_map(|ex| {
+                    let n = ex.ctx.len();
+                    let w = match j < n {
+                        true => ex.ctx[n - 1 - j].1,
+                        false => 0.0,
+                    };
+                    std::iter::repeat(c64::new(w, 0.0)).take(s)
+                })
+                .collect();
             let g = self.fno.tape.gather(self.table, &idx);
-            let s = self.fno.tape.scale(g, weight.unwrap_or(0.0));
+            let w = self.fno.tape.constant(Tensor::from_vec([batch.len(), 1, s], weight));
+            let s = self.fno.tape.mul(g, w);
             acc = Some(match acc {
                 None => s,
                 Some(a) => self.fno.tape.add(a, s),

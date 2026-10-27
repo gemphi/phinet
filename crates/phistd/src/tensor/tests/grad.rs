@@ -111,8 +111,8 @@ use crate::c64;
         assert!(checked > 40, "checked {checked} partials");
     }
 
-    /// Finite differences through `cosine_table` and `mixture_nll`.
-
+    /// Finite differences through the Möbius map, in its input and its four
+    /// coefficients (`cosine_table` and `mixture_nll` are checked in loss.rs).
     #[test]
     fn test_mobius_gradients_match_finite_differences() {
         let s = 8;

@@ -1,7 +1,7 @@
-/// Core phiton types — light quanta and physics-derived colors.
+//! Core phiton types — light quanta and physics-derived colors.
 
 use super::bands::SpectralBand;
-use crate::units::PHI;
+use crate::units::PHI_CONJUGATE;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -47,8 +47,9 @@ impl fmt::Display for PhitonColor {
 /// A discrete light quantum — the "roll" (particle) aspect of light.
 ///
 /// Represents light as a photon with wavelength, phase, and sub-band
-/// energy level. The effective phase includes the fine-structure
-/// correction: φ_eff = φ + n·α.
+/// energy level. Its fine-structure phase is `units::effective_phase`
+/// (`φ + quantum(n)·α`); `Phiton::phase_to_wavelength` applies its own
+/// correction on the wavelength side, `quantum(n)·α·10` nm.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct LightQuantum {
     /// Phase angle on the unit circle [0, 2π).
@@ -91,7 +92,7 @@ impl LightQuantum {
     pub fn band_position(&self) -> f64 {
         let pos = (self.wavelength_nm - self.to_color().band.min_nm)
             / (self.to_color().band.max_nm - self.to_color().band.min_nm);
-        (pos * (1.0 / PHI)).rem_euclid(1.0)
+        (pos * PHI_CONJUGATE).rem_euclid(1.0)
     }
 }
 

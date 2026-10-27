@@ -4,13 +4,14 @@
 //! conditions (c), grows from it. The Phical paradigm, X ⇒ Y, drives and
 //! composes Phient's Phasor Language Models: Phinet, Phiano, PhiTon. Phical
 //! stores no point: a word is 32–64 relations, each a complex phasor on a
-//! closed circle with a count; meaning is a side effect of pairs of words
-//! moving under a condition.
+//! closed circle; meaning is a side effect of pairs of words moving under a
+//! condition, and they move by the error of what was expected — toward what
+//! came, away from what did not.
 //!
 //! phistd is the engine of the family (`phinet::std` from the one entry,
 //! docs/160) — what torch is to neuraloperator: a
 //! complex tensor type, a reverse-mode tape with a differentiable unitary FFT,
-//! Adam, holographic bind/unbind, the sixty-four gates, and the phasor
+//! Adam, the sixty-four gates, and the phasor
 //! ranges. It knows no words and holds no operator: the Fourier neural
 //! operator and joint training are phical's, the sphere's harmonics phifno's,
 //! the language model phient's. Small, dependency-light, and complete.
@@ -39,7 +40,6 @@
 //! |---|---|
 //! | [`tensor`] | `Tensor` `[batch, width, space]`, `Tape` (add, mul, linear, mode_mix, fft/ifft, fft2/ifft2, gelu, gather, unit, cosine, hinge, cross_entropy, cosine_table, mixture_nll, mobius), `Adam` (AdamW, `Schedule`). Every gradient is finite-difference checked; `cosine_table` runs on all cores (rayon). |
 //! | [`codon`] | the sixty-four as three bases: `codon`, `codon_index`, `hexagram_glyph`. |
-//! | [`hrr`] | `bind`, `unbind`, `compose`, `role`. |
 //! | [`hexagram`] | the sixty-four operations: I Ching hexagrams as spectral gates (`apply`, `gate`, `changing_lines`), the hexagram a function is (`hexagram_of`, `lines`), `novelty`. |
 //! | [`phasor`] | the phasor ranges: `Resolution` P16–P128 × `Quantum` Q16–Q64 (`Range::ALL`), `resample`, `quantise`, `sector_of`; `Fno::at_resolution` moves an operator between them. |
 //!
@@ -48,7 +48,6 @@
 
 pub mod codon;
 pub mod hexagram;
-pub mod hrr;
 #[path = "phasor/mod.rs"]
 pub mod phasor;
 #[path = "tensor/mod.rs"]
@@ -156,6 +155,17 @@ pub fn stack(fs: &[Function], space: usize) -> Tensor {
 pub fn unstack(t: &Tensor) -> Vec<Function> {
     assert_eq!(t.shape[1], 1);
     t.data.chunks(t.shape[2]).map(|c| c.to_vec()).collect()
+}
+
+/// Signed wrap of an angle difference into (−π, π]: the short way round
+/// the circle, the one angle arithmetic every crate above shares.
+#[inline]
+pub fn wrap(d: f64) -> f64 {
+    let mut d = d.rem_euclid(std::f64::consts::TAU);
+    if d > std::f64::consts::PI {
+        d -= std::f64::consts::TAU;
+    }
+    d
 }
 
 /// Real cosine between two functions.

@@ -4,10 +4,11 @@
 //! conditions (c), grows from it. The Phical paradigm, X ⇒ Y, drives and
 //! composes Phient's Phasor Language Models: Phinet, Phiano, PhiTon. Phical
 //! stores no point: a word is 32–64 relations, each a complex phasor on a
-//! closed circle with a count; meaning is a side effect of pairs of words
-//! moving under a condition.
+//! closed circle; meaning is a side effect of pairs of words moving under a
+//! condition, and they move by the error of what was expected — toward what
+//! came, away from what did not.
 //!
-//! phinet is the engine (tensors, tape, FFT, Adam — what torch is); phifno
+//! phistd is the engine (tensors, tape, FFT, Adam — what torch is); phifno
 //! is the sphere (the harmonics — what torch-harmonics is); phical is the
 //! operators built on both — what neuraloperator is to torch — together with
 //! the exact geometry of the relation circle that no learning touches.
@@ -47,12 +48,6 @@ pub const CHANNELS: usize = 64;
 /// 2π.
 pub const TAU: f64 = std::f64::consts::TAU;
 
-/// Signed wrap of an angle difference into (−π, π].
-#[inline]
-pub fn wrap(d: f64) -> f64 {
-    let mut d = d.rem_euclid(TAU);
-    if d > std::f64::consts::PI {
-        d -= TAU;
-    }
-    d
-}
+/// Signed wrap of an angle difference into (−π, π]: phistd's, kept at
+/// this path for every `phical::wrap` caller.
+pub use phistd::wrap;

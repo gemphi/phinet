@@ -1,8 +1,9 @@
 //! Dumps every phinet operation on fixed inputs to JSON so that a PyTorch
 //! implementation of the same operation can be checked against it to
-//! floating-point precision — `torch/phinet_torch.py` reads this file.
+//! floating-point precision — `crates/phistd/torch/phinet_torch.py` reads
+//! this file. From `crates/phistd`:
 //!
-//! `cargo run --release --example torch > torch/reference.json`
+//! `cargo run --release -p phical --example torch > torch/reference.json`
 
 
 

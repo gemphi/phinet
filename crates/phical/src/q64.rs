@@ -68,7 +68,7 @@ mod tests {
     }
 
     #[test]
-    fn resonance_loss_under_double_quantisation_is_under_half_a_percent() {
+    fn resonance_loss_under_double_quantisation_is_under_a_hundredth() {
         // Two random words, compared before and after quantising both.
         let mut seed = 0x9E37_79B9_7F4A_7C15u64;
         let mut rnd = || {
@@ -90,7 +90,8 @@ mod tests {
         // Per-channel worst case is 2·BOUND (the cosine is 1-Lipschitz); the
         // mean over 64 channels of random-sign errors is far smaller.
         assert!(worst <= 2.0 * BOUND + 1e-9, "resonance loss {worst}");
-        assert!(worst < 0.02, "measured 64-channel loss {worst} (expected ≈ 0.01)");
+        // Measured 0.0099 on these 200 pairs: the module doc's "under 0.01".
+        assert!(worst < 0.01, "measured 64-channel loss {worst}");
     }
 
     #[test]
@@ -100,5 +101,29 @@ mod tests {
         assert_eq!(hamming(&a, &b), 2);
         assert_eq!(sector_distance(63, 0), 1);
         assert_eq!(sector_distance(0, 32), 32);
+    }
+
+    /// The juncture has one definition: phical's Q64, phistd's
+    /// `Quantum::Q64` and the hexagram's phase are the same sectors, the same
+    /// centres and the same bound (moved from phiano's physics tests).
+    #[test]
+    fn q64_is_phistd_q64_and_the_hexagram() {
+        use phistd::hexagram::Hexagram;
+        use phistd::phasor::{Quantum, Range, Resolution};
+        for k in 0..500 {
+            let phase = k as f64 * 0.0137;
+            let (a, b) = (quantise(phase) as usize, Quantum::Q64.sector_of_phase(phase));
+            assert_eq!(a, b, "sector of {phase}");
+            assert!((lift(a as u8) - Quantum::Q64.phase(b)).abs() < 1e-12);
+        }
+        assert!((BOUND - Quantum::Q64.bound()).abs() < 1e-15);
+        assert_eq!(Range::DEFAULT, Range::new(Resolution::P64, Quantum::Q64));
+        assert_eq!(Resolution::P64.space(), CHANNELS);
+        for q in 0..64u8 {
+            let h = Hexagram::from_id(q);
+            assert!((h.phase_angle() - lift(q)).abs() < 1e-12);
+            assert_eq!(Hexagram::from_phase(lift(q)).id, q);
+            assert_eq!(quantise(h.phase_angle()), q);
+        }
     }
 }

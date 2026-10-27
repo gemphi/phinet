@@ -3,35 +3,38 @@
 //! Houses color types, spectral bands, and the electromagnetic spectrum
 //! mapping that replaces hard-coded color names. Light is governed by
 //! quantum oscillations of the fine-structure constant α ≈ 1/137.
-///
-/// Phiton is the "roll" aspect of light — circular polarization, discrete
-/// quanta, particle-like rotation. Its complement is [`chiton::Chiton`],
-/// the "wave" aspect. Together they form a 2-in-1 architecture for
-/// light's wave-particle duality, providing the physical basis for
-/// linguistic word mapping and intelligence.
-///
-/// # Architecture
-///
-/// ```text
-///   phase angle θ ──→ wavelength λ ──→ spectral band ──→ PhitonColor
-///        │                                              │
-///        │  + band_n × α (fine-structure shift)         │
-///        │                                              ▼
-///        │                                         gemgum coupling
-///        │                                              │
-///        ▼                                              ▼
-///   chiton (wave) ◄──── 2-in-1 ────►  phiton (roll) → word mapping
-///   frequency ν                                    color space
-///   period T
-/// ```
+//!
+//! Phiton is the "roll" aspect of light — circular polarization, discrete
+//! quanta, particle-like rotation. Its complement is [`chiton::Chiton`],
+//! the "wave" aspect. Together they form a 2-in-1 architecture for
+//! light's wave-particle duality, providing the physical basis for
+//! linguistic word mapping and intelligence.
+//!
+//! # Architecture
+//!
+//! ```text
+//!   phase angle θ ──→ wavelength λ ──→ spectral band ──→ PhitonColor
+//!        │                                              │
+//!        │  + quantum(band_n)·α·10 nm (the shift)       │
+//!        │                                              ▼
+//!        │                                         gemgum coupling
+//!        │                                              │
+//!        ▼                                              ▼
+//!   chiton (wave) ◄──── 2-in-1 ────►  phiton (roll) → word mapping
+//!   frequency ν                                    color space
+//!   period T
+//! ```
 
 pub mod bands;
 pub mod chiton;
+pub mod hrr;
+pub mod p64;
+pub mod physics;
 pub mod spectrum;
 pub mod types;
 pub mod units;
 
-pub use units::{quantum, ALPHA, BAND_N_EFFECTIVE_MAX, PHI, TWO_PI};
+pub use units::{effective_phase, quantum, ALPHA, BAND_N_EFFECTIVE_MAX, CHANNEL_QUANTA, PHASE_CHANNELS, PHI, PHI_CONJUGATE, TWO_PI};
 
 #[allow(unused_imports)]
 pub use bands::SpectralBand;

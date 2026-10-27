@@ -1,7 +1,7 @@
 //! The rest of the reference dump: hrr, the hexagram gates, ranges, and the whole operator with one Adam step.
 
 use phistd::hexagram;
-use phistd::hrr;
+use phiton::hrr;
 use phistd::{c64, cosine, Adam, Tensor};
 use phical::{Tie, zeta_weights, Fno, FnoConfig};
 use serde_json::{json, Map, Value};

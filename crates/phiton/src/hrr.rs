@@ -1,4 +1,6 @@
-//! Holographic binding on the circle.
+//! Holographic binding on the circle — light's interference as memory:
+//! a role is a reference beam, a filler is recorded against it, and the
+//! conjugate reads it back (moved here from phistd: holography is light's).
 //!
 //! A role is a unit function; binding a filler to it is pointwise
 //! multiplication (phase addition on every sample), unbinding is
@@ -13,11 +15,11 @@
 //! pairs is a learned one — see the `compose` module of a consumer for the
 //! measurement.
 
-use crate::{c64, Function};
+use phistd::{c64, Function};
 
 /// A deterministic unit-magnitude role from a seed.
 pub fn role(space: usize, seed: u64) -> Function {
-    crate::unit_phase(space, seed)
+    phistd::unit_phase(space, seed)
 }
 
 pub fn bind(f: &[c64], r: &[c64]) -> Function {
@@ -37,15 +39,15 @@ pub fn compose(parts: &[Function]) -> Function {
             *o += v;
         }
     }
-    crate::normalise(&mut out);
+    phistd::normalise(&mut out);
     out
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::cosine;
-    use crate::unit_random;
+    use phistd::cosine;
+    use phistd::unit_random;
 
     #[test]
     fn test_bind_unbind_roundtrip_and_single_level_recovery() {

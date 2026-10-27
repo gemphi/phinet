@@ -14,8 +14,8 @@
 //! twelve of them. Every function here — resampling between resolutions,
 //! snapping to a quantum, the sector a value or a function is in, the loss a
 //! snap costs — takes the range as an argument, and an operator moves
-//! between resolutions with `phical::Fno::at_resolution`. `examples/ranges.rs`
-//! measures every combination.
+//! between resolutions with `phical::Fno::at_resolution`. phical's `ranges`
+//! example measures every combination.
 
 mod functions;
 #[cfg(test)]

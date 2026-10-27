@@ -1,8 +1,8 @@
-/// Spectral bands — discrete wavelength regions of the visible spectrum.
-///
-/// Each band corresponds to a range of wavelengths and has a human-readable
-/// name. The 16 bands map proportionally to the phase circle, replacing
-/// the hard-coded color array.
+//! Spectral bands — discrete wavelength regions of the visible spectrum.
+//!
+//! Each band corresponds to a range of wavelengths and has a human-readable
+//! name. The 16 bands cover [380, 750] nm without gaps, replacing the
+//! hard-coded color array.
 
 use serde::Serialize;
 
@@ -21,7 +21,8 @@ impl SpectralBand {
     /// The 16 spectral bands of the visible spectrum.
     ///
     /// Ordered from shortest wavelength (violet) to longest (red),
-    /// distributed proportionally across [380, 750] nm.
+    /// covering [380, 750] nm without gaps: fourteen of 25.6–25.7 nm, then
+    /// red (738.7–749.0) and crimson (749.0–750.0).
     pub const BANDS: [SpectralBand; 16] = [
         SpectralBand { min_nm: 380.0, max_nm: 405.6, name: "violet" },
         SpectralBand { min_nm: 405.6, max_nm: 431.2, name: "indigo" },
@@ -43,12 +44,7 @@ impl SpectralBand {
 
     /// Finds the spectral band containing a given wavelength.
     pub fn from_wavelength(wavelength_nm: f64) -> Self {
-        let clamped = wavelength_nm.clamp(380.0, 750.0);
-        Self::BANDS
-            .iter()
-            .find(|b| clamped >= b.min_nm && clamped < b.max_nm)
-            .copied()
-            .unwrap_or(Self::BANDS[0])
+        Self::BANDS[Self::index_of(wavelength_nm)]
     }
 
     /// Returns the band at a proportional index [0, 16).
@@ -56,13 +52,13 @@ impl SpectralBand {
         Self::BANDS[index % Self::BANDS.len()]
     }
 
-    /// Returns the band index for a given wavelength.
+    /// Returns the band index for a given wavelength. The bands are
+    /// half-open, `[min, max)`, and run without gaps, so the first band whose
+    /// top lies above the wavelength holds it; the spectrum's own top edge,
+    /// 750 nm, belongs to the last band (crimson), not back to violet.
     pub fn index_of(wavelength_nm: f64) -> usize {
         let clamped = wavelength_nm.clamp(380.0, 750.0);
-        Self::BANDS
-            .iter()
-            .position(|b| clamped >= b.min_nm && clamped < b.max_nm)
-            .unwrap_or(0)
+        Self::BANDS.iter().position(|b| clamped < b.max_nm).unwrap_or(Self::BANDS.len() - 1)
     }
 
     /// Returns the center wavelength (nm) of this band.
