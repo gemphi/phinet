@@ -56,7 +56,7 @@ pub fn laws_epoch(joint: &mut Joint, told: &[Triple], inh: Option<&Inherit>, con
         let w: Vec<usize> = rows.iter().map(|t| t.about).collect();
         let k: Vec<usize> = rows.iter().map(|t| t.kind).collect();
         let target: Vec<usize> = rows.iter().map(|t| t.other).collect();
-        let decoy: Vec<usize> = chunk.iter().enumerate().map(|(j, &i)| Fno::decoy(pool, told[i].other, mix64(seed ^ ((i as u64) << 20) ^ j as u64))).collect();
+        let decoy: Vec<usize> = chunk.iter().enumerate().map(|(j, &i)| phistd::decoy(pool, told[i].other, mix64(seed ^ ((i as u64) << 20) ^ j as u64))).collect();
         let mut read = |ids: &[usize], kinds: &[usize]| {
             let t = &mut joint.fno.tape;
             let (a, b) = (t.gather(table, ids), t.gather(table, kinds));

@@ -141,7 +141,7 @@ impl Joint {
             let dec_idx: Vec<usize> = chunk
                 .iter()
                 .enumerate()
-                .map(|(j, &i)| Fno::decoy(pool, examples[i].target, mix64(seed ^ (i as u64) << 20 ^ j as u64)))
+                .map(|(j, &i)| phistd::decoy(pool, examples[i].target, mix64(seed ^ (i as u64) << 20 ^ j as u64)))
                 .collect();
             let t = self.fno.tape.gather(table, &tgt_idx);
             let d = self.fno.tape.gather(table, &dec_idx);
