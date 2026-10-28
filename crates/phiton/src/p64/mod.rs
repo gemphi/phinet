@@ -18,6 +18,7 @@
 //! ```
 //!
 
+pub mod bpe;
 pub mod config;
 pub mod iching;
 pub mod lexicon;

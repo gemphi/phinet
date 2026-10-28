@@ -7,10 +7,10 @@ phistd is the engine (what torch is), phifno the sphere (what torch-harmonics is
 | module | what |
 |---|---|
 | `operator` (phifno's, re-exported) | `Fno`, `FnoConfig` (`for_space`, `sphere`, `anisotropic`, `circle64`), `Tie` (circle, sphere, anisotropic), `Example`, `rank`, `zeta_weights`, spectral priors, versioned save with optimiser state, `Module`, `Sequential` |
-| `conjugate` | `Mirror`: a relation as an all-pass filter `e^{iθ_k}` on the circle; read forward by `H`, backwards by its conjugate `H̄` (never trained) and `n` steps on by `Hⁿ`; closed-form training (`Moment`, `Told`). RotatE as a Fourier operator (docs/153, paper 27) |
 | `joint` | `Joint`: the table of functions as a parameter on the operator's tape, with a proximal tether |
 | `relate` | one `Joint` for every kind of relation; the laws the kinds obey, closure, inheritance along a kind, the reading and its bar |
 | `liskov` | `better`, `worse`, `loss`, `forcing_choice` |
+| `helix` | `Codon`: one channel's code — its codon, hexagram, the sphere harmonic's degree and order, its place on the helix (it was phiano's `helix`; the facet as a tree is `phiecs::phasor::facet::helix`) |
 | `q64` | the C64/Q64 juncture: a phase quantised to one of 64 symbols and lifted back, error ≤ π/64 |
 | `heat` (phifno's, re-exported) | heat flow on the circle, exact in Fourier modes |
 | the crate root | `wrap`, `CHANNELS`, `TAU`, and the engine's pieces re-exported from phistd (`Tensor`, `Tape`, `Adam`, `Function`, `unit_random`, …) |

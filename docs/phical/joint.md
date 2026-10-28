@@ -47,7 +47,7 @@ sequenceDiagram
     E->>F: reset
     E->>J: context_on_tape(batch)
     J->>F: gather · mul by each example's weights · add · unit
-    E->>F: gather the table at targets, and at decoys from Fno::decoy
+    E->>F: gather the table at targets, and at decoys from phistd::decoy
     E->>F: forward(x), cosine to target, cosine to decoy, hinge(margin)
     E->>F: backward(loss)
     E->>A: adam_op on fno.params, adam_table on the table

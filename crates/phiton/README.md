@@ -24,8 +24,8 @@ reads language in the circle's 64 sectors (`p64`, which was phiano's `phinum`).
 | `chiton` | the wave: `from_quantum` (↺), `roll` (↻), `opposite`, `resonance`, `standing_wave_amplitude` |
 | `conjugate` | the phase-conjugate mirror beside it: `Mirror`, a relation as an all-pass filter `e^{iθ_k}`, read forward by `H`, backwards by `H̄` (the time-reversed wave, never trained) and `n` steps on by `Hⁿ`; closed-form training (`Moment`, `Told`) |
 | `hrr` | holographic binding on the circle: `role`, `bind`, `unbind`, `compose` |
-| `physics` | `Physics`, `PhysicsOp`, `ColorSpaceTimePoint`, `ColorSpaceTimeManifold`, `Topology`; `standing::harmonic_rotation` (Bentov's integer modes) |
-| `p64` | `Level {P16, P32, P64}`, `Engine`, `Config`, `Lexicon`, `SyntaxParser`, `SpeechAct`, `SentenceType`, `SpiderNet`, `words::Tokenizer` |
+| `physics` | `Physics`, `PhysicsOp`, `ColorSpaceTimePoint`, `ColorSpaceTimeManifold`, `Topology`; `standing::harmonic_rotation` (Bentov's integer modes), `oscillator::Oscillator` (a word as an oscillator on the sphere) |
+| `p64` | `Level {P16, P32, P64}`, `Engine`, `Config`, `Lexicon`, `SyntaxParser`, `SpeechAct`, `SentenceType`, `SpiderNet`, `words::Tokenizer`, `bpe` (Phi-4's byte-level tokenizer) |
 
 phiano re-exports it as `phiano::phiton`; phiecs's spectral phasor reads its
 fine-structure phase and colour. It depends on phistd for the numbers, and on bincode for the mirror's saved spectra.

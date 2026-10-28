@@ -11,11 +11,11 @@ graph LR
 
     subgraph seam["phiano::seam (seam.rs)"]
         Words["words(sentence)<br/>lower-cased alphanumeric words"]
-        Model["Model { student, heard }<br/>Model::fresh, Default"]
-        Tell["Model::tell<br/>on the fly, no retraining"]
+        Model["Seam { student, heard }<br/>Seam::fresh, Default"]
+        Tell["Seam::tell<br/>on the fly, no retraining"]
         Heard["heard<br/>(sentences, words)"]
-        Continue["Model::continue_from(prompt, more)<br/>guess, feed back, repeat guard"]
-        Compute["Model::compute(source, limit)<br/>computed, not recalled"]
+        Continue["Seam::continue_from(prompt, more)<br/>guess, feed back, repeat guard"]
+        Compute["Seam::compute(source, limit)<br/>computed, not recalled"]
     end
 
     Out["continuation words<br/>not comprehension"]

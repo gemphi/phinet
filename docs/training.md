@@ -1,6 +1,6 @@
 # Training — how Phient's world model learns
 
-In Phient's world, a word (w) is a seed: what it relates to, under what conditions (c), grows from it. The Phical paradigm, X ⇒ Y, drives and composes Phient's Phasor Language Models: Phinet, Phiano, PhiTon. Phical stores no point: a word is 32–64 relations, each a complex phasor on a closed circle with a count; meaning is a side effect of pairs of words moving under a condition.
+In Phient's world, a word (w) is a seed: what it relates to, under what conditions (c), grows from it. The Phical paradigm, X ⇒ Y, drives and composes Phient's Phasor Language Models: Phinet, Phiano, PhiTon. Phical stores no point: a word is 32–64 relations, each a complex phasor on a closed circle; meaning is a side effect of pairs of words moving under a condition, and they move by the error of what was expected — toward what came, away from what did not.
 
 This document is the approach: what the system is, what "training" means in it, in what order a thing is learned, and by what it is judged. Its companions are `guard.md` (what it must not do, so that it cannot collapse) and `ecs_vs_jepa.md` (how this stands to a joint-embedding predictive architecture). Everything asserted here was measured in a numbered doc of `crates/phiano/docs`, cited in brackets.
 

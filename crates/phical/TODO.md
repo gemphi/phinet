@@ -17,7 +17,7 @@ graph LR
 - nothing open found in the code
 
 ## conjugate/
-- nothing open found in the code
+- [x] The phase-conjugate mirror moved to `phiton::conjugate`, beside `chiton`; its decoy draw is `phistd::decoy`.
 
 ## joint/
 - [x] `context_on_tape` reads each example's own weight (a constant row per example, `Tape::mul`); identical to before for today's position-only schedules, tested with two that differ.
@@ -41,3 +41,7 @@ graph LR
 
 ## examples/
 - [x] `torch.rs` points to `crates/phistd/torch/phinet_torch.py` and runs `-p phical --example torch` from crates/phistd.
+
+## Moved in (2026-10-28)
+
+- [x] helix: phiano's helix code (`Codon`) is `helix` (docs/phiano/distribution).

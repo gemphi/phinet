@@ -11,26 +11,25 @@
 # | use                 | crate          | what it holds                                                        | answers                  |
 # |---------------------|----------------|----------------------------------------------------------------------|--------------------------|
 # | the numbers         | crates/phistd  | complex tensors, tape autograd, unitary FFT, the one seed and hash,  | torch                    |
-# |                     |                | Quantum/Q64, hexagrams, codons, hrr                                  |                          |
+# |                     |                | Quantum/Q64, hexagrams (figure, trigrams, names), codons, wrap       |                          |
 # | the sphere          | crates/phifno  | real spherical harmonics, grids, analysis/synthesis                  | torch-harmonics          |
 # | the operators       | crates/phical  | FNO (circle/sphere/anisotropic), Joint, Mirror, relations and laws,  | neuraloperator, makani   |
 # |                     |                | Liskov's three, Q64 juncture, heat                                   |                          |
 # | the world           | crates/phiecs  | words as entities: World, Phasor, Relation/Register, Row, Graph,     | —                        |
 # |                     |                | Quest (asks an oracle), Persona (the quest's plan)                   |                          |
-# | the eye             | crates/phioml  | active vision: the AOC signal, resonance by rotation, the flow field | phi-oml (CoreML's place) |
-# |                     |                | told as rows                                                         |                          |
 # | the brain           | crates/phient  | the ollama of Phient systems: the arena of models, the study         | context-language-models  |
 # |                     |                | protocol, prose knowing, Tally/levels/cast, code as rows             |                          |
-# | the body            | phiecs::kit    | Apple's frameworks as a world: the face, the joints, the track, the  | apple-source, rust-ios-ar|
-# |                     |                | device, told as rows                                                 |                          |
-# | the light           | crates/phiton  | light as the unit system                                             | —                        |
+# | the body and eye    | phiecs::kit    | Apple's frameworks as a world: the face, the joints, the track, the  | apple-source, rust-ios-ar|
+# |                     |                | device, and the eye (the AOC signal, the flow field), told as rows   | phi-oml (CoreML's place) |
+# | the light           | crates/phiton  | quantum light: α ≈ 1/137, bands, Phiton and Chiton, holography (hrr),| —                        |
+# |                     |                | physics (colour-space-time, standing waves), p64 (16/32/64 engine)   |                          |
 # | the agents and apps | crates/phiano  | sys (Agent, Being, the race, the circus, the set game, the Lisp,     | —                        |
 # |                     |                | the eye's see), 256 personas, students, games, servers, the binaries |                          |
 #
-# phistd ← phifno ← phical ← {phiecs ← phioml, phient, phiclm} ← phiano; phiton ← phiano.
+# phistd ← phifno ← phical ← {phiecs, phient, phiclm} ← phiano; phistd ← phiton ← {phiecs, phiano}.
 [workspace]
 resolver = "2"
-members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phioml", "crates/phient", "crates/phiclm", "crates/phiton", "crates/phiano"]
+members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phient", "crates/phiclm", "crates/phiton", "crates/phiano"]
 
 [profile.release]
 opt-level = 3

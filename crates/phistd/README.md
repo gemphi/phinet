@@ -56,7 +56,7 @@ Gradients of a real loss with respect to a complex value are `g = ∂L/∂Re(z) 
 
 ## Where it came from
 
-Built for [phiano](../phiano), where a word is 64 complex numbers on a circle of relations. `phiano/src/phinet/` is the application layer (a lexicon as a function space, the operator inside a perplexity harness, joint training with write-back, recursive composition with the operator as cleanup); the engine has no notion of words. See `phiano/docs/65_phinet.md` and `66_phinet_in_the_loop.md` for what it measured.
+Built for [phiano](../phiano), where a word is 64 complex numbers on a circle of relations. `phient::net` is the application layer (a lexicon as a function space, joint training with write-back, recursive composition with the operator as cleanup), and `phiano::net` puts the operator inside phiano's perplexity harness; the engine has no notion of words. See `phiano/docs/65_phinet.md` and `66_phinet_in_the_loop.md` for what it measured.
 
 ## Tests
 

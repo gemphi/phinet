@@ -24,6 +24,7 @@
 //! | [`q64`] | the C64/Q64 juncture: quantise a phase to one of 64 symbols and lift it back, error ≤ π/64 (exact) |
 //! | [`heat`] (in phifno) | Laplace–Beltrami heat flow on the circle (exact in Fourier modes) and band-limited on the sphere |
 
+pub mod helix;
 pub mod joint;
 pub mod liskov;
 pub mod q64;

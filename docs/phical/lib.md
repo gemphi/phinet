@@ -6,7 +6,6 @@
 graph LR
     lib["lib.rs"]
     subgraph mods["pub mod"]
-        m1["conjugate"]
         m2["joint"]
         m3["liskov"]
         m4["q64"]
@@ -51,27 +50,26 @@ graph LR
     mix["mix64"]
     cos["cosine"]
     nor["normalise"]
-    ur["unit_random"]
     fun["Function"]
     adam["Adam"]
     ten["tensor::Tensor · Var"]
-    fno["operator::Fno · Fno::decoy"]
+    fno["operator::Fno"]
+    dec["phistd::decoy<br/>a direct path"]
     ch["CHANNELS"]
     wr["wrap · TAU"]
-    conj["conjugate/"]
     joint["joint/"]
     lis["liskov.rs"]
     q64["q64.rs"]
     rel["relate/"]
-    c64 --> conj & joint & lis & q64 & rel
-    mix --> conj & joint & rel
+    c64 --> joint & lis & q64 & rel
+    mix --> joint & rel
     cos --> lis & rel
-    nor --> conj & rel
-    ur --> conj
+    nor --> rel
     fun --> joint & lis & rel
     adam --> joint & rel
     ten --> joint
-    fno --> conj & joint & rel
+    fno --> joint & rel
+    dec --> joint & rel
     ch --> q64
     wr -.->|"tests"| q64
 ```

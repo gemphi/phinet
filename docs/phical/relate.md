@@ -63,7 +63,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    rows["batch: w · k · target<br/>decoy from Fno::decoy"] --> y["y = F(unit(w + k))"]
+    rows["batch: w · k · target<br/>decoy from phistd::decoy"] --> y["y = F(unit(w + k))"]
     y --> inh{"Inherit given"}
     inh -->|"yes"| yp["y = y + lambda · F(unit(p + k))<br/>p: one told parent drawn by seed, or w"]
     inh -->|"no"| sc["sp = cos(y, target)<br/>sn = cos(y, decoy)"]

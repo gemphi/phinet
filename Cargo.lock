@@ -922,7 +922,6 @@ dependencies = [
  "phiecs",
  "phient",
  "phifno",
- "phioml",
  "phistd",
  "phiton",
  "proc-macro2",
@@ -941,10 +940,10 @@ dependencies = [
 name = "phical"
 version = "0.2.0"
 dependencies = [
- "bincode",
  "num-complex",
  "phifno",
  "phistd",
+ "phiton",
  "serde",
  "serde_json",
 ]
@@ -960,8 +959,14 @@ dependencies = [
 name = "phiecs"
 version = "0.1.0"
 dependencies = [
+ "bincode",
+ "phical",
  "phient",
  "phistd",
+ "phiton",
+ "rayon",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -973,8 +978,12 @@ dependencies = [
  "phiclm",
  "phiecs",
  "phistd",
+ "phiton",
  "proc-macro2",
+ "rayon",
+ "reqwest",
  "serde",
+ "serde_json",
  "syn 2.0.119",
 ]
 
@@ -988,30 +997,22 @@ dependencies = [
 ]
 
 [[package]]
-name = "phioml"
-version = "0.1.0"
-dependencies = [
- "phical",
- "phiecs",
- "phistd",
-]
-
-[[package]]
 name = "phistd"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "num-complex",
  "rayon",
  "serde",
- "serde_json",
 ]
 
 [[package]]
 name = "phiton"
 version = "0.1.0"
 dependencies = [
+ "bincode",
+ "phistd",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

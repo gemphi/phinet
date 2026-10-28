@@ -47,3 +47,7 @@ graph LR
 
 ## tests
 - nothing open found in the code
+
+## Moved in (2026-10-28)
+
+- [x] p64: phiano's `bpe` is `p64::bpe`; physics: the oscillator's sphere model is `physics::oscillator`, beside Bentov's `standing` (docs/phiano/distribution).

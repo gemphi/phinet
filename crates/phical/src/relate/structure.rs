@@ -12,7 +12,7 @@ use super::inherit::{context, predictions, Inherit};
 use super::score::{tally, Score};
 use super::Triple;
 use crate::joint::Joint;
-use crate::{cosine, mix64, Adam, Fno, Function};
+use crate::{cosine, mix64, Adam, Function};
 use std::collections::HashMap;
 
 /// Declared converse kinds (both directions) and the weight μ of the

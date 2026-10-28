@@ -11,7 +11,7 @@ graph TD
     modes["modes.rs<br/>mask_modes · scale_modes"]
     modulers["module.rs<br/>trait Module · Sequential"]
     sampler["sampler.rs<br/>FrequencySampler · zeta_weights · rank"]
-    train["train.rs<br/>decoy · train_epoch · train_epoch_with<br/>train_epoch_mixture · train_epoch_softmax"]
+    train["train.rs<br/>train_epoch · train_epoch_with<br/>train_epoch_mixture · train_epoch_softmax"]
     save["save.rs<br/>APPLY_CHUNK = 256 · MAGIC PHINET<br/>Saved · SavedV1 · SavedCompact<br/>to_bytes · to_bytes_with · to_bytes_compact<br/>from_bytes · from_bytes_with"]
     compat["save/compat.rs<br/>FnoConfigNoTie · saved_v2 · saved_compact · saved_v1"]
     symmetry["symmetry.rs<br/>defects(inputs, phi) · 1 test function"]
@@ -89,7 +89,7 @@ flowchart LR
     H["train_epoch · train_epoch_with<br/>cosine to target and to decoy · hinge(margin)"]
     MX["train_epoch_mixture<br/>cosine_table over the table · mixture_nll<br/>MixtureTerms: targets, k, coef, gamma, other, beta"]
     SM["train_epoch_softmax<br/>cosine_table · cross_entropy(targets, beta)"]
-    D1["Fno::decoy · uniform over pool"] -.-> H
+    D1["phistd::decoy · uniform over pool"] -.-> H
     D2["FrequencySampler::draw · weight^alpha · 16 tries"] -.-> H
     H & MX & SM --> ST["backward · Adam step · mask_modes · mean loss"]
 ```

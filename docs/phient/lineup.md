@@ -5,7 +5,7 @@ graph LR
     Stream["one stream of lines<br/>words said so far"]
     Study["study::Arena<br/>read_split: guess, then tell"]
     ReaderT["study::Reader<br/>name, guess, tell, ready"]
-    Phical["phical::conjugate<br/>Mirror, Moment, Told"]
+    Phical["phiton::conjugate<br/>Mirror, Moment, Told"]
     Fno["phical Adam, FnoConfig<br/>operator::RelationModel"]
     Phistd["phistd<br/>seed_angles, mix64"]
     Rayon["rayon<br/>measure in parallel"]

@@ -8,7 +8,9 @@
 //! quanta, particle-like rotation. Its complement is [`chiton::Chiton`],
 //! the "wave" aspect. Together they form a 2-in-1 architecture for
 //! light's wave-particle duality, providing the physical basis for
-//! linguistic word mapping and intelligence.
+//! linguistic word mapping and intelligence. Beside the chiton stands
+//! [`conjugate::Mirror`], the phase-conjugate mirror: a relation as an
+//! all-pass filter that returns a wave time-reversed (it was phical's).
 //!
 //! # Architecture
 //!

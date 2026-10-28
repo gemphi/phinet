@@ -9,6 +9,7 @@ graph TB
     Phient["phient::relate<br/>read_quests, scopes, Casting<br/>code::bcpl::read_coarse"]
     EyeFlow["phiecs::kit::eye::Flow<br/>parallax rows"]
     Phiclm["phiclm::judge"]
+    ClmLisp["phiclm::lisp<br/>Machine, Value, read, 39 core primitives<br/>set: the relation algebra"]
     Users["arena::ecs<br/>examples circus, race, sets, lisp, think, writer"]
 
     subgraph sys["phiano::sys"]
@@ -18,16 +19,9 @@ graph TB
         Eye["eye.rs<br/>see(who, flow, angle)"]
         Circus["circus.rs: Turn<br/>line, talk, render"]
         Race["race.rs: Race, Standing<br/>engage, standings, winner, table"]
-        subgraph setmod["set.rs, set/"]
-            SetRs["Relation = BTreeSet of pairs<br/>held, union, meet, compose, converse<br/>think to Thought"]
-            Algebra["algebra.rs, principia<br/>domain, range, image, closure, ancestral"]
-        end
+        SetRs["set.rs<br/>held, think to Thought, render"]
         Trace["trace.rs: Scope<br/>says, next, trace<br/>scopes_of, write, summary"]
-        subgraph lispmod["lisp.rs, lisp/"]
-            LispRs["lisp.rs: Value, read"]
-            Eval["eval.rs: Machine, Env<br/>quote, if, define, lambda, let"]
-            Prims["prims.rs: NAMES, 47 primitives"]
-        end
+        LispRs["lisp.rs: Sys, the Lisp's host<br/>next, says, scopes, held, ask, tell, told, beings"]
     end
 
     Phiecs --> SysRs
@@ -45,16 +39,14 @@ graph TB
     Circus -->|"heard row told to listener"| Being
     Being -->|"told, words, kinds, kudos"| Race
     Being -->|"world edges under kind"| SetRs
-    SetRs --> Algebra
+    SetRs -->|"union, meet, compose"| ClmLisp
     Phient -->|"scopes(path)"| Trace
     Trace -->|"pairs()"| SetRs
-    LispRs --> Eval
-    Eval --> Prims
-    Prims --> Algebra
-    Prims -->|"held, ask, tell"| Being
-    Prims -->|"next, says"| Trace
-    Phiclm -->|"judged rows"| Prims
+    LispRs -->|"impl Host"| ClmLisp
+    LispRs -->|"held, ask, tell"| Being
+    LispRs -->|"next, says"| Trace
+    Phiclm -->|"judged rows"| ClmLisp
     Race --> Users
     Circus --> Users
-    Eval --> Users
+    LispRs --> Users
 ```

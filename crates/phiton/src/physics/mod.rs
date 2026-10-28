@@ -34,6 +34,7 @@ use phase::*;
 pub mod evaluate;
 pub mod manifold;
 pub mod operators;
+pub mod oscillator;
 pub mod standing;
 pub mod topology;
 

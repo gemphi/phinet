@@ -5,7 +5,7 @@ graph LR
     RowsIn["phiecs::Row table"]
     SeedsIn["Seeding<br/>an application's own angles"]
     PhicalIn["phical::Fno, FnoConfig, Joint"]
-    MirrorIn["phical::conjugate::Mirror"]
+    MirrorIn["phiton::conjugate::Mirror"]
     subgraph operatorMod["operator"]
         reexp["operator.rs: pub use<br/>RelationModel, FnoWave, MirrorWave, Wave"]
         subgraph modelRs["model.rs"]
