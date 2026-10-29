@@ -21,15 +21,19 @@
 # |                     |                | protocol, prose knowing, Tally/levels/cast, code as rows             |                          |
 # | the body and eye    | phiecs::kit    | Apple's frameworks as a world: the face, the joints, the track, the  | apple-source, rust-ios-ar|
 # |                     |                | device, and the eye (the AOC signal, the flow field), told as rows   | phi-oml (CoreML's place) |
+# | the logic           | crates/philog  | reasoning in phase space: pathfinding, analogy, planning, the Chain  | —                        |
+# |                     |                | (it was phient's reasoning; it reads phient's generator)             |                          |
+# | the language        | crates/phisor  | the intermediate language between English and the machine: a speech | —                        |
+# |                     |                | act over a frame, a template with slots, learned by better and worse |                          |
 # | the light           | crates/phiton  | quantum light: α ≈ 1/137, bands, Phiton and Chiton, holography (hrr),| —                        |
 # |                     |                | physics (colour-space-time, standing waves), p64 (16/32/64 engine)   |                          |
 # | the agents and apps | crates/phiano  | sys (Agent, Being, the race, the circus, the set game, the Lisp,     | —                        |
 # |                     |                | the eye's see), 256 personas, students, games, servers, the binaries |                          |
 #
-# phistd ← phifno ← phical ← {phiecs, phient, phiclm} ← phiano; phistd ← phiton ← {phiecs, phiano}.
+# phistd ← phifno ← phical ← {phiecs, phient, phiclm} ← philog ← phiano; phistd ← phiton ← {phiecs, phiano}.
 [workspace]
 resolver = "2"
-members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phient", "crates/phiclm", "crates/phiton", "crates/phiano"]
+members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phient", "crates/phiclm", "crates/phiton", "crates/philog", "crates/phisor", "crates/phiano"]
 
 [profile.release]
 opt-level = 3

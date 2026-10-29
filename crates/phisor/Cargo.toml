@@ -1,0 +1,21 @@
+[package]
+name = "phisor"
+version = "0.1.0"
+edition = "2021"
+description = "phisor — the intermediate language between English and the machine: a code at 16, 32 and 64 levels (structure only), the kinds of intention and their variations found by one exchange routine, and at the top a speech act (Searle's force) over a frame, written as a template with slots; grounded as phiecs rows and run on phiclm's machine."
+license = "MIT"
+
+[lib]
+name = "phisor"
+path = "src/lib.rs"
+
+# Each crate joins when its module lands (docs/phisor/plan.md, "Where it sits").
+[dependencies]
+# guide: the tokens docs/201 and docs/203 cut the guide with (speak::tokens).
+phiecs = { path = "../phiecs" }
+# code: the levels (p64::variants), the hash null (classify_str), the given dictionary.
+phiton = { path = "../phiton" }
+# exchange: the class-pair likelihood and a move's gain (classes).
+phical = { path = "../phical" }
+# The report: F1, purity, mutual information and their nulls (stats).
+phistd = { path = "../phistd" }

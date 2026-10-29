@@ -64,3 +64,16 @@ graph LR
     t2["a_move_that_leads_nowhere_is_refuted"] --> worse2["worse"]
     t3["forcing_prefers_the_move_with_a_future<br/>lambda 0 picks the nearer · lambda 2 the farther"] --> fc2["forcing_choice"]
 ```
+
+## liskov/staged.rs — Huberman's order on a stage and a measure
+
+```mermaid
+flowchart LR
+    pq["p, q: Staged { stage, measure }<br/>measure: less is nearer"] --> c{"q.stage against p.stage"}
+    c -->|"greater"| bt["better(p, q) = true<br/>worse(p, q) = false"]
+    c -->|"less"| wt["worse(p, q) = true<br/>better(p, q) = false"]
+    c -->|"equal"| m["better: q.measure #lt; p.measure<br/>worse: q.measure #gt; p.measure"]
+    note["3.6 as printed · 3.8 read for a learner:<br/>the thesis counts only a fall to stage 0 as worse"]
+    wt -.- note
+    t4["test: a_stage_outranks_any_measure<br/>better(p, q) = worse(q, p)"] -.-> bt & wt & m
+```

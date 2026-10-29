@@ -9,9 +9,9 @@ graph TB
     GenN["generate::Generator<br/>with_goal, ContextWaveBuffer"]
     EvalN["eval::Evaluator<br/>eval, Eval"]
     Gemgum["gemgum::Gemgum<br/>sector_color_name"]
-    Config["config<br/>COMPOSE_CONVERGENCE_DELTA,<br/>SPREAD_ALARM, KILLER_BONUS"]
+    Config["generate::constants<br/>COMPOSE_CONVERGENCE_DELTA,<br/>SPREAD_ALARM, KILLER_BONUS"]
 
-    subgraph compose["phiano::compose"]
+    subgraph compose["phient::generate::compose"]
         ModC["mod.rs<br/>Composition::compose<br/>learn examples, then refine"]
         Palette["mod.rs<br/>SectorPalette::color"]
         Tune["tune.rs<br/>CompositionTuner::refine<br/>propose, evaluate, discard, train, recurse"]

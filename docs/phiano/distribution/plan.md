@@ -27,7 +27,7 @@
 
 **Stays in phiano, the apps:** `server`, `command`, `drivers`, `model`, `seam`; `core` (searle), `persona`, `reasoning`, `instruction`; `generate`, `compose`, `learn`; `arena`, `lab`, `frames`, `wiki` (it downloads and trains: an app job); `sys`; `config` and `tokenizer` (re-exports).
 
-**Phase B, a decision for later:** the generation engine (`generate`, `compose`, `learn`, with `reasoning` and `instruction`) belongs in phient, but it is one cycle with `persona`; it moves once that coupling is cut.
+**Phase B, a decision for later:** the generation engine (`generate`, `compose`, `learn`, with `reasoning` and `instruction`) belongs in phient, but it is one cycle with `persona`; it moves once that coupling is cut. Planned in [../engine/plan.md](../engine/plan.md): `instruction` stays, since it runs searle's `CognitiveCore`.
 
 ## Order
 

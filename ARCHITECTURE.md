@@ -11,6 +11,8 @@ graph TD
     phient["phient — the BRAIN: arena and its lineup (the learner),<br/>study protocol and its one Score, prose knowing, ledgers"]
     phiclm["phiclm — the compiler: CPL→BCPL→B→C→phiclm, the judge"]
     phiton["phiton — quantum light: α ≈ 1/137, P64,<br/>Chiton and the conjugate mirror, Bentov's standing waves, holography"]
+    philog["philog — the logic: reasoning in phase space,<br/>pathfinding, analogy, planning, the Chain"]
+    phisor["phisor — the intermediate language: a code at 16/32/64 levels,<br/>templates with slots, a speech act over a frame"]
     phiano["phiano — the instrument: agents, personas, seam, examples, servers"]
 
     phistd --> phifno --> phical --> phiecs
@@ -19,9 +21,14 @@ graph TD
     phiton --> phient
     phiecs --> phient
     phiecs --> phiclm
+    phient --> philog
+    philog --> phiano
     phient --> phiano
     phiclm --> phiano
     phiton --> phiano
+    phical --> phisor
+    phiecs --> phisor
+    phiton --> phisor
 ```
 
 ## Where learning lives — counted, and corrected (docs/203)
@@ -114,6 +121,6 @@ xychart-beta
 ## Each crate, drawn
 
 - [phistd](crates/phistd/ARCHITECTURE.md) · [phifno](crates/phifno/ARCHITECTURE.md) · [phical](crates/phical/ARCHITECTURE.md) · [phiecs](crates/phiecs/ARCHITECTURE.md)
-- [phient](crates/phient/ARCHITECTURE.md) · [phiclm](crates/phiclm/ARCHITECTURE.md) · [phiton](crates/phiton/ARCHITECTURE.md) · [phiano](crates/phiano/ARCHITECTURE.md)
+- [phient](crates/phient/ARCHITECTURE.md) · [philog](crates/philog/ARCHITECTURE.md) · [phisor](crates/phisor/ARCHITECTURE.md) · [phiclm](crates/phiclm/ARCHITECTURE.md) · [phiton](crates/phiton/ARCHITECTURE.md) · [phiano](crates/phiano/ARCHITECTURE.md)
 
 Notes: [docs/notes.md](docs/notes.md) · What is left to do: [TODO.md](TODO.md)

@@ -15,6 +15,8 @@ Phinet is the workspace that holds the model family. It is a new paradigm, not a
 | [phient](https://github.com/gemphi/phient) | the BRAIN (formerly phiplm): the arena (every model, one table), the study protocol, prose as a tree of knowing — the ollama of Phient systems |
 | [phiclm](https://github.com/gemphi/phiclm) | the Compiler Language Model: BCPL's architecture as one of ours — lexer, parser, O-code, the word machine, the judge |
 | [phiton](crates/phiton) | quantum light: the unit system under α ≈ 1/137, holographic binding (`hrr`), the physics of colour, space and time (`physics`), and P64, the 16/32/64 engine that reads language in the circle's 64 sectors (`p64`) |
+| [philog](crates/philog) | the logic: reasoning in phase space — pathfinding, analogy, planning, the Chain; it reads phient's generator |
+| [phisor](crates/phisor) | the intermediate language between English and the machine: a code at 16, 32 and 64 levels that shows a sentence's structure without its words, templates grown from the text, and the kinds of intention found bottom-up by one routine run at two heights |
 | [phiano](https://github.com/gemphi/phiano) | the instrument: arena readers, the scribe, the workshop, the examples (`person`, `talk`, `teacher`, `workshop`, `arena`, `writer`); the seam — the phasor student coupled with the phiclm judge |
 
 The linked crates are their own repositories, taken here as submodules; clone with them:

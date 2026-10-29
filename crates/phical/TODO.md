@@ -42,6 +42,13 @@ graph LR
 ## examples/
 - [x] `torch.rs` points to `crates/phistd/torch/phinet_torch.py` and runs `-p phical --example torch` from crates/phistd.
 
+## Added for phisor (2026-10-29)
+
+- [x] `classes`: a class bigram table's likelihood, one word's `move_gain` (O(k)) and `apply_move`, and `split_cost` (BIC for one more class), tested against the likelihood recomputed from scratch.
+- [x] `liskov::staged`: `Staged`, `better` (3.6), `worse` (3.8 read for a learner: any lower stage is worse).
+- [x] The exchange loop itself: phisor's `exchange/{table,halve,pay}` copied here as `classes/{table,halve,pay}` with only the paths changed, its three halving tests with it. phisor keeps `Units` and switches its callers.
+- [x] phisor's own copy is in `_temp/phinet-root/phisor-exchange-before-phical/` (INVENTORY row). Its callers read `phical::classes::{halve, Grow, Halving}`, and the kinds run is unchanged: 53 word classes at depth 7.
+
 ## Moved in (2026-10-28)
 
 - [x] helix: phiano's helix code (`Codon`) is `helix` (docs/phiano/distribution).

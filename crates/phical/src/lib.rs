@@ -20,10 +20,13 @@
 //! | [`operator`] (in phifno) | `Fno`, `FnoConfig`, `Tie` (circle, sphere, anisotropic), `Example`, `rank`, `zeta_weights`, `Fno::scale_modes`, `train_epoch_softmax`, versioned save with optimiser state, `Module`, `Sequential` |
 //! | [`joint`] | `Joint`: the table of functions as a parameter on the operator's tape, with a proximal tether |
 //! | [`relate`] | relation operators: one `Joint` for every kind (`Triple`, `example`, `pools`), the laws the kinds obey (`find_laws`), closure training, inheritance along a kind (`Inherit`), the reading and its bar (`score`, `prior`, `two_hop`, `chance`) |
-//! | [`liskov`] | the three operators `better`, `worse`, `loss`, and `forcing_choice` — Liskov's 1968 endgame read for words |
+//! | [`liskov`] | the three operators `better`, `worse`, `loss`, and `forcing_choice` — Liskov's 1968 endgame read for words; `liskov::staged`, her order on a stage and a measure |
+//! | [`classes`] | word classes by exchange: a class bigram table's `likelihood`, one word's `move_gain` and `apply_move`, and `split_cost`, what one more class must pay for; `halve`, the exchange that grows a code until no split pays (Brown et al. 1992) |
 //! | [`q64`] | the C64/Q64 juncture: quantise a phase to one of 64 symbols and lift it back, error ≤ π/64 (exact) |
 //! | [`heat`] (in phifno) | Laplace–Beltrami heat flow on the circle (exact in Fourier modes) and band-limited on the sphere |
 
+pub mod circle;
+pub mod classes;
 pub mod helix;
 pub mod joint;
 pub mod liskov;

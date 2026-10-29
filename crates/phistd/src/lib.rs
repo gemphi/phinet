@@ -48,8 +48,13 @@
 
 pub mod codon;
 pub mod hexagram;
+pub mod optim;
 #[path = "phasor/mod.rs"]
 pub mod phasor;
+pub mod prob;
+pub mod random;
+pub mod real;
+pub mod stats;
 #[path = "tensor/mod.rs"]
 pub mod tensor;
 
@@ -105,7 +110,7 @@ pub const GOLDEN_ANGLE: f64 = 2.399_963_229_728_653;
 /// fraction of the circle.
 pub fn seed_phase(word: &str) -> f64 {
     let h = mix64(fnv1a(word));
-    (h >> 11) as f64 / (1u64 << 53) as f64 * std::f64::consts::TAU
+    random::unit_interval(h) * std::f64::consts::TAU
 }
 
 /// THE seed (docs/159): where a fresh word's `channels` angles start, from its
@@ -118,7 +123,7 @@ pub fn seed_angles(word: &str, channels: usize) -> Vec<f64> {
     (0..channels)
         .map(|k| {
             let hk = mix64(h ^ (k as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15));
-            let frac = (hk >> 11) as f64 / (1u64 << 53) as f64;
+            let frac = random::unit_interval(hk);
             (frac * std::f64::consts::TAU + k as f64 * GOLDEN_ANGLE).rem_euclid(std::f64::consts::TAU)
         })
         .collect()
@@ -152,7 +157,7 @@ pub fn unit_phase(space: usize, seed: u64) -> Function {
     (0..space)
         .map(|k| {
             let hk = mix64(h ^ (k as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15));
-            let frac = (hk >> 11) as f64 / (1u64 << 53) as f64;
+            let frac = random::unit_interval(hk);
             c64::from_polar(1.0, frac * std::f64::consts::TAU)
         })
         .collect()

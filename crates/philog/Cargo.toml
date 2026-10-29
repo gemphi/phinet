@@ -1,0 +1,16 @@
+[package]
+name = "philog"
+version = "0.1.0"
+edition = "2021"
+description = "philog — the logic of Phient systems: reasoning in phase space (pathfinding, analogy, planning, abstraction, interjection), the evaluation of a chain's convergence, and the Chain of steps. It was phient's reasoning."
+license = "MIT"
+
+[lib]
+name = "philog"
+path = "src/lib.rs"
+
+[dependencies]
+phient = { path = "../phient" }
+phiecs = { path = "../phiecs" }
+phiton = { path = "../phiton" }
+serde = { version = "1.0", features = ["derive"] }

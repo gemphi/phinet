@@ -71,7 +71,9 @@ pub fn inherit_epoch(joint: &mut Joint, told: &[Triple], inh: &Inherit, pool: &[
     super::structure::laws_epoch(joint, told, Some(inh), &super::structure::Converse::none(), pool, adam_op, adam_table, seed)
 }
 
-pub(crate) fn context(table: &[Function], about: usize, kind: usize) -> Function {
+/// The input a row is read from: the word's function plus the kind's, at
+/// unit energy.
+pub fn context(table: &[Function], about: usize, kind: usize) -> Function {
     let mut f: Function = table[about].iter().zip(&table[kind]).map(|(x, y)| x + y).collect();
     crate::normalise(&mut f);
     f

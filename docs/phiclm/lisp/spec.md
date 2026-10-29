@@ -2,6 +2,8 @@
 
 A small Lisp over the sets (docs/165): McCarthy's machine on Russell's algebra. An S-expression is a list, a row is `(kind about other)`, a relation is a set of ordered pairs. Nothing infers: the machine computes over what it was told, and only a host's `tell` changes a world.
 
+**Every language operation is a lambda underneath** (the user's ruling, 2026-10-29). Whatever a language above this one does (phisor's operations, a host's verbs), it lowers to a `lambda` applied to its arguments, closed over the frames it needs, so the core and hosts compose it like any other value.
+
 ## Values
 
 | value | written | what it is |

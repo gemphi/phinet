@@ -8,10 +8,10 @@ graph LR
     Evaluator["eval::Evaluator<br/>coherence"]
     Phys["physics::PhicalOp<br/>interference"]
 
-    subgraph reasoning["phiano::reasoning"]
+    subgraph reasoning["philog"]
         subgraph pathfinding["pathfinding.rs"]
             Engine["ReasoningEngine::solve<br/>nearest unvisited phase per step"]
-            Chain["ReasoningChain = cognitive::Chain&lt;ReasoningStep&gt;<br/>steps, converged, final_answer"]
+            Chain["ReasoningChain = chain.rs Chain&lt;ReasoningStep&gt;<br/>steps, converged, final_answer<br/>(phiano core::searle re-exports it)"]
         end
         subgraph paths["paths/ effort.rs, solve.rs"]
             Effort["EffortLevel<br/>max_steps, n_paths"]
@@ -23,11 +23,11 @@ graph LR
             ProgAn["ProgramAnalogy::compare<br/>extract_structure, PhaseRelation"]
         end
         Hybrid["hybrid.rs<br/>HybridReasoner::solve_hybrid"]
-        Diag["diagnostics.rs<br/>Diagnostic::diagnose, confidence"]
+        Diag["eval.rs<br/>Diagnostic::diagnose, confidence"]
         Compare["comparison.rs<br/>ReasoningComparison::compare, StepTemplate"]
         Planner["planning.rs<br/>Planner::plan"]
         Abstr["abstraction.rs<br/>AbstractionExtractor::extract"]
-        Counter["counterfactual.rs<br/>Counterfactual::swap, what_if"]
+        Counter["interject.rs<br/>Counterfactual::swap, what_if"]
         Sorting["sorting.rs<br/>SortingTest::by_phase"]
     end
 

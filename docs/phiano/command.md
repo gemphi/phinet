@@ -24,7 +24,7 @@ graph LR
             Instruct["instruction.rs: InstructionCmd"]
             Chat["chat.rs: ChatCmd<br/>!correct journalled"]
             Reason["reasoning.rs: ReasoningCmd"]
-            Persona["persona/: PersonaCmd<br/>chat.rs: PersonaChatLoop"]
+            Persona["persona/: PersonaCmd<br/>personate.rs: PersonaChatLoop"]
         end
         subgraph inspect["inspecting handlers"]
             Eval["eval.rs: Eval"]

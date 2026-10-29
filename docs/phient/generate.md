@@ -2,18 +2,18 @@
 
 ```mermaid
 graph TB
-    Callers["server::intent, instruction, compose::flow,<br/>persona, reasoning, cognitive"]
+    Callers["generate::compose::flow, reasoning;<br/>phiano server, instruction, persona, core"]
     FacetN["facet::Facet<br/>trigram_candidates, calls_for,<br/>phase_dispersion"]
     FlowN["flow::PhaseFlow<br/>build, propagate, trajectory"]
     LearnN["learn::GenWeight<br/>CandidateFeature, load_default"]
     Fno["phical::Fno<br/>.fno operator file"]
-    Space["phinet::space<br/>FunctionSpace, WordFunction, Sides"]
-    PersonaN["persona::Fingerprint"]
+    Space["net::space<br/>FunctionSpace, WordFunction, Sides"]
+    PersonaN["a persona's sector histogram<br/>net::space::relational_sector"]
     Attention["attention::Attention"]
     WaveN["wave::Wave, phasor::TorusPhasor"]
-    Tok["tokenizer::Tokenizer"]
+    Tok["phiton::p64::words::Tokenizer"]
 
-    subgraph generate["phiano::generate"]
+    subgraph generate["phient::generate"]
         Ctx["context.rs<br/>ContextWaveBuffer<br/>push_token, push_turn, context_phase"]
         Gen["generator.rs<br/>Generator, Decode<br/>new, with_goal, with_operator, with_weights"]
         Persona["persona.rs<br/>PersonaPrior: bonus, ngram_bonus"]

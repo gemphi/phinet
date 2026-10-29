@@ -23,7 +23,7 @@ pub mod structure;
 mod tests;
 
 pub use closure::{closure_epoch, closure_pairs};
-pub use inherit::{inherit_epoch, score_inherit, Inherit};
+pub use inherit::{context, inherit_epoch, score_inherit, Inherit};
 pub use laws::{find_inverses, find_laws, implied, Inverse, Law};
 pub use score::{chance, prior, score, two_hop, Score};
 pub use structure::{laws_epoch, score_laws, Converse};

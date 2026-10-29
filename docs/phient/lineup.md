@@ -30,7 +30,8 @@ graph LR
 
     Board["leaderboard<br/>one table, one run"]
     Ecs["phiano::arena::Ecs<br/>backs off onto Concept"]
-    Scribe["phiano::scribe::memory<br/>two Counts"]
+    Scribe["scribe::memory<br/>two Counts"]
+    Talk["phiano examples talk, workshop<br/>speak, guess: generation by the learner"]
 
     Stream --> Study
     ReaderT -.->|"implemented by"| Count
@@ -55,6 +56,7 @@ graph LR
     Rayon --> Read
     Read -->|"rank, prob"| ScoreT
     Read --> LReader
+    Read -->|"speak, ranked"| Talk
     Count --> Board
     Concept --> Board
     Mirror --> Board

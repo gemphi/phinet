@@ -13,6 +13,13 @@ graph TD
         codon["codon.rs<br/>BASES · codon · codon_index · hexagram_glyph<br/>helix_position · PITCH_PER_TURN · RISE"]
     end
     phasor["phasor/<br/>mod · functions · tests<br/>Resolution · Quantum · Range"]
+    subgraph numerics["the numerics (from phient, 2026-10-28)"]
+        random["random.rs<br/>unit_interval · lcg · xorshift64(*) · draw_by_weight"]
+        stats["stats.rs<br/>mean · population_sd · precision · recall · f1 · log_share<br/>purity · mutual_information · z_score"]
+        prob["prob.rs<br/>perplexity · softmax_z/p · log_softmax_at<br/>softmax_minus_onehot · sample_softmax"]
+        real["real.rs<br/>normalise_f32 · dot_f32 · norm · re_dot_interleaved"]
+        optim["optim.rs<br/>adam_step on slices"]
+    end
     subgraph extern_["external crates"]
         numc["num-complex<br/>Complex64"]
         rayon["rayon"]
@@ -29,6 +36,8 @@ graph TD
 
     lib -->|"pub use Tape · Tensor · Var · Adam · AdamState · Schedule<br/>MixtureTerms · fft_inplace · fft2_inplace · Tensor::randn"| tensor
     lib -->|"pub use Quantum · Range · Resolution"| phasor
+    lib -->|"seed_phase · seed_angles · unit_phase read unit_interval"| random
+    real -->|"c64"| lib
     tensor -->|"crate::c64"| lib
     hexagram -->|"fft_inplace"| tensor
     hexagram -->|"cosine · c64 · Function"| lib
@@ -51,6 +60,7 @@ graph LR
     A --> P["phasor.md<br/>phasor/"]
     A --> H["hexagram.md<br/>hexagram/"]
     A --> C["codon.md<br/>codon.rs"]
+    A --> N["numerics.md<br/>random · stats · prob · real · optim"]
 ```
 
 | diagram | file |
@@ -60,7 +70,8 @@ graph LR
 | the phasor ranges | [docs/phistd/phasor.md](../../docs/phistd/phasor.md) |
 | the sixty-four gates | [docs/phistd/hexagram.md](../../docs/phistd/hexagram.md) |
 | the sixty-four as three bases | [docs/phistd/codon.md](../../docs/phistd/codon.md) |
+| the numerics phient used to write inline | [docs/phistd/numerics.md](../../docs/phistd/numerics.md) |
 
 ## Status
 
-2026-10-27 · 26 test functions · what is left: [TODO.md](TODO.md)
+2026-10-29 · 36 lib tests (the numerics add 9; the table readings 1) · what is left: [TODO.md](TODO.md)

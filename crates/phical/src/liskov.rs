@@ -19,6 +19,8 @@
 //! Nothing here is a number a position *has*; everything is a comparison a
 //! pair of functions makes under a prediction. That is the paradigm.
 
+pub mod staged;
+
 use crate::{c64, cosine, Function};
 
 /// How much `a` is better than `b` under the prediction `pred`: the

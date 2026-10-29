@@ -922,6 +922,7 @@ dependencies = [
  "phiecs",
  "phient",
  "phifno",
+ "philog",
  "phistd",
  "phiton",
  "proc-macro2",
@@ -994,6 +995,26 @@ dependencies = [
  "bincode",
  "phistd",
  "serde",
+]
+
+[[package]]
+name = "philog"
+version = "0.1.0"
+dependencies = [
+ "phiecs",
+ "phient",
+ "phiton",
+ "serde",
+]
+
+[[package]]
+name = "phisor"
+version = "0.1.0"
+dependencies = [
+ "phical",
+ "phiecs",
+ "phistd",
+ "phiton",
 ]
 
 [[package]]

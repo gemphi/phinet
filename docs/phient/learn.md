@@ -8,10 +8,10 @@ graph LR
     WaveN["wave::Wave::sentence<br/>target phase"]
     Guide["generate::OperatorGuide<br/>optional operator cosine"]
     Examples["examples/generate, decode,<br/>liskov, austen"]
-    Json["data/learned.json<br/>config::LEARNED_FILE"]
+    Json["data/learned.json<br/>constants::LEARNED_FILE"]
     GenN["generate::Generator<br/>weights, score_candidates"]
 
-    subgraph learn["phiano::learn"]
+    subgraph learn["phient::generate::learn"]
         Positions["positions.rs<br/>corpus_positions<br/>top CANDIDATES = 64, WINDOW = 6"]
         Features["features.rs<br/>CandidateFeature::build<br/>N_FEATURES = 8, FEATURE_NAMES"]
         Position["positions.rs<br/>Position: feats, truth"]
