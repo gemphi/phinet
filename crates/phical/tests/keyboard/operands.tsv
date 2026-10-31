@@ -1,0 +1,86 @@
+# The frozen operand set (R7.6): the whole input to the agreement check,
+# generated once by a seeded run and then frozen. The loader, the format and
+# the generator that wrote it are in phical::keyboard::frozen; a re-recording
+# writes the previous fingerprint, the new one and the stated reason.
+#
+# One operand per line: its type, why it is in the set, and its canonical
+# little-endian encoding in lower-case hex. Each type's declared minimum, its
+# declared maximum and its zero are among its operands. `phistd::mix64`
+# folded over these bytes is pinned in
+# phinet/tests/structural/allowlist.golden, so a modification fails the run.
+#
+# seed 0x000000005eed0312, at least 8 distinct operands of each of the nine types
+#
+# type	role	bytes
+phasor	minimum	ffffffffffffefffffffffffffffefff
+phasor	maximum	ffffffffffffef7fffffffffffffef7f
+phasor	zero	00000000000000000000000000000000
+phasor	negative_zero	00000000000000800000000000000080
+phasor	subnormal	0100000000000000ffffffffffff0f80
+phasor	infinity	000000000000f07f000000000000f0ff
+phasor	nan	000000000000f87f341200000000f8ff
+phasor	drawn	ffffffffffffef7f000000000000f0ff
+class	minimum+zero	0000
+class	maximum	ffff
+class	drawn	35bc
+class	drawn	71a4
+class	drawn	d89e
+class	drawn	7629
+class	drawn	37c5
+class	drawn	b7ef
+level	minimum	04
+level	maximum	06
+level	zero	00
+level	drawn	41
+level	drawn	05
+level	drawn	d7
+level	drawn	d8
+level	drawn	2d
+variation	minimum	0000000000000400
+variation	maximum	ffffffffffff0600
+variation	zero	0000000000000000
+variation	drawn	e5b19204ec7a0000
+variation	drawn	47bd0a9d82270500
+variation	drawn	b4370bb7392d0400
+variation	drawn	d0d5e8d634680400
+variation	drawn	1018b7debf220000
+kind	minimum+zero	0000
+kind	maximum	ffff
+kind	drawn	2264
+kind	drawn	5132
+kind	drawn	672c
+kind	drawn	12c9
+kind	drawn	7948
+kind	drawn	3dce
+act	minimum+zero	00000000
+act	maximum	ffffffff
+act	drawn	86d49645
+act	drawn	4519c200
+act	drawn	df611306
+act	drawn	b06846e9
+act	drawn	ec09e556
+act	drawn	14019a3d
+frame	minimum+zero	00000000
+frame	maximum	ffffffff
+frame	drawn	7fbdb9d9
+frame	drawn	af8bdbc6
+frame	drawn	8ccdaf86
+frame	drawn	898094bf
+frame	drawn	67f35050
+frame	drawn	d714189d
+row	minimum+zero	00000000
+row	maximum	ffffffff
+row	drawn	9d963342
+row	drawn	423004d9
+row	drawn	0a427579
+row	drawn	62a131db
+row	drawn	4d2918a2
+row	drawn	499994a5
+word	minimum+zero	00000000
+word	maximum	ffffffff
+word	drawn	c88be7bb
+word	drawn	27afec62
+word	drawn	14424078
+word	drawn	bead8254
+word	drawn	ce7e0506
+word	drawn	481da9ce

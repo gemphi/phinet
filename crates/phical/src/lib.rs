@@ -23,12 +23,14 @@
 //! | [`liskov`] | the three operators `better`, `worse`, `loss`, and `forcing_choice` — Liskov's 1968 endgame read for words; `liskov::staged`, her order on a stage and a measure |
 //! | [`classes`] | word classes by exchange: a class bigram table's `likelihood`, one word's `move_gain` and `apply_move`, and `split_cost`, what one more class must pay for; `halve`, the exchange that grows a code until no split pays (Brown et al. 1992) |
 //! | [`q64`] | the C64/Q64 juncture: quantise a phase to one of 64 symbols and lift it back, error ≤ π/64 (exact) |
+//! | [`keyboard`] | the closed designed instruction set: the nine-type table with its fixed widths and little-endian layouts, one equality rule, and (as it is built) the 64 named Operators over phical's existing pieces |
 //! | [`heat`] (in phifno) | Laplace–Beltrami heat flow on the circle (exact in Fourier modes) and band-limited on the sphere |
 
 pub mod circle;
 pub mod classes;
 pub mod helix;
 pub mod joint;
+pub mod keyboard;
 pub mod liskov;
 pub mod q64;
 pub mod relate;

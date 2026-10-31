@@ -10,24 +10,54 @@ use super::{apply_move, likelihood, split_cost, WordCounts};
 use std::collections::{HashMap, HashSet};
 
 /// Move every unit in `movers` from class `from` to class `to`.
-fn carry(pairs: &Pairs, table: &mut Table, ids: &mut [usize], movers: &[usize], from: usize, to: usize) {
+fn carry(
+    pairs: &Pairs,
+    table: &mut Table,
+    ids: &mut [usize],
+    movers: &[usize],
+    from: usize,
+    to: usize,
+) {
     let k = table.k;
     for &w in movers {
         let a = table.against(pairs, ids, w);
-        let counts = WordCounts { out: &a.out, inn: &a.inn, own: a.own };
-        apply_move(&mut table.pairs, &mut table.left, &mut table.right, k, &counts, from, to);
+        let counts = WordCounts {
+            out: &a.out,
+            inn: &a.inn,
+            own: a.own,
+        };
+        apply_move(
+            &mut table.pairs,
+            &mut table.left,
+            &mut table.right,
+            k,
+            &counts,
+            from,
+            to,
+        );
         ids[w] = to;
     }
 }
 
 /// Keep each split of this depth that pays; merge and stop the rest.
 /// Returns how many splits were kept.
-pub fn settle(pairs: &Pairs, codes: &mut [u16], ids: &mut [usize], map: &HashMap<u16, usize>, table: &mut Table, stopped: &mut HashSet<u16>) -> usize {
+pub fn settle(
+    pairs: &Pairs,
+    codes: &mut [u16],
+    ids: &mut [usize],
+    map: &HashMap<u16, usize>,
+    table: &mut Table,
+    stopped: &mut HashSet<u16>,
+) -> usize {
     let mut members: HashMap<u16, Vec<usize>> = HashMap::new();
     for (w, &c) in codes.iter().enumerate() {
         members.entry(c).or_default().push(w);
     }
-    let mut parents: Vec<u16> = map.keys().filter(|&&c| c & 1 == 0 && map.contains_key(&(c | 1)) && !stopped.contains(&c)).copied().collect();
+    let mut parents: Vec<u16> = map
+        .keys()
+        .filter(|&&c| c & 1 == 0 && map.contains_key(&(c | 1)) && !stopped.contains(&c))
+        .copied()
+        .collect();
     parents.sort_unstable();
     // A class with one non-empty half did not split: it stops.
     for &c in map.keys().filter(|&&c| !map.contains_key(&(c ^ 1))) {

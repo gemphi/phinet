@@ -32,7 +32,12 @@ impl Pairs {
                 total += 1.0;
             }
         }
-        Pairs { out, inn, told, total }
+        Pairs {
+            out,
+            inn,
+            told,
+            total,
+        }
     }
 }
 
@@ -55,7 +60,12 @@ pub struct Against {
 impl Table {
     /// The table of `pairs` with each unit in class `ids[unit]`.
     pub fn build(pairs: &Pairs, ids: &[usize], k: usize) -> Self {
-        let mut t = Table { k, pairs: vec![0.0; k * k], left: vec![0.0; k], right: vec![0.0; k] };
+        let mut t = Table {
+            k,
+            pairs: vec![0.0; k * k],
+            left: vec![0.0; k],
+            right: vec![0.0; k],
+        };
         for (w, next) in pairs.out.iter().enumerate() {
             for (&v, &n) in next {
                 let (a, b) = (ids[w], ids[v]);
@@ -69,7 +79,11 @@ impl Table {
 
     /// Unit `w`'s counts against the classes as they stand.
     pub fn against(&self, pairs: &Pairs, ids: &[usize], w: usize) -> Against {
-        let mut a = Against { out: vec![0.0; self.k], inn: vec![0.0; self.k], own: 0.0 };
+        let mut a = Against {
+            out: vec![0.0; self.k],
+            inn: vec![0.0; self.k],
+            own: 0.0,
+        };
         for (&v, &n) in &pairs.out[w] {
             match v == w {
                 true => a.own += n,

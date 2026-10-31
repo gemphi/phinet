@@ -23,13 +23,14 @@
 //! | `classes/halve` | `halve`, `Halving`, `Grow`: the depths, the passes, Babbage's stop |
 //! | `classes/pay` | a split kept only if its gain exceeds `split_cost` |
 
+mod compare;
 mod halve;
 #[cfg(test)]
 mod halving_tests;
 mod pay;
 mod table;
 
-pub use halve::{halve, Grow, Halving, MAX_DEPTH, MAX_PASSES, STOP};
+pub use halve::{halve, halve_with, Grow, Halving, Settings, MAX_DEPTH, MAX_PASSES, STOP};
 
 /// `x ln x`, 0 at 0 (and for the negative zero a subtraction can leave).
 fn nln(x: f64) -> f64 {

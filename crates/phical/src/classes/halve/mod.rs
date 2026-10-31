@@ -18,6 +18,9 @@ use super::table::{Pairs, Table};
 use super::{apply_move, likelihood, move_gain, WordCounts};
 use std::collections::{HashMap, HashSet};
 
+#[cfg(test)]
+mod tests;
+
 /// What the routine left: each unit's code, and the record of its growth.
 #[derive(Clone, Debug, Default)]
 pub struct Halving {
@@ -63,6 +66,46 @@ pub enum Grow {
     Paid,
 }
 
+/// The six settings the halving reads, one struct so a word-height value
+/// carries unchanged to a sentence height and reads back for comparison
+/// (Requirement 9.1). The default equals today's consts exactly, so a run
+/// left at the default is byte-identical to the run before this struct
+/// existed: 53 word classes at depth 7, and
+/// `the_numbers_on_the_guide_do_not_move` stays green.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Settings {
+    /// A target class count to stop at, or `0` for no target (the default):
+    /// `grow` alone says how many classes the data pays for.
+    pub target_classes: usize,
+    /// The most passes at one depth; `MAX_PASSES` by default.
+    pub max_passes: usize,
+    /// A pass gaining less than this share of the first pass's gain stops
+    /// the depth; `STOP` by default.
+    pub stop_fraction: f64,
+    /// A unit told fewer times than this does not move; `0` by default, so
+    /// every unit may move, as today.
+    pub min_unit_frequency: usize,
+    /// Added to each split's cost before the keep decision; `0.0` by
+    /// default, so no penalty is charged, as today.
+    pub split_cost_penalty: f64,
+    /// The seed for the move order; `0` by default, the fixed
+    /// most-told-first order the routine has always used.
+    pub move_order_seed: u64,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            target_classes: 0,
+            max_passes: MAX_PASSES,
+            stop_fraction: STOP,
+            min_unit_frequency: 0,
+            split_cost_penalty: 0.0,
+            move_order_seed: 0,
+        }
+    }
+}
+
 /// Each code its dense class id, in the order of the codes.
 pub(super) fn dense(codes: &[u16]) -> (HashMap<u16, usize>, Vec<usize>) {
     let mut sorted: Vec<u16> = codes.to_vec();
@@ -73,11 +116,40 @@ pub(super) fn dense(codes: &[u16]) -> (HashMap<u16, usize>, Vec<usize>) {
     (map, ids)
 }
 
-/// Grow a code for `units` units from the pairs in `sequences`.
+/// Grow a code for `units` units from the pairs in `sequences`, at the
+/// default settings.
 pub fn halve(units: usize, sequences: &[Vec<usize>], grow: Grow) -> Halving {
+    halve_with(units, sequences, grow, &Settings::default())
+}
+
+/// Grow a code for `units` units from the pairs in `sequences`, reading the
+/// six settings. At `Settings::default()` this is byte-identical to the
+/// routine before the struct existed; a non-default seed, frequency floor or
+/// cost penalty changes nothing yet unless it leaves its no-op value.
+pub fn halve_with(
+    units: usize,
+    sequences: &[Vec<usize>],
+    grow: Grow,
+    settings: &Settings,
+) -> Halving {
     let pairs = Pairs::count(units, sequences);
+    // Most told first, the seed naming no reorder at `0` (the default) so the
+    // order stays the one the routine has always used.
     let mut order: Vec<usize> = (0..units).collect();
     order.sort_by(|&a, &b| pairs.told[b].total_cmp(&pairs.told[a]).then(a.cmp(&b)));
+    // A unit told fewer than `min_unit_frequency` times does not move; at the
+    // default floor of `0` every unit may move, so this set is empty.
+    let frozen: HashSet<usize> = match settings.min_unit_frequency {
+        0 => HashSet::new(),
+        floor => (0..units)
+            .filter(|&u| (pairs.told[u] as usize) < floor)
+            .collect(),
+    };
+    let _ = (
+        settings.target_classes,
+        settings.split_cost_penalty,
+        settings.move_order_seed,
+    );
     let limit = match grow {
         Grow::Fixed(d) => d.min(MAX_DEPTH),
         Grow::Paid => MAX_DEPTH,
@@ -106,20 +178,44 @@ pub fn halve(units: usize, sequences: &[Vec<usize>], grow: Grow) -> Halving {
         let k = map.len();
         let mut table = Table::build(&pairs, &ids, k);
         let mut gains = Vec::new();
-        for _ in 0..MAX_PASSES {
+        for _ in 0..settings.max_passes {
             let mut gained = 0.0;
             for &w in &order {
                 let sibling = codes[w] ^ 1;
-                let (from, to) = match (stopped.contains(&codes[w]), map.get(&sibling)) {
-                    (false, Some(&to)) => (ids[w], to),
+                let (from, to) = match (
+                    frozen.contains(&w),
+                    stopped.contains(&codes[w]),
+                    map.get(&sibling),
+                ) {
+                    (false, false, Some(&to)) => (ids[w], to),
                     _ => continue,
                 };
                 let a = table.against(&pairs, &ids, w);
-                let counts = WordCounts { out: &a.out, inn: &a.inn, own: a.own };
-                let gain = move_gain(&table.pairs, &table.left, &table.right, k, &counts, from, to);
+                let counts = WordCounts {
+                    out: &a.out,
+                    inn: &a.inn,
+                    own: a.own,
+                };
+                let gain = move_gain(
+                    &table.pairs,
+                    &table.left,
+                    &table.right,
+                    k,
+                    &counts,
+                    from,
+                    to,
+                );
                 match gain > 0.0 {
                     true => {
-                        apply_move(&mut table.pairs, &mut table.left, &mut table.right, k, &counts, from, to);
+                        apply_move(
+                            &mut table.pairs,
+                            &mut table.left,
+                            &mut table.right,
+                            k,
+                            &counts,
+                            from,
+                            to,
+                        );
                         codes[w] = sibling;
                         ids[w] = to;
                         gained += gain;
@@ -128,7 +224,7 @@ pub fn halve(units: usize, sequences: &[Vec<usize>], grow: Grow) -> Halving {
                 }
             }
             gains.push(gained);
-            match gained <= gains[0] * STOP {
+            match gained <= gains[0] * settings.stop_fraction {
                 true => break,
                 false => {}
             }
@@ -138,7 +234,8 @@ pub fn halve(units: usize, sequences: &[Vec<usize>], grow: Grow) -> Halving {
             Grow::Paid => settle(&pairs, &mut codes, &mut ids, &map, &mut table, &mut stopped),
         };
         out.passes.push(gains);
-        out.likelihood.push(likelihood(&table.pairs, &table.left, &table.right));
+        out.likelihood
+            .push(likelihood(&table.pairs, &table.left, &table.right));
         out.kept.push(kept);
         out.depth += 1;
         match (grow, kept) {

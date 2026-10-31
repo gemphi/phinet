@@ -5,10 +5,14 @@ use super::halve::{halve, Grow};
 fn alternating(n: usize) -> Vec<Vec<usize>> {
     let mut state = 7u64;
     let mut draw = |m: u64| {
-        state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        state = state
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         ((state >> 33) % m) as usize
     };
-    (0..n).map(|_| (0..8).map(|i| draw(3) + 3 * (i % 2)).collect()).collect()
+    (0..n)
+        .map(|_| (0..8).map(|i| draw(3) + 3 * (i % 2)).collect())
+        .collect()
 }
 
 #[test]
@@ -28,11 +32,20 @@ fn every_kept_move_gains_and_the_code_is_nested() {
     assert_eq!((deep.passes.len(), deep.depth), (3, 3));
     // The likelihood never falls from one depth to the next: a split can
     // only tell more apart.
-    assert!(deep.likelihood.windows(2).all(|w| w[1] >= w[0] - 1e-9), "{:?}", deep.likelihood);
+    assert!(
+        deep.likelihood.windows(2).all(|w| w[1] >= w[0] - 1e-9),
+        "{:?}",
+        deep.likelihood
+    );
     assert!(deep.codes.iter().all(|&c| c < 8));
     // Cut to one bit, the deep code is the one-bit code's split.
     let cut: Vec<u16> = (0..6).map(|u| deep.cut(u, 1)).collect();
-    assert!(cut[..3].iter().all(|&c| c == cut[0]) && cut[3..].iter().all(|&c| c == cut[3]) && cut[0] != cut[3], "{cut:?}");
+    assert!(
+        cut[..3].iter().all(|&c| c == cut[0])
+            && cut[3..].iter().all(|&c| c == cut[3])
+            && cut[0] != cut[3],
+        "{cut:?}"
+    );
 }
 
 #[test]
