@@ -19,3 +19,5 @@ phiton = { path = "../phiton" }
 phical = { path = "../phical" }
 # The report: F1, purity, mutual information and their nulls (stats).
 phistd = { path = "../phistd" }
+# machine: the Lisp (lisp::{Machine, Host, Value}) and the judge (judge::{judge, Verdict}).
+phiclm = { path = "../phiclm" }

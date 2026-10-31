@@ -9,7 +9,8 @@
 //! | `filler` | `Filler`, `Thing`, `Det`, `Attr`, `Wh`: what fills a slot |
 //! | `frame` | `Frame`: a predicate, its slots, its features |
 //! | `template` | `Template`: the act with its fillers blinded, and the construction |
-//! | `show` | the written form, `ASSERT(wear(agent: girl, …), past, progressive)` |
+//! | `show` | the presentation form, `ASSERT(wear(agent: girl, …), past, progressive)` |
+//! | `text` | the reversible printer, parser and 100% round-trip measure |
 
 mod features;
 pub mod filler;
@@ -20,6 +21,7 @@ pub mod show;
 mod template;
 #[cfg(test)]
 mod tests;
+pub mod text;
 
 pub use features::{Aspect, Modal, Polarity, Tense, Voice};
 pub use filler::{Attr, Det, Filler, Thing, Wh};

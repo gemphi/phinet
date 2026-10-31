@@ -40,14 +40,25 @@
 //! | [`guide`] | the English guide: its units' sentences, each with its function and mark, the Key's answers, docs/203's split |
 //! | [`code`] | a word as its class at 16, 32, 64: the hash (the null), the given dictionary, the learned code |
 //! | [`kind`] | a sentence's variation (fixed shapes or grown templates), the kinds found by the river, the labels read against them, family resemblance |
+//! | [`gold`] | the 150 frozen gold frames: the act height's yardstick, fingerprinted before the learner ran on it |
+//! | [`ladder`] | the Ladder's six heights, run in all three arms: a text written in a mode, structure only and no words |
 //! | [`units`] | names as unit ids: what phisor hands the one routine, `phical::classes::halve` |
+//! | [`machine`] | phisor on phiclm's machine: the Lisp host, the lowering, the agreement with the Rust reader |
+//! | [`measure`] | the settings comparison, learning judgement and difference-engine stopping rule |
+//! | [`ground`] | an Act as rows: the event as an entity, one row per predicate, role and feature, and the canonical forms the arena interns |
 //!
 //! The plan, the order and the measures: `phinet/docs/phisor/plan.md`.
 
 pub mod code;
+pub mod gold;
+pub mod ground;
 pub mod guide;
 pub mod ir;
 pub mod kind;
+pub mod ladder;
+pub mod machine;
+pub mod measure;
+pub mod truth;
 pub mod units;
 
 pub use ir::{Act, Filler, Force, Frame, Role, Template};

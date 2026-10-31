@@ -19,7 +19,7 @@ mod report;
 use phisor::code::{Code, Coder, LEVELS};
 use phical::classes::Grow;
 use phisor::guide::{self, Part, Split};
-use phisor::kind::{Kinds, Twin};
+use phisor::kind::{Kinds, Reading, Twin};
 use phiton::p64::variants::Level;
 
 fn main() {
@@ -57,11 +57,14 @@ fn main() {
         };
         for &level in levels {
             for twin in Twin::ALL {
-                let kinds = Kinds::learn(&split, coder, level, twin, Grow::Paid);
-                println!("{}", report::row(coder.name(), &kinds, &split, shuffles));
-                match (level, twin) {
-                    (Level::P16, Twin::Grown) => kept.push((coder.name(), kinds)),
-                    _ => {}
+                for reading in Reading::ALL {
+                    let kinds = Kinds::learn(&split, coder, level, twin, reading, Grow::Paid);
+                    let arm = format!("{} · {}", coder.name(), reading.name());
+                    println!("{}", report::row(&arm, &kinds, &split, shuffles));
+                    match (level, twin, reading) {
+                        (Level::P16, Twin::Grown, Reading::River) => kept.push((coder.name(), kinds)),
+                        _ => {}
+                    }
                 }
             }
         }
@@ -72,7 +75,9 @@ fn main() {
     report::header();
     for coder in &coders {
         for twin in [Twin::Open, Twin::Grown] {
-            let kinds = Kinds::learn(&split, coder, Level::P16, twin, Grow::Fixed(6));
+            // Fixed kinds against kinds that pay: a like-for-like comparison, so hold
+            // the reading constant at River, the reading the first slice was read by.
+            let kinds = Kinds::learn(&split, coder, Level::P16, twin, Reading::River, Grow::Fixed(6));
             println!("{}", report::row(coder.name(), &kinds, &split, shuffles));
         }
     }

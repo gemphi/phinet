@@ -23,7 +23,15 @@ pub struct Frame {
 impl Frame {
     /// A frame with no slots: simple aspect, active, positive, no modal.
     pub fn new(pred: &str, tense: Tense) -> Self {
-        Frame { pred: pred.to_string(), slots: Vec::new(), tense, aspect: Aspect::Simple, modal: None, voice: Voice::Active, polarity: Polarity::Positive }
+        Frame {
+            pred: pred.to_string(),
+            slots: Vec::new(),
+            tense,
+            aspect: Aspect::Simple,
+            modal: None,
+            voice: Voice::Active,
+            polarity: Polarity::Positive,
+        }
     }
 
     pub fn with(mut self, role: Role, filler: Filler) -> Self {

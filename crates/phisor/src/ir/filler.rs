@@ -79,7 +79,12 @@ pub enum Filler {
 impl Thing {
     /// A bare singular noun with no determiner.
     pub fn new(head: &str) -> Self {
-        Thing { head: head.to_string(), det: None, plural: false, attrs: Vec::new() }
+        Thing {
+            head: head.to_string(),
+            det: None,
+            plural: false,
+            attrs: Vec::new(),
+        }
     }
 
     pub fn det(mut self, det: Det) -> Self {
@@ -122,6 +127,17 @@ impl Filler {
 }
 
 impl Wh {
+    pub const ALL: [Wh; 8] = [
+        Wh::Who,
+        Wh::What,
+        Wh::Which,
+        Wh::Where,
+        Wh::When,
+        Wh::Why,
+        Wh::How,
+        Wh::HowMany,
+    ];
+
     pub fn name(self) -> &'static str {
         match self {
             Wh::Who => "who",
@@ -133,6 +149,11 @@ impl Wh {
             Wh::How => "how",
             Wh::HowMany => "how-many",
         }
+    }
+
+    /// The hole a written name stands for.
+    pub fn named(name: &str) -> Option<Wh> {
+        Wh::ALL.into_iter().find(|w| w.name() == name)
     }
 }
 

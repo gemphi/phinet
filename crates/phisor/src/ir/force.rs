@@ -48,7 +48,15 @@ pub enum Fit {
 }
 
 impl Force {
-    pub const ALL: [Force; 7] = [Force::Assert, Force::Ask, Force::Direct, Force::Commit, Force::Express, Force::Wish, Force::Declare];
+    pub const ALL: [Force; 7] = [
+        Force::Assert,
+        Force::Ask,
+        Force::Direct,
+        Force::Commit,
+        Force::Express,
+        Force::Wish,
+        Force::Declare,
+    ];
 
     /// The illocutionary point: a question is a directive (it asks for an
     /// answer), a wish an expressive (of desire).

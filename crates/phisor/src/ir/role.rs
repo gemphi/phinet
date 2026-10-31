@@ -19,6 +19,10 @@ pub enum Role {
 }
 
 impl Role {
+    /// The four named roles. Every other role is a [`Role::Via`] and there
+    /// are as many of those as there are prepositions, so there is no `ALL`.
+    pub const NAMED: [Role; 4] = [Role::Agent, Role::Theme, Role::Recipient, Role::As];
+
     pub fn name(&self) -> &str {
         match self {
             Role::Agent => "agent",
@@ -26,6 +30,16 @@ impl Role {
             Role::Recipient => "recipient",
             Role::As => "as",
             Role::Via(p) => p,
+        }
+    }
+
+    /// The role a written name stands for. Total rather than optional: the
+    /// four names are reserved and any other name is the argument's own
+    /// preposition, which is what [`Role::Via`] holds.
+    pub fn named(name: &str) -> Role {
+        match Role::NAMED.into_iter().find(|r| r.name() == name) {
+            Some(r) => r,
+            None => Role::Via(name.to_string()),
         }
     }
 }

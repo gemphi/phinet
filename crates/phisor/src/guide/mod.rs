@@ -7,7 +7,9 @@
 //! | `units` | the units' lines: an exercise line INSTRUCTS, the rest EXPLAINS (docs/201's reader), each piece with its mark |
 //! | `key` | the Key at the back: every answer, unit by unit (phiano's workshop reader) |
 //! | `split` | docs/203's rule: one in ten held out, one in twenty for dev; every answer held out |
+//! | `holdout` | the Holdout_Guard: no held-out sentence and no Key line reaches a training input (requirements §10) |
 
+pub mod holdout;
 mod key;
 mod split;
 mod units;

@@ -1,0 +1,192 @@
+# The 150 frozen gold frames (R5.11, R10.10). Written and fingerprinted
+# before the learner first ran on them: a per-field score measured against
+# frames written after the learner saw them is not a measurement.
+#
+# Nine tab-separated columns, one Act per row, read by phisor::gold:
+#
+#   sentence   the English the frame is gold for, normalised (lower case,
+#              words and the terminating mark)
+#   force      ASSERT ASK DIRECT COMMIT EXPRESS WISH DECLARE
+#   pred       the verb's lemma
+#   roles      `role=filler` joined by ` | `, or `-` for no role
+#   tense      past present
+#   aspect     simple, progressive, perfect, perfect progressive
+#   modal      will can may must shall, or `-` for no modal
+#   voice      active passive
+#   polarity   positive negative
+#
+# A role is `agent`, `theme`, `recipient`, `as`, or any other name, which is
+# the argument's own preposition (`in`, `for`, `about`).
+#
+# A filler is one of:
+#
+#   *France    a name
+#   ^she       a pronoun
+#   'blue      a bare word, an attribute's value
+#   ?who       the hole a question asks for
+#   the suit·pl{colour='blue}
+#              a thing: an optional determiner, the head, `·pl` for a
+#              plural, and `attr=filler` attributes in braces
+#   [pred ; roles ; tense ; aspect ; modal ; voice ; polarity]
+#              a clause: a frame as an argument, the same seven fields in
+#              the same order as the columns above, nesting freely
+#
+# An attribute is `mod` for an adjective whose kind the world does not know,
+# `order`, `count`, `~<preposition>` for one named by its preposition, or
+# any other name for a kind the world knows (`colour`).
+#
+# Frozen: the count is asserted at 150 and phistd::mix64 folded over these
+# bytes, carriage returns dropped, is pinned as phisor::gold::FINGERPRINT.
+# Editing a row, adding one or dropping one fails phisor::gold::read.
+#
+# sentence	force	pred	roles	tense	aspect	modal	voice	polarity
+water boils at one hundred degrees.	ASSERT	boil	agent=water | at=degree·pl{count='hundred}	present	simple	-	active	positive
+the sun rises in the east.	ASSERT	rise	agent=the sun | in=the east	present	simple	-	active	positive
+she lives in london.	ASSERT	live	agent=^she | in=*London	present	simple	-	active	positive
+i know the answer.	ASSERT	know	agent=^I | theme=the answer	present	simple	-	active	positive
+my sister works in a bank.	ASSERT	work	agent=my sister | in=a bank	present	simple	-	active	positive
+they play tennis on sunday.	ASSERT	play	agent=^they | theme=tennis | on=*Sunday	present	simple	-	active	positive
+the shop opens at eight.	ASSERT	open	agent=the shop | at=eight	present	simple	-	active	positive
+he does not smoke.	ASSERT	smoke	agent=^he	present	simple	-	active	negative
+i do not like coffee.	ASSERT	like	agent=^I | theme=coffee	present	simple	-	active	negative
+the moon goes round the earth.	ASSERT	go	agent=the moon | round=the earth	present	simple	-	active	positive
+rice does not grow in cold climates.	ASSERT	grow	agent=rice | in=climate·pl{mod='cold}	present	simple	-	active	negative
+her name is helen.	ASSERT	be	theme=her name | as=*Helen	present	simple	-	active	positive
+the museum is closed on mondays.	ASSERT	close	theme=the museum | on=monday·pl	present	simple	-	passive	positive
+these shoes are mine.	ASSERT	be	theme=these shoe·pl | as=^mine	present	simple	-	active	positive
+my friends live in canada.	ASSERT	live	agent=my friend·pl | in=*Canada	present	simple	-	active	positive
+a girl is wearing a blue suit.	ASSERT	wear	agent=a girl | theme=a suit{colour='blue}	present	progressive	-	active	positive
+the children are playing in the garden.	ASSERT	play	agent=the child·pl | in=the garden	present	progressive	-	active	positive
+it is raining.	ASSERT	rain	-	present	progressive	-	active	positive
+i am not working.	ASSERT	work	agent=^I	present	progressive	-	active	negative
+she is reading a book about france.	ASSERT	read	agent=^she | theme=a book{~about=*France}	present	progressive	-	active	positive
+they are building a new house.	ASSERT	build	agent=^they | theme=a house{mod='new}	present	progressive	-	active	positive
+the water is boiling.	ASSERT	boil	theme=the water	present	progressive	-	active	positive
+he is waiting for the bus.	ASSERT	wait	agent=^he | for=the bus	present	progressive	-	active	positive
+my parents are not watching television.	ASSERT	watch	agent=my parent·pl | theme=television	present	progressive	-	active	negative
+the car is being repaired.	ASSERT	repair	theme=the car	present	progressive	-	passive	positive
+the girl wore a blue suit.	ASSERT	wear	agent=the girl | theme=a suit{colour='blue}	past	simple	-	active	positive
+shakespeare wrote hamlet.	ASSERT	write	agent=*Shakespeare | theme=*Hamlet	past	simple	-	active	positive
+we did not go out.	ASSERT	go	agent=^we	past	simple	-	active	negative
+the window was broken.	ASSERT	break	theme=the window	past	simple	-	passive	positive
+columbus discovered america in 1492.	ASSERT	discover	agent=*Columbus | theme=*America | in=1492	past	simple	-	active	positive
+she gave her sister a book.	ASSERT	give	agent=^she | recipient=her sister | theme=a book	past	simple	-	active	positive
+the first king of france was hugh.	ASSERT	be	theme=the king{order='first, ~of=*France} | as=*Hugh	past	simple	-	active	positive
+i did not see any pictures.	ASSERT	see	agent=^I | theme=any picture·pl	past	simple	-	active	negative
+the letter was sent to london by helen on friday.	ASSERT	send	theme=the letter | to=*London | agent=*Helen | on=*Friday	past	simple	-	passive	positive
+they were students.	ASSERT	be	theme=^they | as=student·pl	past	simple	-	active	positive
+he left the house at seven.	ASSERT	leave	agent=^he | theme=the house | at=seven	past	simple	-	active	positive
+nobody answered the phone.	ASSERT	answer	agent=nobody | theme=the phone	past	simple	-	active	positive
+the train did not arrive on time.	ASSERT	arrive	theme=the train | on=time	past	simple	-	active	negative
+she has worn that suit before.	ASSERT	wear	agent=^she | theme=that suit	present	perfect	-	active	positive
+i have lost my keys.	ASSERT	lose	agent=^I | theme=my key·pl	present	perfect	-	active	positive
+they have not finished the work.	ASSERT	finish	agent=^they | theme=the work	present	perfect	-	active	negative
+the post has arrived.	ASSERT	arrive	theme=the post	present	perfect	-	active	positive
+he had already left.	ASSERT	leave	agent=^he	past	perfect	-	active	positive
+we had never seen such a storm.	ASSERT	see	agent=^we | theme=a storm	past	perfect	-	active	negative
+the house has been sold.	ASSERT	sell	theme=the house	present	perfect	-	passive	positive
+my car has been repaired by a mechanic.	ASSERT	repair	theme=my car | agent=a mechanic	present	perfect	-	passive	positive
+she has been to japan.	ASSERT	be	theme=^she | to=*Japan	present	perfect	-	active	positive
+the book had been written in latin.	ASSERT	write	theme=the book | in=*Latin	past	perfect	-	passive	positive
+i have known her for years.	ASSERT	know	agent=^I | theme=^her | for=year·pl	present	perfect	-	active	positive
+nothing has changed.	ASSERT	change	theme=nothing	present	perfect	-	active	positive
+she has been wearing that suit.	ASSERT	wear	agent=^she | theme=that suit	present	perfect progressive	-	active	positive
+i have been waiting for an hour.	ASSERT	wait	agent=^I | for=an hour	present	perfect progressive	-	active	positive
+they have been living here since 1990.	ASSERT	live	agent=^they | in=here | since=1990	present	perfect progressive	-	active	positive
+it has been raining.	ASSERT	rain	-	present	perfect progressive	-	active	positive
+he had been working in a bank.	ASSERT	work	agent=^he | in=a bank	past	perfect progressive	-	active	positive
+we had not been sleeping.	ASSERT	sleep	agent=^we	past	perfect progressive	-	active	negative
+the children have been reading my books.	ASSERT	read	agent=the child·pl | theme=my book·pl	present	perfect progressive	-	active	positive
+she had been teaching for twenty years.	ASSERT	teach	agent=^she | for=year·pl{count='twenty}	past	perfect progressive	-	active	positive
+she will arrive tomorrow.	ASSERT	arrive	theme=^she | on=tomorrow	present	simple	will	active	positive
+i can swim.	ASSERT	swim	agent=^I	present	simple	can	active	positive
+he could not sing.	ASSERT	sing	agent=^he	past	simple	can	active	negative
+they may come later.	ASSERT	come	agent=^they	present	simple	may	active	positive
+you must wear a helmet.	ASSERT	wear	agent=^you | theme=a helmet	present	simple	must	active	positive
+we shall see.	ASSERT	see	agent=^we	present	simple	shall	active	positive
+the work will be finished tomorrow.	ASSERT	finish	theme=the work | on=tomorrow	present	simple	will	passive	positive
+this door cannot be opened.	ASSERT	open	theme=this door	present	simple	can	passive	negative
+it may have been a mistake.	ASSERT	be	theme=^it | as=a mistake	present	perfect	may	active	positive
+she would not listen.	ASSERT	listen	agent=^she	past	simple	will	active	negative
+the letter must have been lost.	ASSERT	lose	theme=the letter	present	perfect	must	passive	positive
+he will not be coming.	ASSERT	come	agent=^he	present	progressive	will	active	negative
+i could have told you.	ASSERT	tell	agent=^I | recipient=^you	past	perfect	can	active	positive
+you may not smoke.	ASSERT	smoke	agent=^you	present	simple	may	active	negative
+who was the first king of france?	ASK	be	theme=?who | as=the king{order='first, ~of=*France}	past	simple	-	active	positive
+what are you doing?	ASK	do	agent=^you | theme=?what	present	progressive	-	active	positive
+where do you live?	ASK	live	agent=^you | in=?where	present	simple	-	active	positive
+when did she arrive?	ASK	arrive	theme=^she | at=?when	past	simple	-	active	positive
+why are you laughing?	ASK	laugh	agent=^you | for=?why	present	progressive	-	active	positive
+how did you do it?	ASK	do	agent=^you | theme=^it | by=?how	past	simple	-	active	positive
+how many people came?	ASK	come	theme=people{count=?how-many}	past	simple	-	active	positive
+which do you prefer?	ASK	prefer	agent=^you | theme=?which	present	simple	-	active	positive
+who wrote hamlet?	ASK	write	agent=?who | theme=*Hamlet	past	simple	-	active	positive
+what is your name?	ASK	be	theme=your name | as=?what	present	simple	-	active	positive
+where were the keys?	ASK	be	theme=the key·pl | in=?where	past	simple	-	active	positive
+has she arrived?	ASK	arrive	theme=^she	present	perfect	-	active	positive
+do you know the answer?	ASK	know	agent=^you | theme=the answer	present	simple	-	active	positive
+did they not tell you?	ASK	tell	agent=^they | recipient=^you	past	simple	-	active	negative
+can you swim?	ASK	swim	agent=^you	present	simple	can	active	positive
+will you come tomorrow?	ASK	come	agent=^you | on=tomorrow	present	simple	will	active	positive
+who was the window broken by?	ASK	break	theme=the window | agent=?who	past	simple	-	passive	positive
+how long have you been waiting?	ASK	wait	agent=^you | for=?how	present	perfect progressive	-	active	positive
+what has happened?	ASK	happen	theme=?what	present	perfect	-	active	positive
+where had he been working?	ASK	work	agent=^he | in=?where	past	perfect progressive	-	active	positive
+who gave her the book?	ASK	give	agent=?who | recipient=^her | theme=the book	past	simple	-	active	positive
+must i answer?	ASK	answer	agent=^I	present	simple	must	active	positive
+when will the work be finished?	ASK	finish	theme=the work | at=?when	present	simple	will	passive	positive
+why did nobody answer?	ASK	answer	agent=nobody | for=?why	past	simple	-	active	positive
+what did she say about france?	ASK	say	agent=^she | theme=?what | about=*France	past	simple	-	active	positive
+complete the sentences.	DIRECT	complete	theme=the sentence·pl	present	simple	-	active	positive
+write your answers in the spaces.	DIRECT	write	theme=your answer·pl | in=the space·pl	present	simple	-	active	positive
+do not open the door.	DIRECT	open	theme=the door	present	simple	-	active	negative
+put the book on the table.	DIRECT	put	theme=the book | on=the table	present	simple	-	active	positive
+look at these pictures.	DIRECT	look	at=these picture·pl	present	simple	-	active	positive
+please close the window.	DIRECT	close	theme=the window	present	simple	-	active	positive
+tell me the truth.	DIRECT	tell	recipient=^me | theme=the truth	present	simple	-	active	positive
+read the text again.	DIRECT	read	theme=the text	present	simple	-	active	positive
+do not tell anyone.	DIRECT	tell	recipient=anyone	present	simple	-	active	negative
+give her the letter.	DIRECT	give	recipient=^her | theme=the letter	present	simple	-	active	positive
+choose the correct word.	DIRECT	choose	theme=the word{mod='correct}	present	simple	-	active	positive
+boil the water.	DIRECT	boil	theme=the water	present	simple	-	active	positive
+compare your answers with mine.	DIRECT	compare	theme=your answer·pl | with=^mine	present	simple	-	active	positive
+do not use the passive.	DIRECT	use	theme=the passive	present	simple	-	active	negative
+study every example.	DIRECT	study	theme=every example	present	simple	-	active	positive
+finish the work by friday.	DIRECT	finish	theme=the work | by=*Friday	present	simple	-	active	positive
+ask your teacher about it.	DIRECT	ask	theme=your teacher | about=^it	present	simple	-	active	positive
+do not forget my keys.	DIRECT	forget	theme=my key·pl	present	simple	-	active	negative
+listen to the recording.	DIRECT	listen	to=the recording	present	simple	-	active	positive
+repeat the second sentence.	DIRECT	repeat	theme=the sentence{order='second}	present	simple	-	active	positive
+i will explain the rule.	COMMIT	explain	agent=^I | theme=the rule	present	simple	will	active	positive
+i promise to come.	COMMIT	promise	agent=^I | theme=[come ; agent=^I ; present ; simple ; - ; active ; positive]	present	simple	-	active	positive
+we shall not forget.	COMMIT	forget	agent=^we	present	simple	shall	active	negative
+i will send you the book.	COMMIT	send	agent=^I | recipient=^you | theme=the book	present	simple	will	active	positive
+i am going to study french.	COMMIT	study	agent=^I | theme=*French	present	simple	will	active	positive
+we will meet at eight.	COMMIT	meet	agent=^we | at=eight	present	simple	will	active	positive
+i promise i will not tell anyone.	COMMIT	promise	agent=^I | theme=[tell ; agent=^I | recipient=anyone ; present ; simple ; will ; active ; negative]	present	simple	-	active	positive
+i will have finished by friday.	COMMIT	finish	agent=^I | by=*Friday	present	perfect	will	active	positive
+i promise to try to pay the money.	COMMIT	promise	agent=^I | theme=[try ; agent=^I | theme=[pay ; agent=^I | theme=the money ; present ; simple ; - ; active ; positive] ; present ; simple ; - ; active ; positive]	present	simple	-	active	positive
+we will answer your letter.	COMMIT	answer	agent=^we | theme=your letter	present	simple	will	active	positive
+thank you for your help.	EXPRESS	thank	agent=^I | theme=^you | for=your help	present	simple	-	active	positive
+i am sorry about the mistake.	EXPRESS	apologise	agent=^I | about=the mistake	present	simple	-	active	positive
+congratulations on your success.	EXPRESS	congratulate	theme=^you | on=your success	present	simple	-	active	positive
+i do not mind the noise.	EXPRESS	mind	agent=^I | theme=the noise	present	simple	-	active	negative
+welcome to london.	EXPRESS	welcome	theme=^you | to=*London	present	simple	-	active	positive
+i have enjoyed the lesson.	EXPRESS	enjoy	agent=^I | theme=the lesson	present	perfect	-	active	positive
+i was delighted with your letter.	EXPRESS	delight	theme=^I | with=your letter	past	simple	-	passive	positive
+i am not complaining.	EXPRESS	complain	agent=^I	present	progressive	-	active	negative
+i wish i could sing.	WISH	sing	agent=^I	past	simple	can	active	positive
+i wish i had known.	WISH	know	agent=^I	past	perfect	-	active	positive
+i wish it would stop raining.	WISH	stop	theme=[rain ; - ; present ; progressive ; - ; active ; positive]	past	simple	will	active	positive
+i wish she were here.	WISH	be	theme=^she | in=here	past	simple	-	active	positive
+i wish i had not said that.	WISH	say	agent=^I | theme=that	past	perfect	-	active	negative
+i want to go to london.	ASSERT	want	agent=^I | theme=[go ; agent=^I | to=*London ; present ; simple ; - ; active ; positive]	present	simple	-	active	positive
+i wish you would listen.	WISH	listen	agent=^you	past	simple	will	active	positive
+i wish they had been working.	WISH	work	agent=^they	past	perfect progressive	-	active	positive
+i wish we did not have to go.	WISH	go	agent=^we	past	simple	must	active	negative
+i wish i could have told her.	WISH	tell	agent=^I | recipient=^her	past	perfect	can	active	positive
+i name this ship victory.	DECLARE	name	agent=^I | theme=this ship | as=*Victory	present	simple	-	active	positive
+the meeting is declared closed.	DECLARE	close	theme=the meeting	present	simple	-	passive	positive
+i pronounce you husband and wife.	DECLARE	pronounce	agent=^I | theme=^you | as=husband	present	simple	-	active	positive
+the meeting is hereby adjourned.	DECLARE	adjourn	theme=the meeting	present	simple	-	passive	positive
+i hereby appoint you chairman.	DECLARE	appoint	agent=^I | theme=^you | as=chairman	present	simple	-	active	positive

@@ -50,15 +50,33 @@ pub enum Polarity {
 }
 
 impl Tense {
+    pub const ALL: [Tense; 2] = [Tense::Past, Tense::Present];
+
     pub fn name(self) -> &'static str {
         match self {
             Tense::Past => "past",
             Tense::Present => "present",
         }
     }
+
+    /// The tense a written name stands for, as [`Force::named`] is to
+    /// [`Force::name`].
+    ///
+    /// [`Force::name`]: super::Force::name
+    /// [`Force::named`]: super::Force::named
+    pub fn named(name: &str) -> Option<Tense> {
+        Tense::ALL.into_iter().find(|t| t.name() == name)
+    }
 }
 
 impl Aspect {
+    pub const ALL: [Aspect; 4] = [
+        Aspect::Simple,
+        Aspect::Progressive,
+        Aspect::Perfect,
+        Aspect::PerfectProgressive,
+    ];
+
     pub fn name(self) -> &'static str {
         match self {
             Aspect::Simple => "simple",
@@ -67,9 +85,21 @@ impl Aspect {
             Aspect::PerfectProgressive => "perfect progressive",
         }
     }
+
+    pub fn named(name: &str) -> Option<Aspect> {
+        Aspect::ALL.into_iter().find(|a| a.name() == name)
+    }
 }
 
 impl Modal {
+    pub const ALL: [Modal; 5] = [
+        Modal::Will,
+        Modal::Can,
+        Modal::May,
+        Modal::Must,
+        Modal::Shall,
+    ];
+
     pub fn name(self) -> &'static str {
         match self {
             Modal::Will => "will",
@@ -78,5 +108,39 @@ impl Modal {
             Modal::Must => "must",
             Modal::Shall => "shall",
         }
+    }
+
+    pub fn named(name: &str) -> Option<Modal> {
+        Modal::ALL.into_iter().find(|m| m.name() == name)
+    }
+}
+
+impl Voice {
+    pub const ALL: [Voice; 2] = [Voice::Active, Voice::Passive];
+
+    pub fn name(self) -> &'static str {
+        match self {
+            Voice::Active => "active",
+            Voice::Passive => "passive",
+        }
+    }
+
+    pub fn named(name: &str) -> Option<Voice> {
+        Voice::ALL.into_iter().find(|v| v.name() == name)
+    }
+}
+
+impl Polarity {
+    pub const ALL: [Polarity; 2] = [Polarity::Positive, Polarity::Negative];
+
+    pub fn name(self) -> &'static str {
+        match self {
+            Polarity::Positive => "positive",
+            Polarity::Negative => "negative",
+        }
+    }
+
+    pub fn named(name: &str) -> Option<Polarity> {
+        Polarity::ALL.into_iter().find(|p| p.name() == name)
     }
 }

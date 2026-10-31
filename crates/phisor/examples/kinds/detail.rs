@@ -53,8 +53,9 @@ pub fn passes(kinds: &Kinds) {
 /// pieces summed and the widest shared feature's mean share, against the
 /// same variations dealt into kinds of the same sizes at random.
 pub fn resemblance_null(kinds: &Kinds, shuffles: usize) {
-    let names: Vec<&str> = kinds.units.names().iter().skip(3).map(String::as_str).collect();
-    let mut codes: Vec<usize> = kinds.kinds_of_units().iter().skip(3).copied().collect();
+    let (tnames, tkinds) = kinds.template_kinds();
+    let names: Vec<&str> = tnames.iter().map(String::as_str).collect();
+    let mut codes: Vec<usize> = tkinds.to_vec();
     let read = |codes: &[usize]| -> (f64, f64) {
         let mut by: HashMap<usize, Vec<&str>> = HashMap::new();
         for (n, &c) in names.iter().zip(codes) {
