@@ -1,0 +1,47 @@
+# The per-crate outside-dependency allowlist (R11.12).
+#
+# R11.12 forbids a dependency on anything outside the ten phinet crates and
+# "the published crates.io dependencies already in use". Already in use is a
+# per-crate fact, not a workspace-wide one: phiano carries a server and a
+# parser, the lower crates carry five crates between them, and a list shared
+# across the ten would either fail phiano's axum or wave through phistd's.
+# So the allowlist is per crate, read from the ten manifests and pinned here.
+#
+# Read at the commit that landed task 2.1 of the 64-operators spec, from the
+# union of each crate's [dependencies] and [dev-dependencies].
+#
+# One line per crate: `<crate> = <dep>, <dep>, ...`, deps sorted, an empty
+# right-hand side meaning the crate declares no outside dependency at all.
+# A novel outside dependency fails the Structure_Check until it is recorded
+# here, and a re-recording writes the previous list, the new list and the
+# stated reason (R11.10).
+
+phistd = num-complex, rayon, serde
+phifno = bincode, serde
+phiton = bincode, serde, serde_json
+phical = num-complex, serde, serde_json
+phiecs = bincode, rayon, serde, serde_json
+phiclm =
+phient = bincode, proc-macro2, rayon, reqwest, serde, serde_json, syn
+philog = serde
+phisor =
+phiano = axum, bincode, num-complex, proc-macro2, rayon, reqwest, rustyline, serde, serde_json, syn, tokio, tokio-stream, tower-http
+
+# The frozen operand set's fingerprint (R7.6): `phistd::mix64` folded byte by
+# byte over `phinet/crates/phical/tests/keyboard/operands.tsv`, carriage
+# returns dropped so a CRLF checkout holds the same record. The set is the
+# whole input to the agreement check and was written before the first
+# agreement run, so a modification of it must fail the run rather than
+# quietly change what was agreed. Pinned here, beside the other thing this
+# file pins: a fact about a file read once and held to.
+#
+# It is a comment line because the right-hand sides above are dependency
+# lists and `the_allowlist_golden_is_the_manifests_true_outside_state` holds
+# the keys to the ten crates; the fingerprint is not a crate and must not
+# become one. `frozen::the_set_is_the_fingerprint_pinned_in_the_golden_record`
+# reads it from here.
+#
+# A re-recording writes the previous fingerprint, the new one and the stated
+# reason (R11.10).
+#
+# frozen-operands = 0xa7f3c7189e923483

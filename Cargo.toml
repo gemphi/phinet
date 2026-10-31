@@ -35,5 +35,26 @@
 resolver = "2"
 members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phient", "crates/phiclm", "crates/phiton", "crates/philog", "crates/phisor", "crates/phiano"]
 
+# The Structure_Check (tests/structural/) is the workspace root's one target:
+# integration tests, not a crate. It carries no library and no dependency of
+# any kind, so it links none of the ten crates it polices and nothing can
+# depend on it — it reads the manifests and the source text as files.
+# Still true of the table above: no crate carries the workspace's name.
+[package]
+name = "phinet-structure"
+version = "0.1.0"
+edition = "2021"
+description = "The Structure_Check: the workspace's standing structural rules, held as tests that link nothing."
+license = "MIT"
+publish = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+
+[[test]]
+name = "structural"
+path = "tests/structural/mod.rs"
+
 [profile.release]
 opt-level = 3

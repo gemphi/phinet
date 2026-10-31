@@ -954,6 +954,7 @@ name = "phiclm"
 version = "0.1.0"
 dependencies = [
  "phiecs",
+ "phistd",
 ]
 
 [[package]]
@@ -1008,10 +1009,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "phinet-structure"
+version = "0.1.0"
+
+[[package]]
 name = "phisor"
 version = "0.1.0"
 dependencies = [
  "phical",
+ "phiclm",
  "phiecs",
  "phistd",
  "phiton",
