@@ -100,6 +100,30 @@ pub fn mutual_information(table: &[Vec<f64>]) -> f64 {
     bits
 }
 
+/// The least-squares slope of `ys` against `xs`, with the count of points
+/// fitted; the rank-frequency fit reads log rank against log frequency this
+/// way. `None` when fewer than two points are given or the `xs` do not
+/// spread (a vertical fit has no slope).
+pub fn slope(xs: &[f64], ys: &[f64]) -> Option<(f64, usize)> {
+    let n = xs.len().min(ys.len());
+    if n < 2 {
+        return None;
+    }
+    let mean_x = mean(&xs[..n]);
+    let mean_y = mean(&ys[..n]);
+    let mut covariance = 0.0;
+    let mut variance_x = 0.0;
+    for i in 0..n {
+        let dx = xs[i] - mean_x;
+        covariance += dx * (ys[i] - mean_y);
+        variance_x += dx * dx;
+    }
+    match variance_x > 0.0 {
+        true => Some((covariance / variance_x, n)),
+        false => None,
+    }
+}
+
 /// How far `x` stands from a null's draws, in the null's population
 /// standard deviations; 0 when the null does not spread.
 pub fn z_score(x: f64, null: &[f64]) -> f64 {
@@ -143,5 +167,57 @@ mod tests {
         // Ragged: the missing cell is a zero.
         let ragged = vec![vec![2.0], vec![0.0, 2.0]];
         assert!((mutual_information(&ragged) - 1.0).abs() < 1e-12);
+    }
+
+    #[test]
+    fn a_slope_fitted_and_its_edges() {
+        // y = 2x + 1, read back exactly, over three points.
+        let (m, count) = slope(&[0.0, 1.0, 2.0], &[1.0, 3.0, 5.0]).unwrap();
+        assert!((m - 2.0).abs() < 1e-12);
+        assert_eq!(count, 3);
+        // Too few points, and a vertical fit, have no slope.
+        assert_eq!(slope(&[1.0], &[1.0]), None);
+        assert_eq!(slope(&[2.0, 2.0], &[1.0, 3.0]), None);
+    }
+
+    // **Property 50: The rank-frequency slope recovers a known slope**
+    //
+    // A rank-frequency law plots log frequency against log rank on a line
+    // whose slope is the exponent. Plant counts on such a line for a slope
+    // drawn between -3.0 and -0.1 and the fit returns that slope.
+    //
+    // **Validates: Requirements 9.12, 9.13, 8.8**
+    #[test]
+    fn property_50_the_rank_frequency_slope_recovers_a_known_slope() {
+        use crate::gen::{for_all, Gen, Seeded, CASES};
+
+        // A planted log-log line: a slope in [-3.0, -0.1], an intercept, and
+        // the fit's recovery of the slope.
+        #[derive(Debug)]
+        struct Line {
+            planted: f64,
+            recovered: f64,
+        }
+
+        impl Gen for Line {
+            fn draw(g: &mut Seeded) -> Self {
+                // Slope uniform in [-3.0, -0.1].
+                let planted = -0.1 - g.unit() * 2.9;
+                let intercept = g.unit() * 6.0;
+                // Ranks 1..=rank_count; log rank against log frequency.
+                let rank_count = 8 + g.below(56) as usize;
+                let log_ranks: Vec<f64> =
+                    (1..=rank_count).map(|r| (r as f64).ln()).collect();
+                let log_freqs: Vec<f64> =
+                    log_ranks.iter().map(|&x| planted * x + intercept).collect();
+                let recovered = slope(&log_ranks, &log_freqs).unwrap().0;
+                Line { planted, recovered }
+            }
+        }
+
+        for_all::<Line>(0x510E, CASES, |line| {
+            (line.recovered - line.planted).abs() < 0.01
+        })
+        .unwrap();
     }
 }

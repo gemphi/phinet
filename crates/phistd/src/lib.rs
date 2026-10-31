@@ -40,6 +40,7 @@
 //! |---|---|
 //! | [`tensor`] | `Tensor` `[batch, width, space]`, `Tape` (add, mul, linear, mode_mix, fft/ifft, fft2/ifft2, gelu, gather, unit, cosine, hinge, cross_entropy, cosine_table, mixture_nll, mobius), `Adam` (AdamW, `Schedule`). Every gradient is finite-difference checked; `cosine_table` runs on all cores (rayon). |
 //! | [`codon`] | the sixty-four as three bases: `codon`, `codon_index`, `hexagram_glyph`. |
+//! | [`gen`] | the seeded property generator: `Seeded`, `Gen`, `for_all`, `replay`, per-case seeding so a failing case replays from `(seed, case)` alone. |
 //! | [`hexagram`] | the sixty-four operations: I Ching hexagrams as spectral gates (`apply`, `gate`, `changing_lines`), the hexagram a function is (`hexagram_of`, `lines`), `novelty`. |
 //! | [`phasor`] | the phasor ranges: `Resolution` P16–P128 × `Quantum` Q16–Q64 (`Range::ALL`), `resample`, `quantise`, `sector_of`; `Fno::at_resolution` moves an operator between them. |
 //!
@@ -47,6 +48,7 @@
 //! `g = ∂L/∂Re + i·∂L/∂Im`; see [`tensor`].
 
 pub mod codon;
+pub mod gen;
 pub mod hexagram;
 pub mod optim;
 #[path = "phasor/mod.rs"]

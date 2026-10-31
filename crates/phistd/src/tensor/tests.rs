@@ -3,5 +3,5 @@
 mod fft;
 mod grad;
 mod loss;
-mod mul_tie;
 mod optim;
+mod tie;
