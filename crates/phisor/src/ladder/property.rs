@@ -18,6 +18,7 @@ use super::*;
 use crate::code::Coder;
 use phistd::gen::{for_all, Gen, Seeded, CASES};
 
+mod independence;
 mod kinds;
 mod measure;
 mod nesting;

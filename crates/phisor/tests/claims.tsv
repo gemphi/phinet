@@ -1,0 +1,134 @@
+# The frozen labelled claim set (R8.7, R8.8, R8.9). Written and
+# fingerprinted before the detector first ran on it, and left unmodified
+# thereafter: a per-class score measured against claims written after the
+# detector saw them is not a measurement.
+#
+# 104 claims, each carrying exactly one of the four class labels
+# (degenerate, contradicting, unsupported, consistent); 44 of them are
+# labelled false — one of the three falsehood classes, not consistent —
+# and every false one is copied verbatim from a recorded Oracle answer in
+# the transcript named in its source column. The consistent claims are not
+# copied from a transcript: R8.7 freezes only the false ones to a recorded
+# answer.
+#
+# Six tab-separated columns, one claim per row, read by phisor::truth::set:
+#
+#   about    the word the claim is about
+#   kind     the relation the claim offers
+#   other    the other word the relation names (empty is a degenerate field)
+#   weight   the claim's weight on the 0..=1 scale
+#   label    one of degenerate contradicting unsupported consistent
+#   source   the transcript the false claim was taken from, or - when the
+#            claim is consistent and written for the set
+#
+# --- contradicting (16): a declared Law of the kind is broken by a held row
+cat	colour	green	0.5	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+cat	colour	blue	0.4	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+cat	capital-of	france	0.3	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+dog	colour	purple	0.3	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+dog	capital-of	spain	0.4	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+paris	capital-of	germany	0.4	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+paris	capital-of	italy	0.3	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+paris	colour	yellow	0.5	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+sky	colour	green	0.4	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+sky	colour	orange	0.3	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+sky	colour	pink	0.2	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+iron	colour	transparent	0.3	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+iron	melts-at	zero	0.4	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	is-a	fish	0.6	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	colour	scarlet	0.3	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	bigger-than	ocean	0.5	contradicting	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+# --- degenerate (16): a self-edge, or a field empty after trimming
+cat	is-a	cat	0.9	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+cat	colour	colour	1	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+cat	has		0.7	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+dog	is-a	dog	1	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+dog	likes		0.5	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+dog	has	has	0.6	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+paris	is-a	paris	0.8	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+paris	part-of		0.6	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+sky	is-a	sky	0.9	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+sky	colour		0.5	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+iron	is-a	iron	1	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+iron	has		0.6	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+iron	colour	colour	0.5	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	is-a	whale	1	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	lives-in		0.5	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	has	has	0.4	degenerate	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+# --- unsupported (12): readable, no Law to break, nothing held supports it
+cat	worships	moon	0.7	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+cat	invented	fire	0.5	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+dog	drives	car	0.6	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+dog	speaks	latin	0.5	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+paris	founded	rome	0.4	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+paris	eats	bread	0.3	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+sky	remembers	rain	0.5	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+sky	owes	money	0.4	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+iron	sings	opera	0.5	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+iron	forgives	rust	0.3	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	recites	poetry	0.5	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+whale	hoards	gold	0.4	unsupported	phinet/docs/transcripts/cat_ollama-run-phi4-14b-nowordwrap.md
+# --- consistent (60): written for the set, about words the World holds no
+# --- Law against, so the detector reads each as unsupported (it returns no
+# --- Consistent from the classifier core) and the finding is reported, not
+# --- judged.
+robin	is-a	bird	0.9	consistent	-
+robin	has	wings	0.9	consistent	-
+robin	has	beak	0.8	consistent	-
+robin	likes	worms	0.7	consistent	-
+oak	is-a	tree	0.9	consistent	-
+oak	has	bark	0.8	consistent	-
+oak	has	leaves	0.8	consistent	-
+oak	part-of	forest	0.7	consistent	-
+river	is-a	water	0.8	consistent	-
+river	has	current	0.7	consistent	-
+river	near	bank	0.6	consistent	-
+river	part-of	valley	0.6	consistent	-
+violin	is-a	instrument	0.9	consistent	-
+violin	has	strings	0.9	consistent	-
+violin	has	bow	0.7	consistent	-
+violin	part-of	orchestra	0.6	consistent	-
+bread	is-a	food	0.9	consistent	-
+bread	has	crust	0.8	consistent	-
+bread	made-of	flour	0.8	consistent	-
+bread	near	oven	0.5	consistent	-
+glacier	is-a	ice	0.9	consistent	-
+glacier	has	mass	0.8	consistent	-
+glacier	near	mountain	0.7	consistent	-
+glacier	bigger-than	boulder	0.6	consistent	-
+lantern	is-a	light	0.8	consistent	-
+lantern	has	flame	0.7	consistent	-
+lantern	has	handle	0.6	consistent	-
+lantern	near	path	0.5	consistent	-
+cedar	is-a	tree	0.9	consistent	-
+cedar	has	needles	0.8	consistent	-
+cedar	has	cones	0.7	consistent	-
+cedar	part-of	grove	0.6	consistent	-
+harbour	is-a	place	0.8	consistent	-
+harbour	has	docks	0.8	consistent	-
+harbour	near	sea	0.7	consistent	-
+harbour	part-of	coast	0.6	consistent	-
+compass	is-a	tool	0.9	consistent	-
+compass	has	needle	0.9	consistent	-
+compass	points	north	0.8	consistent	-
+compass	part-of	kit	0.5	consistent	-
+meadow	is-a	field	0.8	consistent	-
+meadow	has	grass	0.8	consistent	-
+meadow	has	flowers	0.7	consistent	-
+meadow	near	stream	0.6	consistent	-
+anvil	is-a	block	0.8	consistent	-
+anvil	made-of	iron	0.8	consistent	-
+anvil	has	face	0.6	consistent	-
+anvil	near	forge	0.6	consistent	-
+kettle	is-a	vessel	0.8	consistent	-
+kettle	has	spout	0.8	consistent	-
+kettle	has	handle	0.7	consistent	-
+kettle	holds	water	0.7	consistent	-
+ferry	is-a	boat	0.9	consistent	-
+ferry	has	deck	0.8	consistent	-
+ferry	carries	cars	0.7	consistent	-
+ferry	near	pier	0.6	consistent	-
+willow	is-a	tree	0.9	consistent	-
+willow	has	branches	0.8	consistent	-
+willow	near	pond	0.6	consistent	-
+willow	part-of	garden	0.5	consistent	-

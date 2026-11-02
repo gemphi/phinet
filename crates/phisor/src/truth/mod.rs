@@ -28,6 +28,7 @@ use phiecs::world::World;
 pub mod program;
 mod record;
 pub mod score;
+pub mod set;
 pub use record::{Cap, VerdictRecord};
 
 /// The Laws a kind is declared to obey, against which a claim is read.

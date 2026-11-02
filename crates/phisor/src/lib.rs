@@ -1,5 +1,14 @@
 //! # phisor — the intermediate language between English and the machine
 //!
+//! > The Analytical Engine weaves algebraical patterns just as the
+//! > Jacquard-loom weaves flowers and leaves.
+//! >
+//! > — Augusta Ada Lovelace, Note A (1843)
+//!
+//! phisor is built on her architecture: a store apart from a mill, a loom
+//! that weaves structure out of text, and a machine that originates nothing.
+//! The reading is drawn out in [lovelace] and in phinet/docs/lovelace.md.
+//!
 //! In Phient's world, a word (w) is a seed: what it relates to, under what
 //! conditions (c), grows from it. The Phical paradigm, X ⇒ Y, drives and
 //! composes Phient's Phasor Language Models: Phinet, Phiano, PhiTon.
@@ -46,6 +55,7 @@
 //! | [`machine`] | phisor on phiclm's machine: the Lisp host, the lowering, the agreement with the Rust reader |
 //! | [`measure`] | the settings comparison, learning judgement and difference-engine stopping rule |
 //! | [`ground`] | an Act as rows: the event as an entity, one row per predicate, role and feature, and the canonical forms the arena interns |
+//! | [`lovelace`] | the Note G analytic model: the store, the mill, the weave and Lovelace's objection, each read onto the module that carries it |
 //!
 //! The plan, the order and the measures: `phinet/docs/phisor/plan.md`.
 
@@ -56,9 +66,11 @@ pub mod guide;
 pub mod ir;
 pub mod kind;
 pub mod ladder;
+pub mod lovelace;
 pub mod machine;
 pub mod measure;
 pub mod truth;
 pub mod units;
 
 pub use ir::{Act, Filler, Force, Frame, Role, Template};
+pub use lovelace::{dedication, Correspondence, QUOTATIONS};

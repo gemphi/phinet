@@ -28,6 +28,7 @@
 //! workspace's naming rule, which wants a type name singular.
 
 mod account;
+mod act;
 mod grow;
 mod kinds;
 mod measure;
@@ -37,6 +38,7 @@ mod property;
 #[cfg(test)]
 mod tests;
 pub use account::{shaped, Account, SHAPED};
+pub use act::{force_purity, read, read_realise_rate, realise, round_trip};
 pub use grow::{grow_code, nesting, CodeReport, DepthReport, Nesting};
 pub use kinds::{kinds, river, variation, KindGroup, KindReport, Variation};
 pub use measure::*;

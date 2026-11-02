@@ -9,11 +9,16 @@
 
 #[cfg(test)]
 mod property;
+mod seeds;
 #[cfg(test)]
 mod tests;
 mod twins;
 
 pub use phical::classes::Settings;
+pub use seeds::{
+    run_measures, Blocked, Home, Measure, Numbers, Outcome, Record, Run, SplitMismatch,
+    REPORTED_PLACES,
+};
 pub use twins::{
     combine_amplitudes, combine_probabilities, disagreements, disagreements_at, judge_twins,
     measure_mode, measure_modes, CombinationReport, Disagreement, KindDisagreement, ModeInput,
