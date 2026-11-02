@@ -18,12 +18,18 @@
 //! `edges_property` Property 58, and `frozen` the frozen operand set's
 //! fingerprint, pinned in the same golden record.
 
+mod arithmetic;
 mod dev_edges;
 mod edges;
 mod edges_named;
 mod edges_property;
 mod frozen;
+mod independence;
+mod keyboard;
+mod levels;
+mod lines;
 mod manifest;
+mod numbers;
 mod pairs;
 
 /// The ten phinet crates, in dependency order: the order a level's tests
@@ -41,10 +47,10 @@ pub const CRATES: &[&str] = &[
 /// normal dependency, not what it must: the rule permits these edges and
 /// forbids every other one, so a dropped edge is not a violation.
 ///
-/// Two amendments are coming and each must land in the same task as the
-/// manifest line it describes — `phisor` on `phiclm` (the Lowering and the
-/// Falsehood_Detector) and `phiano` on `phisor` (the Harness). Until then
-/// this table is the manifests' true state, which
+/// Two amendments landed in the same task as the manifest line each
+/// describes — `phisor` on `phiclm` (the Lowering and the
+/// Falsehood_Detector) and `phiano` on `phisor` (the Harness). This table
+/// is the manifests' true state, which
 /// `the_permitted_table_is_the_manifests_true_state` holds it to.
 pub const PERMITTED: &[(&str, &[&str])] = &[
     ("phistd", &[]),
@@ -58,7 +64,10 @@ pub const PERMITTED: &[(&str, &[&str])] = &[
     ("phisor", &["phiecs", "phiton", "phical", "phistd", "phiclm"]),
     (
         "phiano",
-        &["phistd", "phiton", "phical", "phifno", "phient", "philog", "phiecs", "phiclm"],
+        &[
+            "phistd", "phiton", "phical", "phifno", "phient", "philog", "phiecs", "phiclm",
+            "phisor",
+        ],
     ),
 ];
 
