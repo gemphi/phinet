@@ -1121,6 +1121,24 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
     let verb = words.get(verb_at)?;
     let force = if norm.ends_with('?') { Force::Ask } else { Force::Assert };
 
+    // The near-future "be going to V": a copula, then "going to", then a bare
+    // verb. The Guide records it as a `will` modal over V, so the reader builds
+    // that frame and the round trip treats "going to" and "will" alike.
+    if copula_tense(verb).is_some()
+        && words.get(verb_at + 1).map(String::as_str) == Some("going")
+        && words.get(verb_at + 2).map(String::as_str) == Some("to")
+    {
+        if let Some(v) = words.get(verb_at + 3).filter(|v| !is_aux(v)) {
+            let (lemma, _) = read_verb(v);
+            let mut frame = Frame::new(&lemma, Tense::Present).modal(crate::ir::Modal::Will);
+            if neg {
+                frame = frame.negative();
+            }
+            frame = frame.with(Role::Agent, subject);
+            return finish_predicate(frame, &words, verb_at + 4, force);
+        }
+    }
+
     // Present-tense copula: `is`, `are`, `am`. The complement is the rest of
     // the sentence as one filler, in the `as` role, matching the gold shape
     // `be  theme=<subject>  as=<complement>`. `is boiling` / `is repaired` is
@@ -1442,8 +1460,12 @@ fn read_noun_phrase(words: &[String]) -> Option<(Filler, usize)> {
     // "a blue suit"). An adjective is kept as a Mod attribute so it survives
     // the round trip; an ordinal/number modifier is skipped as before.
     let mut adjective: Option<String> = None;
+    let mut count: Option<String> = None;
     if i + 1 < words.len() {
-        if is_modifier(&words[i]) {
+        if is_cardinal(&words[i]) {
+            count = Some(words[i].clone());
+            i += 1;
+        } else if is_modifier(&words[i]) {
             i += 1;
         } else if is_adjective_word(&words[i]) {
             adjective = Some(words[i].clone());
@@ -1458,6 +1480,9 @@ fn read_noun_phrase(words: &[String]) -> Option<(Filler, usize)> {
     let mut thing = Thing::new(&singular);
     if let Some(adj) = adjective {
         thing = thing.with(crate::ir::Attr::Mod, Filler::word(&adj));
+    }
+    if let Some(c) = count {
+        thing = thing.with(crate::ir::Attr::Count, Filler::word(&c)).plural();
     }
     if let Some(d) = det {
         thing = thing.det(d);
@@ -1493,6 +1518,19 @@ fn is_adjective_word(word: &str) -> bool {
             && !crate::lexicon::function_word(word);
     }
     matches!(word, "blue" | "red" | "green" | "hot" | "cold" | "new" | "old" | "big" | "small" | "good" | "correct")
+}
+
+/// Whether a word is a cardinal number that counts the head it precedes
+/// ("four languages", "ten people", "20 years"): a number word the Guide uses
+/// or a run of digits. Stored as a Count attribute, which the realiser writes
+/// back before the head.
+fn is_cardinal(word: &str) -> bool {
+    matches!(
+        word,
+        "one" | "two" | "three" | "four" | "five" | "six" | "seven" | "eight" | "nine"
+            | "ten" | "eleven" | "twelve" | "twenty" | "thirty" | "forty" | "fifty"
+            | "hundred" | "thousand" | "million"
+    ) || (word.len() <= 4 && word.chars().all(|c| c.is_ascii_digit()))
 }
 
 /// A shallow ordinal/number modifier the noun phrase may carry before its
@@ -1876,6 +1914,24 @@ fn read_question(words: &[String]) -> Option<Act> {
             return read_aspect_question(words, i, wh);
         }
         if matches!(op.as_str(), "is" | "are" | "am" | "was" | "were") {
+            // "are you going to eat?" - a near-future question: the subject
+            // after the copula, then "going to V", as a will-modal.
+            if wh.is_none() {
+                let after = &words[i + 1..];
+                if let Some((subject, end)) = read_subject(after) {
+                    if after.get(end).map(String::as_str) == Some("going")
+                        && after.get(end + 1).map(String::as_str) == Some("to")
+                    {
+                        if let Some(v) = after.get(end + 2).filter(|v| !is_aux(v)) {
+                            let (lemma, _) = read_verb(v);
+                            let frame = Frame::new(&lemma, Tense::Present)
+                                .modal(crate::ir::Modal::Will)
+                                .with(Role::Agent, subject);
+                            return finish_predicate(frame, after, end + 3, Force::Ask);
+                        }
+                    }
+                }
+            }
             if let Some(act) = read_aspect_question(words, i, wh) {
                 return Some(act);
             }
@@ -2267,6 +2323,27 @@ pub fn force_purity<'a>(pairs: impl IntoIterator<Item = (&'a Act, &'a str)>) -> 
     (matched, covered)
 }
 
+/// Fold "am/is/are/was/were going to" down to "will", so the near-future reads
+/// the same whether it was written "going to" or "will". Applied on both sides
+/// of the round-trip comparison, never to the Act itself.
+fn fold_going_to(words: &[String]) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    let mut i = 0;
+    while i < words.len() {
+        if matches!(words[i].as_str(), "is" | "are" | "am" | "was" | "were")
+            && words.get(i + 1).map(String::as_str) == Some("going")
+            && words.get(i + 2).map(String::as_str) == Some("to")
+        {
+            out.push("will".into());
+            i += 3;
+        } else {
+            out.push(words[i].clone());
+            i += 1;
+        }
+    }
+    out
+}
+
 /// A sentence in contraction-canonical form: normalised, then every known
 /// contraction expanded to the words it stands for. Used only to compare a
 /// realised sentence with its original, so "i'm" and "i am" count the same.
@@ -2277,6 +2354,7 @@ fn canonical(s: &str) -> String {
     let mark: String = s.chars().last().filter(|c| MARKS.contains(c)).map(String::from).unwrap_or_default();
     let bare = s.trim_end_matches(|c| MARKS.contains(&c));
     let words: Vec<String> = bare.split_whitespace().map(str::to_string).collect();
+    let words = fold_going_to(&words);
     let (kept, _) = strip_adverbs(&expand_contractions(&words));
     format!("{}{}", kept.join(" "), mark)
 }

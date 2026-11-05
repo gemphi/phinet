@@ -914,3 +914,98 @@ fn a_copula_takes_an_adjective_prepositional_or_modified_complement() {
     let act = read("both restaurants are good.").expect("a both-subject is covered");
     assert_eq!(realise(&act), "both restaurants are good.");
 }
+
+
+#[test]
+fn be_going_to_reads_as_the_near_future() {
+    use crate::ir::Modal;
+    // The Guide records "be going to V" as a will-modal over V.
+    let act = read("i am going to study french.").expect("be going to is covered");
+    assert_eq!(act.frame.pred, "study");
+    assert_eq!(act.frame.modal, Some(Modal::Will));
+    // "going to" and "will" are the same under the round-trip comparison.
+    let (matched, covered, _) = read_realise_rate(["i am going to study french."]);
+    assert_eq!((matched, covered), (1, 1));
+}
+
+#[test]
+fn a_going_to_question_reads() {
+    use crate::ir::{Force, Modal};
+    let act = read("are you going to eat anything?").expect("a going-to question is covered");
+    assert_eq!(act.force, Force::Ask);
+    assert_eq!(act.frame.pred, "eat");
+    assert_eq!(act.frame.modal, Some(Modal::Will));
+}
+
+/// Diagnostic: classify the clean sentences the reader still abstains on, by a
+/// text-only guess at why each is hard, to judge whether more reader rules can
+/// pay. Buckets are mutually exclusive, tried in order. Run alone:
+/// `cargo test -p phisor abstention_kinds -- --ignored --nocapture`.
+#[test]
+#[ignore = "diagnostic: classifies remaining abstentions by structural kind"]
+fn abstention_kinds() {
+    use std::collections::HashMap;
+    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
+    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) { crate::lexicon::prime(&p); }
+    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) { crate::lexicon::prime_function(&f); }
+    let (text, key) = (
+        std::fs::read_to_string(format!("{base}/person/murphy.txt")),
+        std::fs::read_to_string(format!("{base}/person/murphy_key.txt")),
+    );
+    let (Ok(text), Ok(key)) = (text, key) else { println!("no guide"); return; };
+    crate::lexicon::prime_irregular(&text);
+    let split = crate::guide::Split::new(crate::guide::read(&text, &key));
+    let clean = split.clean_strings(crate::guide::Part::Test);
+
+    let conj = ["and", "but", "or", "so", "if", "when", "because", "while", "until", "before", "after", "although", "unless", "that", "who", "which", "where", "whose"];
+    let mut kinds: HashMap<&str, usize> = HashMap::new();
+    let mut examples: HashMap<&str, Vec<String>> = HashMap::new();
+    let mut abst = 0usize;
+    for s in &clean {
+        if read(s).is_some() { continue; }
+        abst += 1;
+        let ws: Vec<&str> = s.trim_end_matches(['.', '?']).split_whitespace().collect();
+        let n_conj = ws.iter().filter(|w| conj.contains(w)).count();
+        let has_comma_word = false; // normalised text has no punctuation inside
+        let kind = if ws.len() >= 16 {
+            "very long (16+ words)"
+        } else if n_conj >= 2 {
+            "multi-clause (2+ conjunctions)"
+        } else if n_conj == 1 {
+            "one clause join left"
+        } else if ws.iter().any(|w| matches!(*w, "to")) {
+            "has infinitive/purpose to"
+        } else if ws.iter().any(|w| w.ends_with("ing")) {
+            "has an -ing form"
+        } else if has_comma_word {
+            "list"
+        } else {
+            "simple-looking (1 clause, no join)"
+        };
+        *kinds.entry(kind).or_default() += 1;
+        let e = examples.entry(kind).or_default();
+        if e.len() < 4 { e.push((*s).clone()); }
+    }
+    println!("clean {} ; abstained {abst}", clean.len());
+    let mut rows: Vec<_> = kinds.into_iter().collect();
+    rows.sort_by(|a, b| b.1.cmp(&a.1));
+    for (k, n) in &rows {
+        println!("{n:4}  {k}");
+        for ex in &examples[k] { println!("        {ex}"); }
+    }
+}
+
+#[test]
+fn a_cardinal_number_counts_the_head_and_round_trips() {
+    use crate::ir::{Attr, Filler, Role};
+    let act = read("she speaks four languages.").expect("a cardinal count is covered");
+    assert_eq!(act.frame.pred, "speak");
+    let Some(Filler::Thing(t)) = act.frame.get(&Role::Theme) else { panic!("theme is not a thing") };
+    assert_eq!(t.head, "language");
+    assert!(t.plural);
+    assert!(t.attrs.iter().any(|(a, f)| *a == Attr::Count && matches!(f, Filler::Word(w) if w == "four")));
+    assert_eq!(realise(&act), "she speaks four languages.");
+    // A number subject too.
+    let act = read("three people came.").expect("a cardinal subject is covered");
+    assert_eq!(realise(&act), "three people came.");
+}
