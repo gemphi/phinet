@@ -36,6 +36,47 @@ impl PosDictionary {
         dict
     }
 
+    /// Builds a dictionary from a mined `word\ttag` lexicon (WordNet codes:
+    /// `n` noun, `v` verb, `a`/`s` adjective, `r` adverb), layered under the
+    /// authoritative hand-keyed closed classes - a mined open-class entry
+    /// never overrides a known pronoun, determiner, auxiliary or preposition,
+    /// because the closed classes are small, certain and structural. This is
+    /// how the reader draws its word classes from the foundation lexicon
+    /// (data/lex/pos.tsv) instead of a compiled word list. Pure: the caller
+    /// passes the file's text so the crate reads no path of its own.
+    pub fn from_mined_tsv(text: &str) -> Self {
+        let mut dict = Self::new();
+        // Open-class mined entries first.
+        for line in text.lines() {
+            let mut it = line.split('\t');
+            let (Some(word), Some(tag)) = (it.next(), it.next()) else { continue };
+            // The mined tag is a WordNet code or a set of them. Map a word to
+            // one class for the single-valued dictionary: a purely nominal
+            // word is a noun, a purely verbal word a verb, and so on. An
+            // ambiguous word (noun-and-verb, "nv") is left to the richer
+            // phisor lexicon, which keeps the raw tag; here it is skipped so
+            // the dictionary never claims a single class it cannot justify.
+            let codes = tag.trim();
+            let pos = match codes {
+                "n" | "nr" => PartOfSpeech::Noun,
+                "v" => PartOfSpeech::Verb,
+                "a" | "s" => PartOfSpeech::Adjective,
+                "r" => PartOfSpeech::Adverb,
+                _ => continue,
+            };
+            dict.register(word, pos);
+        }
+        // The authoritative closed classes override, so a word the mined file
+        // tagged open is still read as its structural class.
+        dict.register_batch(PRONOUN_KEYS, PartOfSpeech::Pronoun);
+        dict.register_batch(DETERMINER_KEYS, PartOfSpeech::Determiner);
+        dict.register_batch(AUXILIARY_KEYS, PartOfSpeech::Auxiliary);
+        dict.register_batch(PREPOSITION_KEYS, PartOfSpeech::Preposition);
+        dict.register_batch(CONJUNCTION_KEYS, PartOfSpeech::Conjunction);
+        dict.register_batch(INTERJECTION_KEYS, PartOfSpeech::Interjection);
+        dict
+    }
+
     /// Accesses the global static keyed dictionary singleton.
     pub fn global() -> &'static Self {
         static INSTANCE: OnceLock<PosDictionary> = OnceLock::new();

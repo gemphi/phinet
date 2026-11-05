@@ -109,12 +109,49 @@ impl Gold {
         self.entries.iter().map(|e| (&e.act, e.sentence.as_str()))
     }
 
+    /// The entries in one part of the honest train/dev/test split, by the
+    /// Guide's own rule (docs/203) applied to the frame's file position: one
+    /// in ten is test, one in twenty dev, the rest train. A learner that is
+    /// told the gold (the Force learner) trains on `Part::Train` and is
+    /// measured on `Part::Test`, so it never trains and tests on one frame.
+    pub fn part(&self, part: Part) -> Vec<&Entry> {
+        self.entries.iter().enumerate().filter(|(i, _)| part_of(*i) == part).map(|(_, e)| e).collect()
+    }
+
+    /// Each Act beside its sentence, restricted to one part of the split.
+    pub fn pairs_in(&self, part: Part) -> Vec<(&Act, &str)> {
+        self.entries.iter().enumerate()
+            .filter(|(i, _)| part_of(*i) == part)
+            .map(|(_, e)| (&e.act, e.sentence.as_str()))
+            .collect()
+    }
+
     pub fn len(&self) -> usize {
         self.entries.len()
     }
 
     pub fn is_empty(&self) -> bool {
         self.entries.is_empty()
+    }
+}
+
+/// Which part of the honest split a gold frame falls in, by its file
+/// position - the same one-in-ten test, one-in-twenty dev rule the Guide
+/// uses (crate::guide::split), so the gold is cut for learning the same way
+/// the Guide is.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum Part {
+    Train,
+    Dev,
+    Test,
+}
+
+/// The part a frame at file position `i` (0-based) falls in.
+pub fn part_of(i: usize) -> Part {
+    match (i % 10, i % 20) {
+        (0, _) => Part::Test,
+        (_, 5) => Part::Dev,
+        _ => Part::Train,
     }
 }
 

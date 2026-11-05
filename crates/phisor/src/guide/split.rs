@@ -47,6 +47,38 @@ impl Split {
         (0..self.parts.len()).filter(|&i| self.parts[i] == part).collect()
     }
 
+    /// The sentences of one part, reconstructed as reader-ready strings: the
+    /// words joined with a single space and the terminating mark put back, so
+    /// the reader sees the sentence as English. Only the stop and question
+    /// marks are reconstructed (the reader knows those); a sentence the layout
+    /// broke (Mark::Line) or ended in `!` is skipped, as the reader reads
+    /// neither as a terminator it measures. This is how the held-out Guide
+    /// text becomes an honest instrument for the reader - real English it was
+    /// never hand-fit to, never the frozen gold.
+    pub fn strings(&self, part: Part) -> Vec<String> {
+        use super::Mark;
+        self.of(part)
+            .into_iter()
+            .filter_map(|i| {
+                let s = &self.sentences[i];
+                let mark = match s.mark {
+                    Mark::Stop => '.',
+                    Mark::Question => '?',
+                    _ => return None,
+                };
+                (s.words.len() >= super::SHORTEST).then(|| format!("{}{mark}", s.words.join(" ")))
+            })
+            .collect()
+    }
+
+    /// As [`strings`](Self::strings), keeping only sentences that are well
+    /// formed English rather than the Guide's exercise scaffolding. The test
+    /// reads the text alone - never whether the reader succeeds on it - so
+    /// the cleaned set cannot be chosen to flatter the reader.
+    pub fn clean_strings(&self, part: Part) -> Vec<String> {
+        self.strings(part).into_iter().filter(|s| well_formed(s)).collect()
+    }
+
     /// The sentence before `i` in the same run and unit, if there is one.
     pub fn before(&self, i: usize) -> Option<usize> {
         let p = i.checked_sub(1)?;
@@ -76,4 +108,36 @@ impl Split {
         runs.extend((!current.is_empty()).then_some(current));
         runs
     }
+}
+
+/// Whether a reconstructed Guide sentence is real prose and not exercise
+/// scaffolding. Excluded: an `etc` fragment; a stray single letter other than
+/// `a`/`i` (an item label `b`, or a split stem `s`, `es`); a word repeated
+/// straight away (an answer-key doubling, `shut shut`); and a leading label
+/// (`or ...`, or `a` followed directly by a pronoun, as in `a i'm not ...`).
+fn well_formed(s: &str) -> bool {
+    let body = s.trim_end_matches(['.', '?']);
+    let toks: Vec<&str> = body.split_whitespace().collect();
+    if toks.iter().any(|t| *t == "etc") {
+        return false;
+    }
+    if toks.iter().any(|t| t.chars().count() == 1 && t.chars().all(char::is_alphabetic) && *t != "a" && *t != "i") {
+        return false;
+    }
+    if toks.windows(2).any(|w| w[0] == w[1]) {
+        return false;
+    }
+    if toks.first() == Some(&"or") {
+        return false;
+    }
+    const PRONOUNS: [&str; 7] = ["i", "you", "he", "she", "it", "we", "they"];
+    if toks.first() == Some(&"a") {
+        if let Some(second) = toks.get(1) {
+            let head = second.split('\'').next().unwrap_or("");
+            if PRONOUNS.contains(&head) {
+                return false;
+            }
+        }
+    }
+    true
 }
