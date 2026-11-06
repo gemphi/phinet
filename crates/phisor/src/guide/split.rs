@@ -110,12 +110,85 @@ impl Split {
     }
 }
 
+/// One named Well_Formed operator: a pure, text-only test that says whether a
+/// sentence is exercise scaffolding. It never reads the Reader's output, the
+/// gold or the answer key, so filtering cannot depend on the Reader succeeding.
+// `name` and `rule` are read by the per-operator report (`removed_by`) and the tests.
+#[allow(dead_code)]
+pub struct Operator {
+    /// Stable name, used in records.
+    pub name: &'static str,
+    /// One-line definition.
+    pub rule: &'static str,
+    /// True when the sentence is rejected (is scaffolding).
+    pub rejects: fn(&str) -> bool,
+}
+
+/// The tokens of a reconstructed sentence, without its terminating mark.
+fn tokens(s: &str) -> Vec<&str> {
+    s.trim_end_matches(['.', '?']).split_whitespace().collect()
+}
+
+fn no_etc(s: &str) -> bool {
+    tokens(s).iter().any(|t| *t == "etc")
+}
+
+fn no_stray_letter(s: &str) -> bool {
+    tokens(s)
+        .iter()
+        .any(|t| t.chars().count() == 1 && t.chars().all(char::is_alphabetic) && *t != "a" && *t != "i")
+}
+
+fn no_doubling(s: &str) -> bool {
+    tokens(s).windows(2).any(|w| w[0] == w[1])
+}
+
+fn no_leading_or(s: &str) -> bool {
+    tokens(s).first() == Some(&"or")
+}
+
+fn no_label_a(s: &str) -> bool {
+    const PRONOUNS: [&str; 7] = ["i", "you", "he", "she", "it", "we", "they"];
+    let toks = tokens(s);
+    match (toks.first(), toks.get(1)) {
+        (Some(&"a"), Some(second)) => PRONOUNS.contains(&second.split('\'').next().unwrap_or("")),
+        _ => false,
+    }
+}
+
+/// The Well_Formed operators, defined by name in one place. A sentence is well
+/// formed when no operator rejects it.
+pub const OPERATORS: [Operator; 5] = [
+    Operator { name: "no_etc", rule: "the sentence has no `etc` token (a fragment)", rejects: no_etc },
+    Operator {
+        name: "no_stray_letter",
+        rule: "no token is a single letter other than `a` or `i` (an item label or split stem)",
+        rejects: no_stray_letter,
+    },
+    Operator {
+        name: "no_doubling",
+        rule: "no token equals the token after it (an answer-key doubling, `shut shut`)",
+        rejects: no_doubling,
+    },
+    Operator { name: "no_leading_or", rule: "the first token is not `or` (a list label)", rejects: no_leading_or },
+    Operator {
+        name: "no_label_a",
+        rule: "the first token is not `a` followed directly by a pronoun or pronoun contraction",
+        rejects: no_label_a,
+    },
+];
+
 /// Whether a reconstructed Guide sentence is real prose and not exercise
-/// scaffolding. Excluded: an `etc` fragment; a stray single letter other than
-/// `a`/`i` (an item label `b`, or a split stem `s`, `es`); a word repeated
-/// straight away (an answer-key doubling, `shut shut`); and a leading label
-/// (`or ...`, or `a` followed directly by a pronoun, as in `a i'm not ...`).
+/// scaffolding: no operator in [`OPERATORS`] rejects it.
 fn well_formed(s: &str) -> bool {
+    OPERATORS.iter().all(|o| !(o.rejects)(s))
+}
+
+/// The original single-body predicate, kept only so a test can assert the
+/// operator table gives the same verdict. Deleted once that has passed.
+#[cfg(test)]
+#[allow(dead_code)]
+pub(crate) fn well_formed_old(s: &str) -> bool {
     let body = s.trim_end_matches(['.', '?']);
     let toks: Vec<&str> = body.split_whitespace().collect();
     if toks.iter().any(|t| *t == "etc") {
