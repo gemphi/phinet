@@ -131,3 +131,45 @@ fn the_operator_table_agrees_with_the_old_well_formed_on_every_guide_sentence() 
         assert_eq!(well_formed(s), well_formed_old(s), "verdicts differ on {s:?}");
     }
 }
+
+/// One (accepted, rejected) example per operator, by name.
+const OPERATOR_EXAMPLES: [(&str, &str, &str); 5] = [
+    ("no_etc", "anna started evening classes.", "she left etc."),
+    ("no_stray_letter", "anna started evening classes.", "pick b now."),
+    ("no_doubling", "anna started evening classes.", "shut shut it was cold."),
+    ("no_leading_or", "anna started evening classes.", "or she stayed home."),
+    ("no_label_a", "a dog barked loudly.", "a she was here."),
+];
+
+#[test]
+fn each_operator_accepts_and_rejects_its_example() {
+    use super::split::OPERATORS;
+    assert_eq!(OPERATORS.len(), OPERATOR_EXAMPLES.len());
+    for (op, (name, ok, bad)) in OPERATORS.iter().zip(OPERATOR_EXAMPLES) {
+        assert_eq!(op.name, name);
+        assert!(!(op.rejects)(ok), "{name} should accept {ok:?}");
+        assert!((op.rejects)(bad), "{name} should reject {bad:?}");
+    }
+}
+
+// Feature: phinet-english-reader-coverage, Property 2: Text-only.
+// **Validates: Requirements 7.2, 7.6**
+#[test]
+fn operator_verdicts_do_not_depend_on_the_lexicon() {
+    use super::split::OPERATORS;
+    let probes: Vec<&str> = OPERATOR_EXAMPLES.iter().flat_map(|(_, a, b)| [*a, *b]).collect();
+    let verdicts = || -> Vec<Vec<bool>> {
+        OPERATORS.iter().map(|o| probes.iter().map(|s| (o.rejects)(s)).collect()).collect()
+    };
+    let before = verdicts();
+    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
+    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) {
+        crate::lexicon::prime(&p);
+    } else {
+        crate::lexicon::prime("she\tn\nleft\tv\n");
+    }
+    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) {
+        crate::lexicon::prime_function(&f);
+    }
+    assert_eq!(before, verdicts(), "a primed Lexicon changed an operator verdict");
+}
