@@ -59,6 +59,7 @@
 //!
 //! The plan, the order and the measures: `phinet/docs/phisor/plan.md`.
 
+pub mod abstraction;
 pub mod code;
 pub mod gold;
 pub mod ground;
