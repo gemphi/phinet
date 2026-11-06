@@ -13,6 +13,7 @@
 //! |---|---|
 //! | `mod` | [`Gold`], [`Entry`], [`Flaw`], the count, the fingerprint, [`read`] |
 //! | `read` | the row grammar and the filler grammar of the frozen file |
+//! | `unreachable_frames` | [`unreachable`]: the frames no text-only reader can label, by index |
 //!
 //! The frozen file is `phisor/tests/gold/frames.tsv`: nine tab-separated
 //! columns, described in full in its own header. It sits under `tests/`
@@ -26,6 +27,9 @@
 mod read;
 #[cfg(test)]
 mod tests;
+mod unreachable_frames;
+
+pub use unreachable_frames::{unreachable, Reason, Unreachable, UNREACHABLE};
 
 use crate::ir::Act;
 
