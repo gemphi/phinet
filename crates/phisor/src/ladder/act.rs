@@ -990,11 +990,35 @@ const SET_ASIDE_ADVERBS: [&str; 24] = [
     "nearly", "probably", "perhaps", "maybe", "just", "yet", "certainly",
 ];
 
-/// Remove the set-aside adverbs from a word list. Returns the remaining words
-/// and whether "never" was among them (it carries negation).
+/// Multi-word adverbials the IR has no slot for, set aside as a unit the same
+/// way the single words above are. Each is a fixed adverb phrase of time or
+/// degree that the gold leaves out of its frames, never a noun phrase ("a lot
+/// of money") or a place phrase the gold keeps under a preposition. They are
+/// matched as a contiguous run of words and dropped whole, so a sentence whose
+/// only remainder is a frame the reader covers becomes readable, and the same
+/// phrase is dropped on both sides of the round-trip (task 6.2, R3.3, R5.2).
+///
+/// Linguistic source: Murphy's *English Grammar in Use* adverbials of time -
+/// Unit 19 ("i'm doing it right now", the present moment) and Unit 108's
+/// position note, plus the fixed phrase "at the moment" Murphy uses throughout
+/// Units 1-3 and 25 for the present. "these days" is the present-period
+/// adverbial of Unit 5. Like the single adverbs, these sit around the verb and
+/// the gold has no slot for them.
+const SET_ASIDE_ADVERB_PHRASES: [&[&str]; 4] = [
+    &["right", "now"],
+    &["at", "the", "moment"],
+    &["these", "days"],
+    &["right", "away"],
+];
+
+/// Remove the set-aside adverb phrases, then the single set-aside adverbs, from
+/// a word list. Returns the remaining words and whether "never" was among them
+/// (it carries negation). Phrases are matched first so a word inside a kept
+/// phrase is not stripped on its own.
 fn strip_adverbs(words: &[String]) -> (Vec<String>, bool) {
+    let without_phrases = strip_adverb_phrases(words);
     let mut never = false;
-    let kept = words
+    let kept = without_phrases
         .iter()
         .filter(|w| {
             let is_adverb = SET_ASIDE_ADVERBS.contains(&w.as_str());
@@ -1006,6 +1030,27 @@ fn strip_adverbs(words: &[String]) -> (Vec<String>, bool) {
         .cloned()
         .collect();
     (kept, never)
+}
+
+/// Drop every contiguous run of words that equals a [`SET_ASIDE_ADVERB_PHRASES`]
+/// entry. Phrases do not overlap: once a run matches it is consumed whole.
+fn strip_adverb_phrases(words: &[String]) -> Vec<String> {
+    let mut out: Vec<String> = Vec::with_capacity(words.len());
+    let mut i = 0;
+    while i < words.len() {
+        let matched = SET_ASIDE_ADVERB_PHRASES
+            .iter()
+            .filter(|phrase| phrase.len() <= words.len() - i)
+            .find(|phrase| phrase.iter().zip(&words[i..]).all(|(p, w)| *p == w.as_str()));
+        match matched {
+            Some(phrase) => i += phrase.len(),
+            None => {
+                out.push(words[i].clone());
+                i += 1;
+            }
+        }
+    }
+    out
 }
 
 /// The explicit performative verbs the reader reads as naming their own force:

@@ -447,6 +447,40 @@ fn round_trip_ignores_only_the_set_aside_adverbs() {
 }
 
 #[test]
+fn a_multi_word_adverb_is_set_aside_as_a_unit() {
+    // "it's hard to find a job right now." has no IR slot for "right now"; the
+    // phrase is dropped whole, so it reads to the same frame as without it and
+    // round-trips. A trailing "right now" is the task's named example (R3.3).
+    let with = read("i travel a lot these days.");
+    let plain = read("i travel a lot.");
+    assert_eq!(with, plain, "a trailing multi-word adverb is set aside as a unit");
+    // The phrase is dropped on both sides of the round-trip comparison.
+    assert_eq!(canonical("joe is away at the moment."), canonical("joe is away."));
+    assert_eq!(canonical("it's hard right now."), canonical("it's hard."));
+}
+
+#[test]
+fn a_multi_word_adverb_does_not_strip_its_words_singly() {
+    let w = |s: &str| s.split_whitespace().map(str::to_string).collect::<Vec<_>>();
+    // The phrase is matched whole; its member words are ordinary outside it.
+    // "the moment" and "days" survive when they are not part of the phrase.
+    let kept = strip_adverb_phrases(&w("the moment has come these days"));
+    assert_eq!(kept, vec!["the", "moment", "has", "come"]);
+    // A noun phrase that merely contains a phrase word is untouched.
+    assert_eq!(strip_adverb_phrases(&w("these books")), vec!["these", "books"]);
+    assert_eq!(strip_adverb_phrases(&w("right turn")), vec!["right", "turn"]);
+}
+
+#[test]
+fn every_set_aside_adverb_phrase_is_more_than_one_word() {
+    // The phrase table is for multi-word adverbials only; single adverbs live
+    // in SET_ASIDE_ADVERBS. A one-word entry here would double-strip.
+    for phrase in SET_ASIDE_ADVERB_PHRASES {
+        assert!(phrase.len() >= 2, "{phrase:?} is a single word, not a phrase");
+    }
+}
+
+#[test]
 fn a_control_infinitive_is_realised_with_to_and_its_complements() {
     // The reader builds promise[come]; the realiser must say the "to".
     let act = read("i promise to come.").expect("an infinitive is covered");
