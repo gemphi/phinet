@@ -94,3 +94,40 @@ fn clean_strings_drop_exercise_scaffolding_and_keep_prose() {
     let kept = split.clean_strings(Part::Test);
     assert_eq!(kept, vec!["anna started evening classes recently.".to_string()]);
 }
+
+// Feature: phinet-english-reader-coverage, Property 1: Filter stability.
+// **Validates: Requirements 7.1, 7.2**
+#[test]
+fn the_operator_table_agrees_with_the_old_well_formed_on_every_guide_sentence() {
+    use super::split::{well_formed, well_formed_old};
+    // Hand-built sentences covering each operator's accept and reject sides.
+    let mut all: Vec<String> = [
+        "anna started evening classes recently.",
+        "she left etc.",
+        "pick b or c.",
+        "shut shut it was cold.",
+        "or she stayed home.",
+        "a she was here.",
+        "a they're late.",
+        "a dog barked loudly.",
+        "i think a lot.",
+        "was she wearing a hat?",
+    ]
+    .iter()
+    .map(|s| s.to_string())
+    .collect();
+    // The real Guide, every part, when it is present.
+    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data/person");
+    let read = |f: &str| std::fs::read_to_string(format!("{base}/{f}"));
+    if let (Ok(text), Ok(key)) = (read("murphy.txt"), read("murphy_key.txt")) {
+        let split = Split::new(super::read(&text, &key));
+        for part in [Part::Train, Part::Dev, Part::Test] {
+            all.extend(split.strings(part));
+        }
+    } else {
+        println!("no guide");
+    }
+    for s in &all {
+        assert_eq!(well_formed(s), well_formed_old(s), "verdicts differ on {s:?}");
+    }
+}

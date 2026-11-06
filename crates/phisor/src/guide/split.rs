@@ -180,15 +180,14 @@ pub const OPERATORS: [Operator; 5] = [
 
 /// Whether a reconstructed Guide sentence is real prose and not exercise
 /// scaffolding: no operator in [`OPERATORS`] rejects it.
-fn well_formed(s: &str) -> bool {
+pub(super) fn well_formed(s: &str) -> bool {
     OPERATORS.iter().all(|o| !(o.rejects)(s))
 }
 
 /// The original single-body predicate, kept only so a test can assert the
 /// operator table gives the same verdict. Deleted once that has passed.
 #[cfg(test)]
-#[allow(dead_code)]
-pub(crate) fn well_formed_old(s: &str) -> bool {
+pub(super) fn well_formed_old(s: &str) -> bool {
     let body = s.trim_end_matches(['.', '?']);
     let toks: Vec<&str> = body.split_whitespace().collect();
     if toks.iter().any(|t| *t == "etc") {
