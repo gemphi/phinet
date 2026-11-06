@@ -938,6 +938,11 @@ fn following_word(words: &[String], idx: usize) -> Option<&str> {
 /// same-subject clause under one of these as an infinitive and under any other
 /// verb as a finite clause, and the reader reads "to" only after one of these,
 /// so the two agree.
+///
+/// Linguistic source: the verbs Murphy's *English Grammar in Use* lists as
+/// taking a to-infinitive with the same subject (control / catenative verbs),
+/// Units 53-56 ("verb + to ...", "verb + -ing or to ..."). A hand list until
+/// task 5.1's audit; a learned proposal may later extend it (R5.2, R5.3).
 const CONTROL_VERBS: [&str; 22] = [
     "want", "try", "promise", "need", "have", "decide", "hope", "plan", "agree", "learn",
     "begin", "start", "like", "love", "hate", "refuse", "manage", "forget", "remember",
@@ -947,6 +952,11 @@ const CONTROL_VERBS: [&str; 22] = [
 /// Verbs that take a finite clause as their complement, with or without
 /// "that": "i think she works in a shop", "i knew sarah was busy". The clause
 /// is read as a sentence of its own and becomes the matrix verb's theme.
+///
+/// Linguistic source: the reporting and mental-state verbs Murphy lists as
+/// taking a that-clause (the "that" optional), Units 47-48 ("say and tell",
+/// reported speech) and 51-52 ("i think ...", "i don't think ..."). A hand
+/// list pending task 5.1's audit and a possible learned proposal (R5.2, R5.3).
 const COMPLEMENT_VERBS: [&str; 18] = [
     "think", "believe", "know", "say", "suppose", "guess", "realise", "realize", "notice",
     "feel", "mean", "suggest", "bet", "doubt", "imagine", "understand", "discover",
@@ -968,6 +978,12 @@ fn clause_verb_is_verbal(pred: &str) -> bool {
 /// wear/perfect). Time and place adverbs (tomorrow, here) are not here: the
 /// gold keeps those, under a preposition. "never" is here too, but is also
 /// read as negation.
+///
+/// Linguistic source: the adverbs of frequency and degree Murphy groups and
+/// positions around the verb, Units 107-110 ("always/usually/often ...",
+/// "already/yet/still", "even", "also/too"). A hand list pending task 5.1's
+/// audit; task 6.2 extends it with multi-word adverbs such as "right now"
+/// (R3.3, R5.2).
 const SET_ASIDE_ADVERBS: [&str; 24] = [
     "always", "often", "usually", "sometimes", "never", "already", "still", "soon",
     "recently", "really", "quite", "very", "also", "too", "again", "ever", "almost",
@@ -990,6 +1006,34 @@ fn strip_adverbs(words: &[String]) -> (Vec<String>, bool) {
         .cloned()
         .collect();
     (kept, never)
+}
+
+/// The explicit performative verbs the reader reads as naming their own force:
+/// first-person present "i promise ..." is a Commit and "i wish ..." a Wish.
+/// The reading is still gated verb by verb at each site (the force each sets
+/// differs), so this list names the sources rather than driving the branch;
+/// the harness audits it alongside the other hand lists (task 5.1).
+///
+/// Linguistic source: Austin/Searle's explicit performatives as the Guide
+/// uses them - Murphy Unit 36 ("i promise ...", a present commitment) and the
+/// wish/subjunctive of Units 40-41 ("i wish ..."). The Reader never maps a
+/// bare "will" to Commit, because the surface cannot tell Commit from Predict
+/// (R2.5); only an explicit performative sets the force.
+const PERFORMATIVES: [&str; 2] = ["promise", "wish"];
+
+/// The hand-authored closed word lists the Reader consults, each as a named
+/// list of lower-case words. Exposed so the harness can audit how much
+/// held-out text each covers and how much would change if the list were
+/// learned instead (R5.2, R5.3). The names match the lists' identifiers in
+/// this module. This is a read-only view: it does not change the Reader.
+pub fn word_lists() -> Vec<(&'static str, &'static [&'static str])> {
+    vec![
+        ("control_verbs", &CONTROL_VERBS),
+        ("complement_verbs", &COMPLEMENT_VERBS),
+        ("performatives", &PERFORMATIVES),
+        ("set_aside_adverbs", &SET_ASIDE_ADVERBS),
+        ("clause_conjunctions", &CLAUSE_CONJUNCTIONS),
+    ]
 }
 
 /// Read a normalised English sentence into an Act, or `None` when the
@@ -1036,6 +1080,12 @@ fn read_inner(norm: &str, words: Vec<String>) -> Option<Act> {
 /// subordinating (if, when, because, while, until, before, after, as, since,
 /// although, unless). The second clause is stored as an adjunct of the first,
 /// under the conjunction, the way a time phrase is stored under its preposition.
+///
+/// Linguistic source: Murphy's clause conjunctions - the coordinating set
+/// (Unit 93, "and but or so because") and the subordinating set for time and
+/// condition (Units 25 "when/while", 38 "if", 118-120 "when ... / after ...
+/// / before ... / until ... / while ... / as ... / since ... / although ...
+/// / unless ..."). A hand list pending task 5.1's audit (R5.2).
 const CLAUSE_CONJUNCTIONS: [&str; 15] = [
     "and", "but", "or", "so", "if", "when", "because", "while", "until", "before",
     "after", "as", "since", "although", "unless",

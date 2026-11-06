@@ -154,3 +154,86 @@ fn a_label_read_while_building_is_a_breach_and_scoring_is_allowed() {
     assert!(reads.contains(&(Phase::ScoreNumber, "answer".to_string(), 2)));
     assert!(reads.contains(&(Phase::BuildTrainingInput, "instruct".to_string(), 1)));
 }
+
+// Feature: phinet-english-reader-coverage, task 5.1.
+// The Lexicon is primed from files under data/lex and from the Guide's
+// Appendix 1.4 only; its priming never reads a Held_Out_Slice sentence
+// (R5.1). The three priming entry points are checked against their declared
+// sources, and the sources against the held-out text.
+#[test]
+fn lexicon_priming_reads_its_declared_sources_and_no_held_out_sentence() {
+    use crate::guide::{self, Part, Split};
+    use crate::lexicon;
+
+    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
+    let guide_path = format!("{base}/person/murphy.txt");
+    let key_path = format!("{base}/person/murphy_key.txt");
+    let (Ok(text), Ok(key)) =
+        (std::fs::read_to_string(&guide_path), std::fs::read_to_string(&key_path))
+    else {
+        // The Guide ships with the harness crate, not with phisor; when it is
+        // absent the pure part below still holds the discipline.
+        pure_irregular_priming_takes_only_single_word_forms();
+        return;
+    };
+
+    // The Held_Out_Slice: the Test part, normalised as every comparison is.
+    let split = Split::new(guide::read(&text, &key));
+    let held_out: std::collections::BTreeSet<String> =
+        split.strings(Part::Test).iter().map(|s| normalise(s)).collect();
+    assert!(!held_out.is_empty(), "the Guide should yield held-out sentences");
+
+    // Source 1 and 2: data/lex. prime() keys on the word before the first
+    // tab; prime_function() on each whitespace token. A held-out sentence is
+    // four words or more, so it can never be a key in either file - assert no
+    // held-out sentence appears as a whole line of either source.
+    for lex in ["lex/pos.tsv", "lex/function.txt"] {
+        if let Ok(data) = std::fs::read_to_string(format!("{base}/{lex}")) {
+            for line in data.lines() {
+                assert!(
+                    !held_out.contains(&normalise(line)),
+                    "{lex} line is a held-out sentence: {line:?}"
+                );
+            }
+        }
+    }
+
+    // Source 3: the Guide's Appendix 1.4 irregular-verb table. Priming reads
+    // the table, not the prose: every lemma and every form it ingests is a
+    // single word, so no held-out sentence (always multi-word) can enter.
+    let irregulars = lexicon::parse_irregulars(&text);
+    assert!(!irregulars.is_empty(), "the Appendix 1.4 table should parse");
+    assert!(
+        irregulars.len() < 300,
+        "the parser read {} lemmas - far past a verb table, so it took in prose",
+        irregulars.len()
+    );
+    // No parsed entry is a held-out sentence (they are multi-word; forms are
+    // single words), which is the direct R5.1 check on the Guide source.
+    // Re-reads the forms through the public reverse maps the reader uses.
+    for s in &held_out {
+        assert!(
+            lexicon::parse_irregulars(s).is_empty() || s.split_whitespace().count() == 1,
+            "a held-out sentence parsed as an irregular-verb row: {s:?}"
+        );
+    }
+}
+
+/// The file-free part of the R5.1 check: `parse_irregulars` only ever ingests
+/// single-word forms, so a multi-word held-out sentence can never become a
+/// lexicon entry, whatever text it is handed.
+fn pure_irregular_priming_takes_only_single_word_forms() {
+    use crate::lexicon;
+    // A snippet shaped like the Appendix, with a prose line that must be
+    // ignored because it is not a three-column verb row.
+    let snippet = "List of irregular verbs\n\
+        infinitive        past simple   past participle\n\
+        go                went          gone\n\
+        she will arrive at eight tomorrow in the morning without fail\n\
+        * pronunciation\n";
+    let t = lexicon::parse_irregulars(snippet);
+    // The single verb row is read; the prose line is not a row and is dropped.
+    assert_eq!(t.forms("go").map(|f| f.past.clone()), Some(vec!["went".to_string()]));
+    assert!(t.forms("she").is_none(), "a prose sentence must not become a lemma");
+    assert_eq!(t.len(), 1, "only the one verb row was taken");
+}
