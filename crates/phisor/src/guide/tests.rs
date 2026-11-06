@@ -95,43 +95,24 @@ fn clean_strings_drop_exercise_scaffolding_and_keep_prose() {
     assert_eq!(kept, vec!["anna started evening classes recently.".to_string()]);
 }
 
-// Feature: phinet-english-reader-coverage, Property 1: Filter stability.
-// **Validates: Requirements 7.1, 7.2**
 #[test]
-fn the_operator_table_agrees_with_the_old_well_formed_on_every_guide_sentence() {
-    use super::split::{well_formed, well_formed_old};
-    // Hand-built sentences covering each operator's accept and reject sides.
-    let mut all: Vec<String> = [
-        "anna started evening classes recently.",
-        "she left etc.",
-        "pick b or c.",
-        "shut shut it was cold.",
-        "or she stayed home.",
-        "a she was here.",
-        "a they're late.",
-        "a dog barked loudly.",
-        "i think a lot.",
-        "was she wearing a hat?",
-    ]
-    .iter()
-    .map(|s| s.to_string())
-    .collect();
-    // The real Guide, every part, when it is present.
-    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data/person");
-    let read = |f: &str| std::fs::read_to_string(format!("{base}/{f}"));
-    if let (Ok(text), Ok(key)) = (read("murphy.txt"), read("murphy_key.txt")) {
-        let split = Split::new(super::read(&text, &key));
-        for part in [Part::Train, Part::Dev, Part::Test] {
-            all.extend(split.strings(part));
-        }
-    } else {
-        println!("no guide");
-    }
-    for s in &all {
-        assert_eq!(well_formed(s), well_formed_old(s), "verdicts differ on {s:?}");
-    }
+fn removed_by_counts_each_operators_rejections_and_they_sum_with_the_kept() {
+    let mk = |w: &str| Sentence { words: w.split_whitespace().map(str::to_string).collect(), function: Function::Explain, mark: Mark::Stop, unit: 1, run: 0 };
+    // Index 0 and 10 are Test; the nine between are Train.
+    let mut s = vec![mk("or negative i'm not doing etc")];
+    s.extend((0..9).map(|_| mk("filler words go in here now")));
+    s.push(mk("shut shut it was cold so"));
+    let split = Split::new(s);
+    let counts = split.removed_by(Part::Test);
+    let names: Vec<&str> = counts.iter().map(|c| c.0).collect();
+    assert_eq!(names, ["no_etc", "no_stray_letter", "no_doubling", "no_leading_or", "no_label_a"]);
+    let by = |n: &str| counts.iter().find(|c| c.0 == n).map(|c| c.1);
+    assert_eq!(by("no_etc"), Some(1));
+    assert_eq!(by("no_leading_or"), Some(1));
+    assert_eq!(by("no_doubling"), Some(1));
+    assert_eq!(by("no_stray_letter"), Some(0));
+    assert!(split.clean_strings(Part::Test).is_empty());
 }
-
 /// One (accepted, rejected) example per operator, by name.
 const OPERATOR_EXAMPLES: [(&str, &str, &str); 5] = [
     ("no_etc", "anna started evening classes.", "she left etc."),
@@ -173,3 +154,4 @@ fn operator_verdicts_do_not_depend_on_the_lexicon() {
     }
     assert_eq!(before, verdicts(), "a primed Lexicon changed an operator verdict");
 }
+

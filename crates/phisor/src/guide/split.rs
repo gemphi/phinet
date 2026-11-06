@@ -79,6 +79,15 @@ impl Split {
         self.strings(part).into_iter().filter(|s| well_formed(s)).collect()
     }
 
+    /// How many sentences of one part each Well_Formed operator rejects, in
+    /// [`OPERATORS`] order, over the same strings
+    /// [`clean_strings`](Self::clean_strings) filters. A sentence that two
+    /// operators reject counts under both.
+    pub fn removed_by(&self, part: Part) -> Vec<(&'static str, usize)> {
+        let all = self.strings(part);
+        OPERATORS.iter().map(|o| (o.name, all.iter().filter(|s| (o.rejects)(s)).count())).collect()
+    }
+
     /// The sentence before `i` in the same run and unit, if there is one.
     pub fn before(&self, i: usize) -> Option<usize> {
         let p = i.checked_sub(1)?;
@@ -113,8 +122,6 @@ impl Split {
 /// One named Well_Formed operator: a pure, text-only test that says whether a
 /// sentence is exercise scaffolding. It never reads the Reader's output, the
 /// gold or the answer key, so filtering cannot depend on the Reader succeeding.
-// `name` and `rule` are read by the per-operator report (`removed_by`) and the tests.
-#[allow(dead_code)]
 pub struct Operator {
     /// Stable name, used in records.
     pub name: &'static str,
@@ -182,34 +189,4 @@ pub const OPERATORS: [Operator; 5] = [
 /// scaffolding: no operator in [`OPERATORS`] rejects it.
 pub(super) fn well_formed(s: &str) -> bool {
     OPERATORS.iter().all(|o| !(o.rejects)(s))
-}
-
-/// The original single-body predicate, kept only so a test can assert the
-/// operator table gives the same verdict. Deleted once that has passed.
-#[cfg(test)]
-pub(super) fn well_formed_old(s: &str) -> bool {
-    let body = s.trim_end_matches(['.', '?']);
-    let toks: Vec<&str> = body.split_whitespace().collect();
-    if toks.iter().any(|t| *t == "etc") {
-        return false;
-    }
-    if toks.iter().any(|t| t.chars().count() == 1 && t.chars().all(char::is_alphabetic) && *t != "a" && *t != "i") {
-        return false;
-    }
-    if toks.windows(2).any(|w| w[0] == w[1]) {
-        return false;
-    }
-    if toks.first() == Some(&"or") {
-        return false;
-    }
-    const PRONOUNS: [&str; 7] = ["i", "you", "he", "she", "it", "we", "they"];
-    if toks.first() == Some(&"a") {
-        if let Some(second) = toks.get(1) {
-            let head = second.split('\'').next().unwrap_or("");
-            if PRONOUNS.contains(&head) {
-                return false;
-            }
-        }
-    }
-    true
 }
