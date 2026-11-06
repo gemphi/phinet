@@ -89,5 +89,7 @@ impl Abstraction {
         }
     }
 }
+mod predict;
+pub use predict::{predict, Arm, Rule, Scores};
 #[cfg(test)]
 mod tests;
