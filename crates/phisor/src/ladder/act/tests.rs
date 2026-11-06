@@ -991,3 +991,24 @@ fn a_cardinal_number_counts_the_head_and_round_trips() {
     let act = read("three people came.").expect("a cardinal subject is covered");
     assert_eq!(realise(&act), "three people came.");
 }
+
+#[test]
+fn three_clauses_read_whole_and_round_trip() {
+    use crate::ir::{Filler, Role};
+    // read_compound loops past the first conjunction, so every trailing clause
+    // is attached under its own conjunction and the sentence reads whole.
+    let act =
+        read("he works in a shop and she stays at home and they are happy.").expect("three clauses are covered");
+    assert!(matches!(act.frame.get(&Role::named("and")), Some(Filler::Clause(_))));
+    assert_eq!(realise(&act), "he works in a shop and she stays at home and they are happy.");
+    // Mixed coordinators round-trip in order, including a subordinate tail.
+    let act = read("i was tired so i went to bed and i slept well.").expect("a three-clause chain is covered");
+    assert_eq!(realise(&act), "i was tired so i went to bed and i slept well.");
+}
+
+#[test]
+fn a_trailing_clause_that_does_not_read_leaves_no_partial_frame() {
+    // The last span ("and") is not a clause, so the whole sentence is
+    // uncovered rather than read as the first two clauses only.
+    assert!(read("he works in a shop and she stays at home and.").is_none());
+}

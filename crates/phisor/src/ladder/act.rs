@@ -1099,21 +1099,57 @@ fn read_compound(words: &[String]) -> Option<Act> {
     if words.len() < 5 {
         return None;
     }
+    // Find the first conjunction whose left side is a clause of its own: that
+    // clause is the head the trailing clauses hang under. A conjunction between
+    // two nouns ("karen and joe played tennis") has no clause on its left, so
+    // it is skipped and the sentence stays uncovered.
     for k in 2..=(words.len() - 3) {
         if !CLAUSE_CONJUNCTIONS.contains(&words[k].as_str()) {
             continue;
         }
-        let Some(left) = read_inner("x.", words[..k].to_vec()) else { continue };
-        let Some(right) = read_inner("x.", words[k + 1..].to_vec()) else { continue };
-        let plain = left.force == Force::Assert && right.force == Force::Assert;
-        if !plain || !clause_verb_is_verbal(&left.frame.pred) || !clause_verb_is_verbal(&right.frame.pred) {
-            continue;
+        let Some(head) = read_plain_clause(&words[..k]) else { continue };
+        // Attach every trailing "<conjunction> <clause>" in turn, looping past
+        // the first conjunction so a sentence with three or more clauses reads
+        // whole. Each trailing clause is a plain verbal assertion delimited by
+        // the next clause conjunction (or the end); any gap that is not such a
+        // clause means the whole sentence is uncovered - never a partial frame.
+        if let Some(act) = read_trailing_clauses(head, words, k) {
+            return Some(act);
         }
-        let mut act = left;
-        act.frame = act.frame.with(Role::named(&words[k]), Filler::clause(right.frame));
-        return Some(act);
     }
     None
+}
+
+/// A span of words read as a plain verbal assertion: the unit a compound hangs
+/// its clauses on. `None` unless it reads whole as an `Assert` over a verbal
+/// predicate, so a bare noun phrase or a question is never taken for a clause.
+fn read_plain_clause(words: &[String]) -> Option<Frame> {
+    let act = read_inner("x.", words.to_vec())?;
+    (act.force == Force::Assert && clause_verb_is_verbal(&act.frame.pred)).then_some(act.frame)
+}
+
+/// Attach each trailing "<conjunction> <clause>" onto `head`, starting at the
+/// conjunction `first`. Loops over every following clause conjunction, reading
+/// the span up to the next one (or the sentence end) as a plain clause. Returns
+/// the whole frame only when every span reads; otherwise `None`, never a frame
+/// missing any trailing words.
+fn read_trailing_clauses(head: Frame, words: &[String], first: usize) -> Option<Act> {
+    let mut frame = head;
+    let mut conj = first;
+    loop {
+        let start = conj + 1;
+        // The next clause conjunction after this one bounds the current clause;
+        // with none left, the clause runs to the end of the sentence.
+        let next = (start + 1..words.len())
+            .find(|&i| CLAUSE_CONJUNCTIONS.contains(&words[i].as_str()));
+        let end = next.unwrap_or(words.len());
+        let clause = read_plain_clause(&words[start..end])?;
+        frame = frame.with(Role::named(&words[conj]), Filler::clause(clause));
+        match next {
+            Some(n) => conj = n,
+            None => return Some(Act::new(Force::Assert, frame)),
+        }
+    }
 }
 
 /// The reader proper, over a sentence already expanded and stripped of its
