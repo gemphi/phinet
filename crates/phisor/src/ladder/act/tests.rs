@@ -957,31 +957,13 @@ fn abstention_kinds() {
     let split = crate::guide::Split::new(crate::guide::read(&text, &key));
     let clean = split.clean_strings(crate::guide::Part::Test);
 
-    let conj = ["and", "but", "or", "so", "if", "when", "because", "while", "until", "before", "after", "although", "unless", "that", "who", "which", "where", "whose"];
     let mut kinds: HashMap<&str, usize> = HashMap::new();
     let mut examples: HashMap<&str, Vec<String>> = HashMap::new();
     let mut abst = 0usize;
     for s in &clean {
         if read(s).is_some() { continue; }
         abst += 1;
-        let ws: Vec<&str> = s.trim_end_matches(['.', '?']).split_whitespace().collect();
-        let n_conj = ws.iter().filter(|w| conj.contains(w)).count();
-        let has_comma_word = false; // normalised text has no punctuation inside
-        let kind = if ws.len() >= 16 {
-            "very long (16+ words)"
-        } else if n_conj >= 2 {
-            "multi-clause (2+ conjunctions)"
-        } else if n_conj == 1 {
-            "one clause join left"
-        } else if ws.iter().any(|w| matches!(*w, "to")) {
-            "has infinitive/purpose to"
-        } else if ws.iter().any(|w| w.ends_with("ing")) {
-            "has an -ing form"
-        } else if has_comma_word {
-            "list"
-        } else {
-            "simple-looking (1 clause, no join)"
-        };
+        let kind = crate::ladder::abstention_kind(s);
         *kinds.entry(kind).or_default() += 1;
         let e = examples.entry(kind).or_default();
         if e.len() < 4 { e.push((*s).clone()); }
