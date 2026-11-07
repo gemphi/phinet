@@ -16,6 +16,16 @@
 //! 32.5 -> 33.2. `but`/`or`/`if` joins mostly fail in a half (`it's <adj> than`,
 //! leading `now`, `go out now`, `ago`), so each is a separate later change.
 //!
+//! Task 7.4 (infinitive; 122): most abstained sentences are control verbs the
+//! reader already knows ("want to", "need to") that fail inside the infinitive
+//! or in a question. Two changes: `to be <complement>` reads as a copula
+//! infinitive (read/gerund.rs), and a yes/no question with a control verb
+//! ("do you want to eat now?") reads its infinitive (read/question.rs). Clean
+//! coverage 400/1201 -> 404/1201, soundness 317/400 -> 319/404 (unsound 83 ->
+//! 85); CLEAN_COVERAGE_BAR 33.2 -> 33.5. Left: `give up`/`go on` phrasal
+//! verbs, `able to`, `to know what ...`, `have to` in the perfect, `too/enough
+//! to`, and noun-host infinitives ("a way to celebrate").
+//!
 //! Abstention by distance bucket (`abstention_kinds`): simple 305,
 //! one_join 274, infinitive 122, ing_form 76, multi_clause 26, very_long 10.
 //!

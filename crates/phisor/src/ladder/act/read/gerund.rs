@@ -66,6 +66,24 @@ pub(in crate::ladder::act) fn finish_with_gerund(mut frame: Frame, words: &[Stri
 /// abstains rather than guess).
 pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler) -> Option<Act> {
     let verb = words.first()?;
+    // "to be a teacher": the copula infinitive takes the controlling subject
+    // as its theme and the rest as its complement, as a finite copula does.
+    if verb == "be" {
+        let rest = &words[1..];
+        let mut frame = Frame::new("be", Tense::Present).with(Role::Theme, subject.clone());
+        if rest.first().is_some_and(|w| is_preposition(w)) {
+            let (preps, used) = read_prepositions(rest);
+            if preps.is_empty() || used != rest.len() {
+                return None;
+            }
+            for (role, filler) in preps {
+                frame = frame.with(role, filler);
+            }
+        } else {
+            frame = frame.with(Role::As, complement_filler(rest)?);
+        }
+        return Some(Act::new(Force::Assert, frame));
+    }
     if is_aux(verb) || verb == "to" {
         return None;
     }

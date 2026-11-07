@@ -112,6 +112,14 @@ pub(in crate::ladder::act) fn read_question(words: &[String]) -> Option<Act> {
         frame = frame.with(Role::Theme, subject);
     }
 
+    // A control verb with its own-subject infinitive ("do you want to eat
+    // now?"): the inner clause is the theme, as in the declarative.
+    if wh.is_none() && lists::control_verbs().contains(&lemma.as_str()) && words.get(i).map(String::as_str) == Some("to") {
+        if let Some(inner) = read_infinitive(&words[i + 1..], frame.get(&Role::Agent)?) {
+            return Some(Act::new(Force::Ask, frame.with(Role::Theme, Filler::clause(inner.frame))));
+        }
+    }
+
     // A leading object pronoun after the verb is a recipient ("who gave her
     // the book"); then the object noun phrase, then prepositions.
     let rest = &words[i..];
