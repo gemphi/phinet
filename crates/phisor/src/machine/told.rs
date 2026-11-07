@@ -16,7 +16,10 @@
 //! descriptors are in `ask`; and the answer is the image of the hole's role
 //! over those events — `image(rows(theme), events)`. The whole of it is one
 //! lambda in phiclm's Lisp, as every language operation is, built from the
-//! same four named set operations `ask` uses plus `image` and `union`.
+//! same four named set operations `ask` uses plus `image` and `union` -
+//! and since the cards (`machine::ops`), the lambda is `told-answer` in
+//! `data/ops/core.lisp`, applied to the roles' rows and the fixed roles'
+//! relations: the operation is a card in a file, not a shape built here.
 //!
 //! A `where` is read off every preposition role the events carry, not only
 //! the one the reader guessed: "sarah is driving to work" put her place
@@ -61,6 +64,7 @@ pub fn answer_told_kinds(act: &Act, mut kinds: KindRows) -> Result<Answered, Ask
     let host = PhisorHost::new(Arena::new(ARENA_SEED), kinds).map_err(|e| AskError::Host(e.to_string()))?;
     let mut machine = checked(host).map_err(|e| AskError::Host(e.to_string()))?;
     let mut environment = Env::new();
+    super::ops::load(&mut machine, &mut environment).map_err(AskError::Machine)?;
     machine.eval(&define_told(query_told(&filters, &roles)), &mut environment).map_err(AskError::Machine)?;
     let value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
     match value {
@@ -119,19 +123,13 @@ fn preposition_roles(kinds: &KindRows) -> Vec<String> {
         .collect()
 }
 
-/// `image(union(phisor-rows(role)…), domain(meet(identity(referents(…)) …)))`.
+/// `(told-answer (list (phisor-rows role)…) (list (identity (referents …))…))`:
+/// the card in `data/ops/core.lisp`, which is
+/// `image(union-all(roles), domain(meet-all(relations)))`.
 fn query_told(filters: &[Constraint], roles: &[String]) -> Value {
-    let mut relations: Vec<Value> = filters.iter().map(relation).collect();
-    let first = relations.remove(0);
-    let met = match relations.is_empty() {
-        true => call("meet", vec![first.clone(), first]),
-        false => relations.into_iter().fold(first, |l, r| call("meet", vec![l, r])),
-    };
-    let events = call("domain", vec![met]);
-    let mut rows: Vec<Value> = roles.iter().map(|r| call("phisor-rows", vec![Value::Str(r.clone())])).collect();
-    let head = rows.remove(0);
-    let role = rows.into_iter().fold(head, |l, r| call("union", vec![l, r]));
-    call("image", vec![role, events])
+    let relations: Vec<Value> = filters.iter().map(relation).collect();
+    let rows: Vec<Value> = roles.iter().map(|r| call("phisor-rows", vec![Value::Str(r.clone())])).collect();
+    call("told-answer", vec![call("list", rows), call("list", relations)])
 }
 
 fn define_told(body: Value) -> Value {
