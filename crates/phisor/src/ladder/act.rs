@@ -271,7 +271,16 @@ fn adjuncts(frame: &Frame, skip: Option<&Role>) -> Vec<String> {
                 // A conjunction and its clause: "... and he stays", "... if i have time".
                 if let Filler::Clause(inner) = filler {
                     out.push(prep.clone());
-                    out.extend(statement(inner));
+                    // A purpose infinitive ("... to buy bread"): `to` over a
+                    // clause that shares the matrix agent is said as `to` + the
+                    // bare verb and its complements, not as a finite statement.
+                    if prep == "to" && is_control_infinitive(frame, inner) {
+                        out.push(inner.pred.clone());
+                        out.extend(complements_skipping(inner, None, true));
+                        out.extend(adjuncts(inner, None));
+                    } else {
+                        out.extend(statement(inner));
+                    }
                     continue;
                 }
                 if is_bare_adverb(filler) {
@@ -1450,7 +1459,78 @@ fn read_infinitive(words: &[String], subject: &Filler) -> Option<Act> {
 /// `by <np>` demoted agent (Murphy Unit 42-44). Returns the Act, or `None`
 /// when any word is left unaccounted for, so a partial parse abstains rather
 /// than dropping material it cannot place.
-fn finish_predicate(mut frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
+///
+/// A sentence that reads whole today is never disturbed: the plain reading is
+/// tried first, and only when it abstains is a trailing purpose infinitive
+/// ("went to the shop to buy bread") peeled off and read (R3.3, task 6.3).
+fn finish_predicate(frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
+    finish_plain(frame.clone(), words, from, force)
+        .or_else(|| finish_with_purpose(frame, words, from, force))
+}
+
+/// Nouns and adverbs whose following `to` + verb modifies them ("something to
+/// eat", "somewhere to stay") instead of giving the purpose of the action. The
+/// reader leaves these to abstain: reading them as purpose would round-trip
+/// the words but state the wrong structure.
+///
+/// Linguistic source: Murphy's *English Grammar in Use*, the infinitive after
+/// `something`, `anything`, `somewhere` and the like ("I need something to
+/// eat"), where the infinitive modifies the pronoun.
+const TO_MODIFIED_HOSTS: [&str; 12] = [
+    "something", "anything", "nothing", "everything", "somewhere", "anywhere",
+    "nowhere", "someone", "anyone", "everyone", "somebody", "anybody",
+];
+
+/// Whether `word` can open a purpose infinitive: a bare lexical verb. The
+/// primed foundation lexicon decides (verb-capable, not a function word);
+/// unprimed, only the reader's closed instructional verbs count, so the rule
+/// stays sound without the lexicon. An inflected form ("buying", "buys") is
+/// not a bare verb and does not qualify.
+fn is_purpose_verb(word: &str) -> bool {
+    if is_aux(word) || is_determiner(word) || is_preposition(word) || PRONOUNS.contains(&word) {
+        return false;
+    }
+    let known = if crate::lexicon::is_primed() {
+        crate::lexicon::verb_capable(word) && !crate::lexicon::function_word(word)
+    } else {
+        IMPERATIVE_VERBS.contains(&word)
+    };
+    known && read_verb(word).0 == word
+}
+
+/// The purpose-infinitive reading of a predicate tail: the first `to` followed
+/// by a bare verb splits the tail in two. The words before it must read whole
+/// on their own (object and prepositional phrases), and the words after it read
+/// as an infinitive clause sharing the matrix agent. The clause is stored under
+/// `Via("to")`, the way a prepositional `to` phrase is. Returns `None` unless
+/// the whole tail is accounted for - never a partial frame (R3.4).
+///
+/// Not read: a passive or agentless frame (no controlling subject), and a
+/// control verb, whose `to` is its own complement and is read by the control
+/// branch, so a control infinitive is never read twice.
+fn finish_with_purpose(frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
+    if frame.voice != Voice::Active || CONTROL_VERBS.contains(&frame.pred.as_str()) {
+        return None;
+    }
+    let agent = frame.get(&Role::Agent)?.clone();
+    for k in from..words.len().saturating_sub(1) {
+        if words[k] != "to" || !is_purpose_verb(&words[k + 1]) {
+            continue;
+        }
+        if k > 0 && TO_MODIFIED_HOSTS.contains(&words[k - 1].as_str()) {
+            continue;
+        }
+        let Some(head) = finish_plain(frame.clone(), &words[..k], from, force) else { continue };
+        let Some(inner) = read_infinitive(&words[k + 1..], &agent) else { continue };
+        let frame = head.frame.with(Role::Via("to".into()), Filler::clause(inner.frame));
+        return Some(Act::new(force, frame));
+    }
+    None
+}
+
+/// The plain reading of the words after the verb group (see
+/// [`finish_predicate`]): objects and prepositional phrases only.
+fn finish_plain(mut frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
     let passive = frame.voice == Voice::Passive;
     let pred = frame.pred.clone();
     let rest = &words[from..];

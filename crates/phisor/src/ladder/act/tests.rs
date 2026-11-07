@@ -1046,3 +1046,55 @@ fn a_trailing_clause_that_does_not_read_leaves_no_partial_frame() {
     // uncovered rather than read as the first two clauses only.
     assert!(read("he works in a shop and she stays at home and.").is_none());
 }
+
+#[test]
+fn a_purpose_infinitive_reads_and_round_trips() {
+    use crate::ir::{Filler, Role};
+    // "to" + a bare verb after a complete predicate is a purpose clause stored
+    // under `to`, not a theme and not a prepositional phrase.
+    let act = read("he went to the library to read a book.").expect("a purpose infinitive is covered");
+    assert!(matches!(act.frame.get(&Role::Via("to".into())), Some(Filler::Thing(_))));
+    assert!(act.frame.slots.iter().any(|(r, f)| *r == Role::Via("to".into()) && matches!(f, Filler::Clause(_))));
+    assert!(act.frame.get(&Role::Theme).is_none());
+    assert_eq!(realise(&act), "he went to the library to read a book.");
+    // Directly after the verb, with a complement of its own.
+    let act = read("she came to open the door.").expect("a bare purpose infinitive is covered");
+    assert_eq!(realise(&act), "she came to open the door.");
+}
+
+#[test]
+fn a_control_infinitive_is_not_also_read_as_a_purpose() {
+    use crate::ir::{Filler, Role};
+    // "want" owns its `to`: the clause is the theme and nothing sits under `to`.
+    let act = read("i want to open the door.").expect("a control infinitive is covered");
+    assert!(matches!(act.frame.get(&Role::Theme), Some(Filler::Clause(_))));
+    assert!(!act.frame.slots.iter().any(|(r, _)| *r == Role::Via("to".into())));
+}
+
+#[test]
+fn a_noun_modifying_infinitive_is_not_read_as_a_purpose() {
+    // "somewhere to read" modifies the adverb; reading it as purpose would
+    // round-trip the words and state the wrong structure. The plain reading
+    // fails here (it takes "to read" as a phrase and strands "a book"), so
+    // only the host guard stops the purpose fallback from reading it.
+    assert!(read("he went somewhere to read a book.").is_none());
+    // The same tail without the host reads as a purpose.
+    assert!(read("he went there to read a book.").is_some());
+}
+
+#[test]
+fn a_prepositional_to_is_not_disturbed_by_the_purpose_rule() {
+    use crate::ir::Role;
+    let act = read("she went to london.").expect("a prepositional to is covered");
+    assert!(!act.frame.slots.iter().any(|(_, f)| matches!(f, crate::ir::Filler::Clause(_))));
+    assert!(act.frame.slots.iter().any(|(r, _)| *r == Role::Via("to".into())));
+    assert_eq!(realise(&act), "she went to london.");
+}
+
+#[test]
+fn a_purpose_tail_that_does_not_read_leaves_no_partial_frame() {
+    // The clause ends in a preposition with nothing after it, so it cannot be
+    // placed and the whole sentence abstains rather than reading "went to the
+    // library" alone.
+    assert!(read("he went to the library to read a book at.").is_none());
+}
