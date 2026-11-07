@@ -334,10 +334,7 @@ fn is_bare_adverb(filler: &Filler) -> bool {
     matches!(
         filler,
         Filler::Thing(t) if t.det.is_none() && t.attrs.is_empty()
-            && matches!(
-                t.head.as_str(),
-                "tomorrow" | "today" | "yesterday" | "here" | "there" | "now" | "later"
-            )
+            && (is_time_adverb(&t.head) || is_place_adverb(&t.head))
     )
 }
 
@@ -768,7 +765,7 @@ fn past(verb: &str) -> String {
 /// gold shapes are third-person; a fuller reader would track number.
 fn third_singular(frame: &Frame) -> bool {
     match frame.get(&Role::Agent).or_else(|| frame.get(&Role::Theme)) {
-        Some(Filler::Pronoun(p)) => matches!(p.to_lowercase().as_str(), "he" | "she" | "it"),
+        Some(Filler::Pronoun(p)) => lists::third_singular_pronouns().contains(p.to_lowercase()),
         Some(Filler::Thing(t)) => !t.plural,
         _ => true,
     }
@@ -779,8 +776,7 @@ fn third_singular(frame: &Frame) -> bool {
 fn is_first_person(frame: &Frame) -> bool {
     match frame.get(&Role::Agent).or_else(|| frame.get(&Role::Theme)) {
         Some(Filler::Pronoun(p)) => {
-            let p = p.to_lowercase();
-            p == "i" || p == "we"
+            lists::first_person_pronouns().contains(p.to_lowercase())
         }
         _ => false,
     }
@@ -940,7 +936,7 @@ fn following_word(words: &[String], idx: usize) -> Option<&str> {
 /// preposition could be read as one; when the foundation lexicon is primed it
 /// is asked, and the copula and auxiliaries are always accepted.
 fn clause_verb_is_verbal(pred: &str) -> bool {
-    matches!(pred, "be" | "have" | "do")
+    lists::aux_lemmas().contains(pred)
         || !crate::lexicon::is_primed()
         || crate::lexicon::verb_capable(pred)
 }
@@ -1658,16 +1654,7 @@ fn read_noun_phrase(words: &[String]) -> Option<(Filler, usize)> {
 /// The determiner a word denotes, for the reader (inverse of
 /// [`determiner_word`]). Only the closed set the gold frames use.
 fn determiner_of(word: &str) -> Option<crate::ir::Det> {
-    use crate::ir::Det;
-    Some(match word {
-        "the" => Det::Definite,
-        "a" | "an" => Det::Indefinite,
-        "this" | "these" => Det::Near,
-        "that" | "those" => Det::Far,
-        "some" | "any" | "no" | "every" | "each" | "all" | "many" | "both" | "half" | "several" | "few" | "most" => Det::Quant(word.to_string()),
-        "my" | "your" | "his" | "her" | "its" | "our" | "their" => Det::Owner(word.to_string()),
-        _ => return None,
-    })
+    lists::determiner(word)
 }
 
 /// Whether a word reads as an adjective modifying the head that follows it.

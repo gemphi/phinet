@@ -293,3 +293,77 @@ pub fn article_exceptions() -> &'static Vec<(String, String)> {
     static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();
     CELL.get_or_init(|| load_pairs("article_exception.tsv"))
 }
+tagged_list!(
+    /// Pronouns whose present verb takes `-s`.
+    third_singular_pronouns,
+    "pronoun.tsv",
+    "third_singular"
+);
+tagged_list!(
+    /// First-person subject pronouns.
+    first_person_pronouns,
+    "pronoun.tsv",
+    "first_person"
+);
+tagged_list!(
+    /// The bare auxiliary verbs, always accepted as a clause verb.
+    aux_lemmas,
+    "word_class.tsv",
+    "aux_lemma"
+);
+/// The determiner a spelling stands for, from the `det_*` classes of
+/// `word_class.tsv`. A quantifier or owner is carried by its own spelling.
+pub fn determiner(word: &str) -> Option<crate::ir::Det> {
+    use crate::ir::Det;
+    tagged_list!(
+        /// Definite determiners.
+        definite,
+        "word_class.tsv",
+        "det_definite"
+    );
+    tagged_list!(
+        /// Indefinite determiners.
+        indefinite,
+        "word_class.tsv",
+        "det_indefinite"
+    );
+    tagged_list!(
+        /// Near determiners.
+        near,
+        "word_class.tsv",
+        "det_near"
+    );
+    tagged_list!(
+        /// Far determiners.
+        far,
+        "word_class.tsv",
+        "det_far"
+    );
+    tagged_list!(
+        /// Quantifiers.
+        quant,
+        "word_class.tsv",
+        "det_quant"
+    );
+    tagged_list!(
+        /// Possessives.
+        owner,
+        "word_class.tsv",
+        "det_owner"
+    );
+    Some(if definite().contains(word) {
+        Det::Definite
+    } else if indefinite().contains(word) {
+        Det::Indefinite
+    } else if near().contains(word) {
+        Det::Near
+    } else if far().contains(word) {
+        Det::Far
+    } else if quant().contains(word) {
+        Det::Quant(word.to_string())
+    } else if owner().contains(word) {
+        Det::Owner(word.to_string())
+    } else {
+        return None;
+    })
+}
