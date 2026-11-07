@@ -1,0 +1,24 @@
+//! The `read` side of the act height, split by concept.
+mod verb;
+mod entry;
+mod clause;
+mod plain;
+mod gerund;
+mod subject;
+mod noun_phrase;
+mod copula;
+mod negation;
+mod question;
+mod imperative;
+pub(in crate::ladder::act) use verb::*;
+pub(in crate::ladder::act) use entry::*;
+pub use entry::{read};
+pub(in crate::ladder::act) use clause::*;
+pub(in crate::ladder::act) use plain::*;
+pub(in crate::ladder::act) use gerund::*;
+pub(in crate::ladder::act) use subject::*;
+pub(in crate::ladder::act) use noun_phrase::*;
+pub(in crate::ladder::act) use copula::*;
+pub(in crate::ladder::act) use negation::*;
+pub(in crate::ladder::act) use question::*;
+pub(in crate::ladder::act) use imperative::*;
