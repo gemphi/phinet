@@ -21,6 +21,7 @@ use crate::lexicon::auxiliary::{Entry, Family};
 use crate::lexicon::lists;
 use crate::ir::{Act, Aspect, Filler, Force, Frame, Polarity, Role, Tense, Thing, Voice, Wh};
 
+mod express;
 mod names;
 #[cfg(test)]
 mod tests;
@@ -48,7 +49,7 @@ pub fn realise(act: &Act) -> String {
             said
         }
         // Everything else is a statement in subject-verb-object order.
-        _ => statement(frame),
+        _ => express::phrase(act.force, frame).unwrap_or_else(|| statement(frame)),
     };
     let mark = if act.force == Force::Ask { '?' } else { '.' };
     let sentence = format!("{} {mark}", words.join(" "));

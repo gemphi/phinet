@@ -1393,7 +1393,7 @@ enum Miss {
     NoSlot,
 }
 
-/// The 21 gold frames the strict round trip misses, by gold index (0-based
+/// The 17 gold frames the strict round trip misses, by gold index (0-based
 /// file order), with the class of each. Gold is frozen, so this is the
 /// yardstick for tasks 2.1 to 2.5: a `RealiserForm` frame is fixed in the
 /// realiser, a `NoSlot` frame can only become an Unrealisable_Frame.
@@ -1427,12 +1427,12 @@ enum Miss {
 /// - 149 `i hereby appoint you chairman.` / `appoint`: no adverb field for
 ///   `hereby`.
 ///
-/// `RealiserForm`: 89 holds `Via(for)` with a `How` hole (`how long`); 127 to
-/// 131 are Express frames with a subjectful or bare predicate (`thank`,
-/// `apologise`, `congratulate`, `welcome`) where the sentence is a fixed
-/// phrase; 137, 138 and 143 are wish frames whose subjunctive form (`would`,
+/// `RealiserForm`: 89 holds `Via(for)` with a `How` hole (`how long`); the
+/// Express frames 127 to 131 (`thank`, `apologise`, `congratulate`,
+/// `welcome`) are fixed phrases, fixed in task 2.1 from
+/// `expressive_phrase.tsv`; 137, 138 and 143 are wish frames whose subjunctive form (`would`,
 /// `were`, `did not have to`) the realiser renders as indicative.
-const GOLD_MISSES: [(usize, Miss); 21] = [
+const GOLD_MISSES: [(usize, Miss); 17] = [
     (0, Miss::NoSlot),
     (27, Miss::NoSlot),
     (38, Miss::NoSlot),
@@ -1443,10 +1443,6 @@ const GOLD_MISSES: [(usize, Miss); 21] = [
     (102, Miss::NoSlot),
     (104, Miss::NoSlot),
     (121, Miss::NoSlot),
-    (127, Miss::RealiserForm),
-    (128, Miss::RealiserForm),
-    (129, Miss::RealiserForm),
-    (131, Miss::RealiserForm),
     (137, Miss::RealiserForm),
     (138, Miss::RealiserForm),
     (143, Miss::RealiserForm),
@@ -1471,6 +1467,21 @@ fn the_failing_gold_frames_are_pinned_by_index_and_class() {
     let pinned: Vec<usize> = GOLD_MISSES.iter().map(|(i, _)| *i).collect();
     assert_eq!(failing, pinned, "the set of gold frames the strict round trip misses moved");
     let count = |m: Miss| GOLD_MISSES.iter().filter(|(_, c)| *c == m).count();
-    assert_eq!((count(Miss::RealiserForm), count(Miss::NoSlot)), (8, 13));
+    assert_eq!((count(Miss::RealiserForm), count(Miss::NoSlot)), (4, 13));
     assert!(pinned.iter().all(|i| *i < gold::COUNT));
+}
+
+/// Task 2.1: the four Express frames are said as their fixed phrases, and an
+/// Express frame with no phrase in `expressive_phrase.tsv` stays a statement.
+#[test]
+fn express_frames_are_said_as_their_fixed_phrases() {
+    let gold = gold::read().expect("the frozen gold set loads");
+    let pairs: Vec<_> = gold.pairs().collect();
+    for i in [127, 128, 129, 131] {
+        let (act, sentence) = pairs[i];
+        assert_eq!(realise(act), crate::guide::holdout::normalise(sentence), "gold frame {i}");
+    }
+    let (mind, sentence) = pairs[130];
+    assert_eq!(sentence, "i do not mind the noise.");
+    assert_eq!(realise(mind), "i do not mind the noise.");
 }

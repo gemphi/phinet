@@ -282,6 +282,33 @@ plain_list!(
 pub fn load_pairs(file: &str) -> Vec<(String, String)> {
     data_rows(&read_file(file)).into_iter().filter(|r| r.len() >= 2).map(|r| (r[0].clone(), r[1].clone())).collect()
 }
+/// An Express frame said as a fixed phrase (`expressive_phrase.tsv`).
+#[derive(Debug, Clone)]
+pub struct ExpressivePhrase {
+    /// The frame's predicate.
+    pub pred: String,
+    /// The words that open the sentence in place of subject and verb.
+    pub opening: Vec<String>,
+    /// Whether the frame's theme follows the opening.
+    pub theme: bool,
+}
+
+/// The fixed phrases Express frames are said as, in file order.
+pub fn expressive_phrases() -> &'static Vec<ExpressivePhrase> {
+    static CELL: OnceLock<Vec<ExpressivePhrase>> = OnceLock::new();
+    CELL.get_or_init(|| {
+        data_rows(&read_file("expressive_phrase.tsv"))
+            .into_iter()
+            .filter(|r| r.len() >= 3)
+            .map(|r| ExpressivePhrase {
+                pred: r[0].clone(),
+                opening: r[1].split_whitespace().map(str::to_string).collect(),
+                theme: r[2] == "theme",
+            })
+            .collect()
+    })
+}
+
 /// Irregular noun plurals as `(singular, plural)`.
 pub fn irregular_plurals() -> &'static Vec<(String, String)> {
     static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();
