@@ -30,14 +30,15 @@ fn read_file(file: &str) -> String {
     std::fs::read_to_string(lex_dir().join(file)).unwrap_or_default()
 }
 
-/// The data lines of a file: trimmed, blank lines and `#` comments dropped.
-pub fn data_lines(text: &str) -> Vec<&str> {
-    text.lines().map(str::trim).filter(|l| !l.is_empty() && !l.starts_with('#')).collect()
+/// The data lines of a file: trimmed, blank lines and `#` comments dropped
+/// (the format and parser are `phistd::lexfile`, shared by every crate).
+pub fn data_lines(text: &str) -> Vec<String> {
+    phistd::lexfile::parse(text).into_iter().map(|l| l.trim().to_string()).collect()
 }
 
 /// The tab-separated rows of a file's data lines, each field trimmed.
 pub fn data_rows(text: &str) -> Vec<Vec<String>> {
-    data_lines(text).into_iter().map(|l| l.split('\t').map(|f| f.trim().to_string()).collect()).collect()
+    data_lines(text).iter().map(|l| l.split('\t').map(|f| f.trim().to_string()).collect()).collect()
 }
 
 /// An ordered word list with constant-time membership.
@@ -73,7 +74,7 @@ impl Words {
 
 /// Read a plain list: one entry per data line.
 pub fn load_plain(file: &str) -> Words {
-    Words::new(data_lines(&read_file(file)).into_iter().map(str::to_string).collect())
+    Words::new(data_lines(&read_file(file)))
 }
 
 /// Read a tagged list: the first field of each row of `file`, for the rows
@@ -86,7 +87,7 @@ pub fn load_tagged(file: &str, tag: &str) -> Words {
 
 /// Read a phrase list: one phrase per data line, its words space-separated.
 pub fn load_phrases(file: &str) -> Vec<Vec<String>> {
-    data_lines(&read_file(file)).into_iter().map(|l| l.split_whitespace().map(str::to_string).collect()).collect()
+    data_lines(&read_file(file)).iter().map(|l| l.split_whitespace().map(str::to_string).collect()).collect()
 }
 
 /// Declare an accessor for a plain list file, read once on first use.
