@@ -124,7 +124,19 @@ pub fn terminator_purity(
     split: &Split,
     guard: &mut HoldoutGuard,
 ) -> Result<TerminatorReport, Breach> {
-    let test = split.of(Part::Test);
+    terminator_purity_on(Part::Test, report, split, guard)
+}
+
+/// Terminator purity over one part of the split. The terminator is read off
+/// the text, not the Key, so it can be scored on Part::Dev to choose settings
+/// without touching the Held_Out_Slice.
+pub fn terminator_purity_on(
+    part: Part,
+    report: &KindReport,
+    split: &Split,
+    guard: &mut HoldoutGuard,
+) -> Result<TerminatorReport, Breach> {
+    let test = split.of(part);
     let (indices, unassigned) = assigned(report, split, &test);
     let mut table = vec![vec![0.0; 3]; report.occupied];
     let mut scored = 0usize;
@@ -236,6 +248,15 @@ impl Ladder<'_> {
         guard: &mut HoldoutGuard,
     ) -> Result<GapReport, MeasureError> {
         function_gap(learned, hash, self.split(), guard)
+    }
+
+    pub fn terminator_purity_on(
+        &self,
+        part: Part,
+        report: &KindReport,
+        guard: &mut HoldoutGuard,
+    ) -> Result<TerminatorReport, Breach> {
+        terminator_purity_on(part, report, self.split(), guard)
     }
 
     pub fn terminator_purity(
