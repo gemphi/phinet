@@ -928,74 +928,46 @@ fn pluralise(head: &str) -> String {
 }
 // ----- The reader: English -> Act, for the shapes it handles -----
 
-/// Expand the common English contractions into the words they stand for, so
-/// the reader meets "do not" where the text wrote "don't" (phiecs tokenises a
-/// contraction as one word). Only the unambiguous contractions the Guide uses
-/// are expanded - `n't` to `not`, `'re`/`'ve`/`'ll`/`'m` to their auxiliary,
-/// `cannot`/`won't` to their lexeme - leaving the genuinely ambiguous `'s`
-/// (is/has/possessive) and `'d` (would/had) as read, so the reader abstains on
-/// them rather than guess. This directly lifts coverage on real text, which
-/// writes its auxiliaries contracted.
+/// Expand contractions into the words they stand for, so the reader meets "do
+/// not" where the text wrote "don't" (phiecs tokenises a contraction as one
+/// word). The expansion is rule-driven, from data files (see
+/// `crate::lexicon::contraction`): an irregular whole form (`won't`, `can't`)
+/// first, then a clitic suffix (`n't`, `'re`, `'ve`, `'ll`, `'m`) on any token.
+/// The genuinely ambiguous `'s` (is/has/possessive) is resolved by the word
+/// that follows it, and only after he/she/it; `'d` (would/had) is left as read,
+/// so the reader abstains on them rather than guess. This directly lifts
+/// coverage on real text, which writes its auxiliaries contracted.
 fn expand_contractions(words: &[String]) -> Vec<String> {
     let mut out = Vec::new();
     for (idx, w) in words.iter().enumerate() {
-        match w.as_str() {
-            "don't" => out.extend(["do".into(), "not".into()]),
-            "doesn't" => out.extend(["does".into(), "not".into()]),
-            "didn't" => out.extend(["did".into(), "not".into()]),
-            "isn't" => out.extend(["is".into(), "not".into()]),
-            "aren't" => out.extend(["are".into(), "not".into()]),
-            "wasn't" => out.extend(["was".into(), "not".into()]),
-            "weren't" => out.extend(["were".into(), "not".into()]),
-            "haven't" => out.extend(["have".into(), "not".into()]),
-            "hasn't" => out.extend(["has".into(), "not".into()]),
-            "hadn't" => out.extend(["had".into(), "not".into()]),
-            "won't" => out.extend(["will".into(), "not".into()]),
-            "wouldn't" => out.extend(["would".into(), "not".into()]),
-            "can't" | "cannot" => out.extend(["cannot".into()]),
-            "couldn't" => out.extend(["could".into(), "not".into()]),
-            "shouldn't" => out.extend(["should".into(), "not".into()]),
-            "mustn't" => out.extend(["must".into(), "not".into()]),
-            "mightn't" => out.extend(["might".into(), "not".into()]),
-            "shan't" => out.extend(["shall".into(), "not".into()]),
-            "i'm" => out.extend(["i".into(), "am".into()]),
-            "you're" => out.extend(["you".into(), "are".into()]),
-            "we're" => out.extend(["we".into(), "are".into()]),
-            "they're" => out.extend(["they".into(), "are".into()]),
-            "i've" => out.extend(["i".into(), "have".into()]),
-            "you've" => out.extend(["you".into(), "have".into()]),
-            "we've" => out.extend(["we".into(), "have".into()]),
-            "they've" => out.extend(["they".into(), "have".into()]),
-            "i'll" => out.extend(["i".into(), "will".into()]),
-            "you'll" => out.extend(["you".into(), "will".into()]),
-            "we'll" => out.extend(["we".into(), "will".into()]),
-            "they'll" => out.extend(["they".into(), "will".into()]),
-            "he'll" => out.extend(["he".into(), "will".into()]),
-            "she'll" => out.extend(["she".into(), "will".into()]),
-            "it'll" => out.extend(["it".into(), "will".into()]),
-            // Ambiguous: 's (is/has/possessive) and 'd (would/had) are left as
-            // the surface word, so the reader abstains rather than guess.
-            // "he's", "she's", "it's" is "is" or "has", and what follows says
-            // which: "been"/"got" mean has; an -ing form, or a word that cannot
-            // be a participle, means is ("it's raining", "he's a nice person").
-            // An -ed or irregular participle ("he's tired") stays ambiguous, so
-            // it is left as read and the reader abstains rather than guess.
-            s if matches!(s, "he's" | "she's" | "it's") => {
-                let base = s[..s.len() - 2].to_string();
-                match following_word(words, idx) {
-                    Some("been") | Some("got") | Some("gotten") => out.extend([base, "has".to_string()]),
-                    Some(next) if read_ing(next).is_some() || read_participle(next).is_none() => {
-                        out.extend([base, "is".to_string()])
-                    }
-                    _ => out.push(w.clone()),
+        // The rule-driven contractions (data/lex/contraction_*.tsv): an
+        // irregular whole form first, then any clitic suffix on any token.
+        if let Some(parts) = crate::lexicon::contraction::expand(w) {
+            out.extend(parts);
+            continue;
+        }
+        // Ambiguous: 's (is/has/possessive) is left as the surface word unless
+        // its host is a pronoun that takes 's as a verb (he, she, it), so the
+        // reader abstains rather than guess. "he's", "she's", "it's" is "is" or
+        // "has", and what follows says which: a cue word ("been", "got") means
+        // has; an -ing form, or a word that cannot be a participle, means is
+        // ("it's raining", "he's a nice person"). An -ed or irregular
+        // participle ("he's tired") stays ambiguous, so it is left as read.
+        match w.strip_suffix("'s").filter(|b| lists::s_hosts().contains(b)) {
+            Some(base) => match following_word(words, idx) {
+                Some(next) if lists::s_has_cues().contains(next) => {
+                    out.extend([base.to_string(), "has".to_string()])
                 }
-            }
-            _ => out.push(w.clone()),
+                Some(next) if read_ing(next).is_some() || read_participle(next).is_none() => {
+                    out.extend([base.to_string(), "is".to_string()])
+                }
+                _ => out.push(w.clone()),
+            },
+            None => out.push(w.clone()),
         }
     }
     out
 }
-
 /// The word after position `idx`, skipping the adverbs the reader sets aside,
 /// so a contraction can be resolved by the word that really follows it.
 fn following_word(words: &[String], idx: usize) -> Option<&str> {

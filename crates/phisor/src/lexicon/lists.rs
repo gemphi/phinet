@@ -210,3 +210,16 @@ pub fn set_aside_adverb_phrases() -> &'static Vec<Vec<String>> {
     static CELL: OnceLock<Vec<Vec<String>>> = OnceLock::new();
     CELL.get_or_init(|| load_phrases("set_aside_adverb_phrase.txt"))
 }
+
+tagged_list!(
+    /// Pronouns that take 's as is/has (he's), never as a possessive.
+    s_hosts,
+    "pronoun.tsv",
+    "s_host"
+);
+tagged_list!(
+    /// Words after 's that make it has (he's been).
+    s_has_cues,
+    "contraction_s.tsv",
+    "has"
+);
