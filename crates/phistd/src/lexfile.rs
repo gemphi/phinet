@@ -10,10 +10,11 @@
 //! moment" is one entry, and "no, " with its trailing space is a different
 //! entry from "no,", because a prefix test needs that difference.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
 
 /// The entries of the file, in order, comments and blanks dropped. A
 /// missing file is an empty list, not an error: a crate's rule holds with
@@ -28,6 +29,15 @@ pub fn read(path: impl AsRef<Path>) -> Vec<String> {
 /// The entries of a text in the file's format.
 pub fn parse(text: &str) -> Vec<String> {
     text.lines().filter(|l| !l.trim().is_empty() && !l.starts_with('#')).map(str::to_string).collect()
+}
+
+/// The entries of the file, read once for the process and kept: what a
+/// rule that is asked about a word many times a second reads. An append
+/// made after the first read is seen by the next process, not this one.
+pub fn cached(path: impl AsRef<Path>) -> &'static [String] {
+    static LISTS: OnceLock<Mutex<HashMap<PathBuf, &'static [String]>>> = OnceLock::new();
+    let mut lists = LISTS.get_or_init(Default::default).lock().unwrap_or_else(|e| e.into_inner());
+    lists.entry(path.as_ref().to_path_buf()).or_insert_with(|| Box::leak(read(path).into_boxed_slice()))
 }
 
 /// Adds `entry` to the file unless it is already there. Returns whether
@@ -69,6 +79,9 @@ mod tests {
         assert!(!append(&path, "i").unwrap(), "already there");
         assert!(!append(&path, "  ").unwrap());
         assert_eq!(read(&path), ["i", "no, "]);
+        assert_eq!(cached(&path), ["i", "no, "]);
+        append(&path, "later").unwrap();
+        assert_eq!(cached(&path), ["i", "no, "], "read once for the process");
         let _ = fs::remove_file(&path);
         let _ = fs::remove_dir(path.parent().unwrap());
     }
