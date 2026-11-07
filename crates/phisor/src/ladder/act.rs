@@ -2418,6 +2418,29 @@ pub fn round_trip<'a>(pairs: impl IntoIterator<Item = (&'a Act, &'a str)>) -> (u
     (matched, total, failures)
 }
 
+/// The canonical realisation round-trip: as [`round_trip`], but both sides go
+/// through [`canonical`] first (contractions expanded, "going to" folded to
+/// "will", set-aside adverbs dropped). The strict [`round_trip`] stays the
+/// declared measure; this one is reported beside it. Returns
+/// `(matched, total, first failures up to 20)`.
+pub fn round_trip_canonical<'a>(
+    pairs: impl IntoIterator<Item = (&'a Act, &'a str)>,
+) -> (usize, usize, Vec<String>) {
+    let (mut matched, mut total) = (0usize, 0usize);
+    let mut failures = Vec::new();
+    for (act, sentence) in pairs {
+        total += 1;
+        let want = canonical(&normalise(sentence));
+        let got = canonical(&realise(act));
+        if got == want {
+            matched += 1;
+        } else if failures.len() < 20 {
+            failures.push(format!("{want} != {got}"));
+        }
+    }
+    (matched, total, failures)
+}
+
 /// Force purity over `(sentence, gold act)` pairs: the share whose read Force
 /// equals the gold Force, among the sentences the reader covers. Returns
 /// `(matched, covered)`. A sentence the reader abstains on is not counted -

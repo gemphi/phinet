@@ -40,7 +40,7 @@ mod property;
 mod tests;
 pub use abstain::{abstention_kind, KINDS as ABSTENTION_KINDS};
 pub use account::{shaped, Account, SHAPED};
-pub use act::{force_purity, read, read_realise_rate, realise, realise_cased, round_trip, word_lists};
+pub use act::{force_purity, read, read_realise_rate, realise, realise_cased, round_trip, round_trip_canonical, word_lists};
 pub use grow::{grow_code, nesting, CodeReport, DepthReport, Nesting};
 pub use kinds::{kinds, river, variation, KindGroup, KindReport, Variation};
 pub use measure::*;

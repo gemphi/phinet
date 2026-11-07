@@ -51,6 +51,30 @@ fn the_gold_round_trip_is_measured_and_reported() {
     assert!(matched > 0, "the realiser round-trips no gold frame at all");
 }
 
+/// Feature: phinet-system-completion, Property 1: Strict round trip implies
+/// canonical round trip.
+///
+/// **Validates: Requirements 1.1**
+///
+/// Every gold frame whose realised text equals the normalised sentence also
+/// has equal canonical forms, so the canonical count is never below the strict
+/// one. The input is the fixed 150-frame gold file, so it runs once over it.
+#[test]
+fn a_strict_gold_round_trip_is_also_a_canonical_round_trip() {
+    let gold = gold::read().expect("the frozen gold set loads");
+    for (i, (act, sentence)) in gold.pairs().enumerate() {
+        let strict = realise(act) == crate::guide::holdout::normalise(sentence);
+        let (canon, total, _) = round_trip_canonical([(act, sentence)]);
+        assert_eq!(total, 1);
+        assert!(!strict || canon == 1, "gold frame {i} round-trips strictly but not canonically: {sentence}");
+    }
+    let (strict, total, _) = round_trip(gold.pairs());
+    let (canon, canon_total, _) = round_trip_canonical(gold.pairs());
+    assert_eq!(total, canon_total);
+    assert!(canon >= strict, "canonical {canon} < strict {strict}");
+    println!("gold round trip: strict {strict}/{total}, canonical {canon}/{canon_total}");
+}
+
 #[test]
 fn the_read_realise_rate_is_measured_over_the_gold_sentences() {
     let gold = gold::read().expect("the frozen gold set loads");
