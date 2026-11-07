@@ -1465,6 +1465,9 @@ fn the_failing_gold_frames_are_pinned_by_index_and_class() {
     let count = |m: Miss| GOLD_MISSES.iter().filter(|(_, c)| *c == m).count();
     assert_eq!((count(Miss::RealiserForm), count(Miss::NoSlot)), (0, 13));
     assert!(pinned.iter().all(|i| *i < gold::COUNT));
+    // The Unrealisable list is exactly the frames still failing (task 2.4).
+    let listed: Vec<usize> = gold::UNREALISABLE.iter().map(|u| u.index).collect();
+    assert_eq!(listed, pinned, "the Unrealisable list and the failing frames differ");
 }
 
 /// Task 2.3: a `how` hole in a `for` slot is said "how long"; in a `by` slot

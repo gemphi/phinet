@@ -251,8 +251,8 @@ fn the_fingerprint_reads_the_same_under_either_line_ending() {
 ///
 /// **Validates: Requirements 1.5, 2.5**
 ///
-/// The Unrealisable_Frame list does not exist in code yet (task 2.4); when it
-/// lands, add its indices to the range check below.
+/// The Unrealisable_Frame list is checked the same way: every index is in
+/// range and none is listed twice.
 ///
 /// The pinned values are written out as literals so a change to the
 /// constants cannot hide a change to the file. Every unreachable index
@@ -268,4 +268,8 @@ fn property_3_gold_untouched() {
     let indices: BTreeSet<usize> = UNREACHABLE.iter().map(|u| u.index).collect();
     assert_eq!(indices.len(), UNREACHABLE.len(), "an index is listed twice");
     assert!((0..COUNT + 50).all(|i| unreachable(i).is_none() || i < COUNT));
+    assert!(UNREALISABLE.iter().all(|u| u.index < COUNT), "an unrealisable index is out of range");
+    let missing: BTreeSet<usize> = UNREALISABLE.iter().map(|u| u.index).collect();
+    assert_eq!(missing.len(), UNREALISABLE.len(), "an unrealisable index is listed twice");
+    assert!((0..COUNT + 50).all(|i| unrealisable(i).is_none() || i < COUNT));
 }
