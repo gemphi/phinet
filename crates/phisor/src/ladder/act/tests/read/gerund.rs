@@ -19,6 +19,13 @@ fn a_gerund_complement_reads_and_round_trips() {
 }
 
 #[test]
+fn a_preposition_gerund_reads_and_round_trips() {
+    for s in ["he thanked me for helping him.", "she is thinking of buying a car."] {
+        let act = read(s).expect("a preposition + gerund is covered");
+        assert_eq!(realise(&act), s);
+    }
+}
+#[test]
 fn a_gerund_is_not_read_after_a_verb_that_does_not_take_one() {
     // "walk" is not a gerund verb, and an unfinished tail leaves no frame.
     assert!(read("i walk reading the book.").is_none());

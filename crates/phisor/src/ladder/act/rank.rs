@@ -26,6 +26,16 @@
 //! verbs, `able to`, `to know what ...`, `have to` in the perfect, `too/enough
 //! to`, and noun-host infinitives ("a way to celebrate").
 //!
+//! Task 7.5 (ing_form; 76): the `-ing` word is mostly not a gerund verb's
+//! complement but the object of a preposition ("thanked me for helping him",
+//! "thinking of buying a car"). read/prep_gerund.rs reads a preposition from
+//! `gerund_preposition.txt` (for, of, at, by, about, without, in, from, on)
+//! plus an `-ing` clause sharing the agent, stored under `Via(prep)`; the
+//! Realiser says it back. Clean coverage 404/1201 -> 408/1201, soundness
+//! 319/404 -> 323/408; CLEAN_COVERAGE_BAR 33.5 -> 33.9. Left: `worth` /
+//! `good at` (copula + gerund), `would you mind closing` (question), `spend
+//! time -ing`, perception verbs ("hear a dog barking"), `suggest -ing`.
+//!
 //! Abstention by distance bucket (`abstention_kinds`): simple 305,
 //! one_join 274, infinitive 122, ing_form 76, multi_clause 26, very_long 10.
 //!

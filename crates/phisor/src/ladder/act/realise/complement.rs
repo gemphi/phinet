@@ -107,7 +107,12 @@ pub(in crate::ladder::act) fn adjuncts(frame: &Frame, skip: Option<&Role>) -> Ve
                     // A purpose infinitive ("... to buy bread"): `to` over a
                     // clause that shares the matrix agent is said as `to` + the
                     // bare verb and its complements, not as a finite statement.
-                    if prep == "to" && is_control_infinitive(frame, inner) {
+                    if lists::gerund_prepositions().contains(&prep.as_str()) && is_gerund_complement(frame, inner) {
+                        // A preposition + gerund ("... for helping him").
+                        out.push(ing(&inner.pred));
+                        out.extend(complements_skipping(inner, None, true));
+                        out.extend(adjuncts(inner, None));
+                    } else if prep == "to" && is_control_infinitive(frame, inner) {
                         out.push(inner.pred.clone());
                         out.extend(complements_skipping(inner, None, true));
                         out.extend(adjuncts(inner, None));

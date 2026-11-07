@@ -14,6 +14,12 @@ plain_list!(
 );
 
 plain_list!(
+    /// Prepositions that take an -ing clause ("thanked me for helping").
+    gerund_prepositions,
+    "gerund_preposition.txt"
+);
+
+plain_list!(
     /// Verbs that take a finite clause as their complement.
     complement_verbs,
     "complement_verb.txt"
