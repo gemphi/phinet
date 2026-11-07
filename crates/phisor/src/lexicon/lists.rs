@@ -309,6 +309,20 @@ pub fn expressive_phrases() -> &'static Vec<ExpressivePhrase> {
     })
 }
 
+/// The words that stand for a wished-for clause's verb group (`wish_form.tsv`):
+/// the row for `key` (`be`, or a modal's present form) and the polarity.
+pub fn wish_form(key: &str, negative: bool) -> Option<&'static Vec<String>> {
+    static CELL: OnceLock<Vec<(String, bool, Vec<String>)>> = OnceLock::new();
+    let rows = CELL.get_or_init(|| {
+        data_rows(&read_file("wish_form.tsv"))
+            .into_iter()
+            .filter(|r| r.len() >= 3)
+            .map(|r| (r[0].clone(), r[1] == "negative", r[2].split_whitespace().map(str::to_string).collect()))
+            .collect()
+    });
+    rows.iter().find(|(k, n, _)| k == key && *n == negative).map(|(_, _, words)| words)
+}
+
 /// Irregular noun plurals as `(singular, plural)`.
 pub fn irregular_plurals() -> &'static Vec<(String, String)> {
     static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();

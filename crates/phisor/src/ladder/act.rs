@@ -23,6 +23,7 @@ use crate::ir::{Act, Aspect, Filler, Force, Frame, Polarity, Role, Tense, Thing,
 
 mod express;
 mod names;
+mod wish;
 #[cfg(test)]
 mod tests;
 
@@ -45,7 +46,7 @@ pub fn realise(act: &Act) -> String {
         // A wish is announced by "i wish", then the wished-for content.
         Force::Wish => {
             let mut said = vec!["i".to_string(), "wish".to_string()];
-            said.extend(statement(frame));
+            said.extend(wish::content(frame).unwrap_or_else(|| statement(frame)));
             said
         }
         // Everything else is a statement in subject-verb-object order.
@@ -101,6 +102,16 @@ fn statement(frame: &Frame) -> Vec<String> {
             return words;
         }
     }
+    // An aspectual verb over a weather clause: "it would stop raining". The
+    // frame has no agent and its theme is the clause, which is said as the
+    // gerund after the verb, with the clause's own expletive `it` before it.
+    if let Some(inner) = weather_gerund(frame) {
+        let mut words = vec!["it".to_string()];
+        words.extend(verb_group(frame));
+        words.push(ing(&inner.pred));
+        words.extend(adjuncts(frame, None));
+        return words;
+    }
     let mut words: Vec<String> = Vec::new();
     if let Some(filler) = subject_of(frame) {
         words.extend(say_filler(filler));
@@ -113,6 +124,22 @@ fn statement(frame: &Frame) -> Vec<String> {
     words.extend(complements(frame, false));
     words.extend(adjuncts(frame, None));
     words
+}
+
+/// The weather clause an agentless gerund verb takes as its theme ("stop
+/// raining"): a plain present active positive progressive with no argument.
+fn weather_gerund(frame: &Frame) -> Option<&Frame> {
+    let Some(Filler::Clause(inner)) = frame.get(&Role::Theme) else { return None };
+    let fits = frame.get(&Role::Agent).is_none()
+        && frame.voice == Voice::Active
+        && lists::gerund_verbs().contains(&frame.pred)
+        && needs_expletive(inner)
+        && inner.aspect == Aspect::Progressive
+        && inner.tense == Tense::Present
+        && inner.voice == Voice::Active
+        && inner.polarity == Polarity::Positive
+        && inner.modal.is_none();
+    fits.then_some(&**inner)
 }
 
 /// The imperative: no subject, the verb as a bare lemma, then its objects and

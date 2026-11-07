@@ -1393,7 +1393,7 @@ enum Miss {
     NoSlot,
 }
 
-/// The 17 gold frames the strict round trip misses, by gold index (0-based
+/// The 14 gold frames the strict round trip misses, by gold index (0-based
 /// file order), with the class of each. Gold is frozen, so this is the
 /// yardstick for tasks 2.1 to 2.5: a `RealiserForm` frame is fixed in the
 /// realiser, a `NoSlot` frame can only become an Unrealisable_Frame.
@@ -1430,9 +1430,8 @@ enum Miss {
 /// `RealiserForm`: 89 holds `Via(for)` with a `How` hole (`how long`); the
 /// Express frames 127 to 131 (`thank`, `apologise`, `congratulate`,
 /// `welcome`) are fixed phrases, fixed in task 2.1 from
-/// `expressive_phrase.tsv`; 137, 138 and 143 are wish frames whose subjunctive form (`would`,
-/// `were`, `did not have to`) the realiser renders as indicative.
-const GOLD_MISSES: [(usize, Miss); 17] = [
+/// `expressive_phrase.tsv`; the wish frames 137, 138 and 143 are fixed in task 2.2 (`wish_form.tsv`).
+const GOLD_MISSES: [(usize, Miss); 14] = [
     (0, Miss::NoSlot),
     (27, Miss::NoSlot),
     (38, Miss::NoSlot),
@@ -1443,9 +1442,6 @@ const GOLD_MISSES: [(usize, Miss); 17] = [
     (102, Miss::NoSlot),
     (104, Miss::NoSlot),
     (121, Miss::NoSlot),
-    (137, Miss::RealiserForm),
-    (138, Miss::RealiserForm),
-    (143, Miss::RealiserForm),
     (146, Miss::NoSlot),
     (147, Miss::NoSlot),
     (148, Miss::NoSlot),
@@ -1467,8 +1463,23 @@ fn the_failing_gold_frames_are_pinned_by_index_and_class() {
     let pinned: Vec<usize> = GOLD_MISSES.iter().map(|(i, _)| *i).collect();
     assert_eq!(failing, pinned, "the set of gold frames the strict round trip misses moved");
     let count = |m: Miss| GOLD_MISSES.iter().filter(|(_, c)| *c == m).count();
-    assert_eq!((count(Miss::RealiserForm), count(Miss::NoSlot)), (4, 13));
+    assert_eq!((count(Miss::RealiserForm), count(Miss::NoSlot)), (1, 13));
     assert!(pinned.iter().all(|i| *i < gold::COUNT));
+}
+
+/// Task 2.2: the three wish frames are said in the subjunctive, and a wish
+/// whose verb has no row in `wish_form.tsv` stays a plain statement.
+#[test]
+fn wish_frames_are_said_in_the_subjunctive() {
+    let gold = gold::read().expect("the frozen gold set loads");
+    let pairs: Vec<_> = gold.pairs().collect();
+    for i in [137, 138, 143] {
+        let (act, sentence) = pairs[i];
+        assert_eq!(realise(act), crate::guide::holdout::normalise(sentence), "gold frame {i}");
+    }
+    let (could, sentence) = pairs[135];
+    assert_eq!(sentence, "i wish i could sing.");
+    assert_eq!(realise(could), "i wish i could sing.");
 }
 
 /// Task 2.1: the four Express frames are said as their fixed phrases, and an
