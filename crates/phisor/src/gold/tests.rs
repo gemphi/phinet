@@ -247,6 +247,13 @@ fn the_fingerprint_reads_the_same_under_either_line_ending() {
 ///
 /// **Validates: Requirements 1.5, 2.3**
 ///
+/// Also phinet-system-completion, Property 2: Gold untouched.
+///
+/// **Validates: Requirements 1.5, 2.5**
+///
+/// The Unrealisable_Frame list does not exist in code yet (task 2.4); when it
+/// lands, add its indices to the range check below.
+///
 /// The pinned values are written out as literals so a change to the
 /// constants cannot hide a change to the file. Every unreachable index
 /// names a frame that exists, and no index is listed twice.
