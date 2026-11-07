@@ -91,5 +91,7 @@ impl Abstraction {
 }
 mod predict;
 pub use predict::{predict, Arm, Rule, Scores};
+mod proposal;
+pub use proposal::{review, Proposal, Review};
 #[cfg(test)]
 mod tests;
