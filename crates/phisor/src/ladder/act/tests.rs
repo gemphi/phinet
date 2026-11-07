@@ -1512,3 +1512,12 @@ fn express_frames_are_said_as_their_fixed_phrases() {
     assert_eq!(sentence, "i do not mind the noise.");
     assert_eq!(realise(mind), "i do not mind the noise.");
 }
+
+#[test]
+fn a_pronoun_is_never_read_as_a_verb() {
+    // The second `she` sits where the verb belongs; no frame, not a verb `she`.
+    assert!(read("she she went to now.").is_none());
+    assert!(read("they we went home.").is_none());
+    // A pronoun subject still reads.
+    assert!(read("she went home.").is_some());
+}

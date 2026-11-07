@@ -1306,6 +1306,11 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
     if is_aux(verb) && !aux_is(verb, Family::Have) {
         return None;
     }
+    // A pronoun is never the verb: "she she went" has a second subject where
+    // the verb should be (the list is data/lex/pronoun.tsv).
+    if lists::pronouns().contains(&verb.as_str()) {
+        return None;
+    }
     // A lexical verb: read its lemma and the tense it carries, so "boils"
     // becomes (boil, Present) and "wore" becomes (wear, Past).
     let (lemma, tense) = read_verb(verb);
