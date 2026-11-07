@@ -1570,13 +1570,13 @@ fn read_theme(words: &[String]) -> Option<(Role, Filler, usize)> {
 /// A bare time adverb the Guide stores under a preposition: "tomorrow" ->
 /// on=tomorrow, mirroring the realiser's bare-adverb handling.
 fn is_time_adverb(word: &str) -> bool {
-    matches!(word, "tomorrow" | "today" | "yesterday" | "later" | "now")
+    lists::time_adverbs().contains(word)
 }
 
 /// A bare place adverb the Guide stores under `in`: "here" -> in=here,
 /// mirroring the realiser's bare-adverb handling.
 fn is_place_adverb(word: &str) -> bool {
-    matches!(word, "here" | "there")
+    lists::place_adverbs().contains(word)
 }
 
 /// Whether a read subject is the empty expletive `it` of a weather verb, so
@@ -1678,7 +1678,7 @@ fn is_adjective_word(word: &str) -> bool {
         return matches!(crate::lexicon::tag(word), Some(t) if t.contains('a') && !t.contains('n') && !t.contains('v'))
             && !crate::lexicon::function_word(word);
     }
-    matches!(word, "blue" | "red" | "green" | "hot" | "cold" | "new" | "old" | "big" | "small" | "good" | "correct")
+    lists::fallback_adjectives().contains(word)
 }
 
 /// Whether a word is a cardinal number that counts the head it precedes
@@ -1686,21 +1686,13 @@ fn is_adjective_word(word: &str) -> bool {
 /// or a run of digits. Stored as a Count attribute, which the realiser writes
 /// back before the head.
 fn is_cardinal(word: &str) -> bool {
-    matches!(
-        word,
-        "one" | "two" | "three" | "four" | "five" | "six" | "seven" | "eight" | "nine"
-            | "ten" | "eleven" | "twelve" | "twenty" | "thirty" | "forty" | "fifty"
-            | "hundred" | "thousand" | "million"
-    ) || (word.len() <= 4 && word.chars().all(|c| c.is_ascii_digit()))
+    lists::cardinals().contains(word) || (word.len() <= 4 && word.chars().all(|c| c.is_ascii_digit()))
 }
 
 /// A shallow ordinal/number modifier the noun phrase may carry before its
 /// head.
 fn is_modifier(word: &str) -> bool {
-    matches!(
-        word,
-        "first" | "second" | "third" | "last" | "next" | "two" | "three" | "new" | "old"
-    )
+    lists::modifiers().contains(word)
 }
 
 /// Reduce a surface head to `(singular, is_plural)` by the crude inverse of
@@ -1753,7 +1745,7 @@ fn copula_tense(word: &str) -> Option<Tense> {
 
 /// A present-tense copula the reader builds a `be` frame from.
 fn is_copula(word: &str) -> bool {
-    matches!(word, "is" | "are" | "am")
+    lists::copulas().contains(word)
 }
 
 
@@ -1786,20 +1778,11 @@ fn detect_negation_from(words: &[String], from: usize) -> (bool, usize) {
 /// The determiners the first reader sees at the head of an unsegmented
 /// subject noun phrase; their presence makes it abstain.
 fn is_determiner(word: &str) -> bool {
-    matches!(
-        word,
-        "the" | "a" | "an" | "this" | "that" | "these" | "those" | "my" | "your"
-            | "his" | "her" | "its" | "our" | "their" | "some" | "any" | "no"
-            | "every" | "each" | "all" | "many" | "both" | "half" | "several" | "few" | "most" | "nobody" | "nothing"
-    )
+    lists::determiners().contains(word)
 }
 
 fn is_aux(word: &str) -> bool {
-    matches!(
-        word,
-        "is" | "are" | "am" | "was" | "were" | "be" | "been" | "being"
-            | "has" | "have" | "had" | "will" | "can" | "may" | "must" | "shall"
-    )
+    lists::auxiliaries().contains(word)
 }
 
 /// A subject word as a filler: a pronoun kept nominative, else a bare word.
@@ -2456,11 +2439,7 @@ fn read_prepositions(words: &[String]) -> (Vec<(Role, Filler)>, usize) {
 /// The closed set of prepositions the reader recognises at the head of an
 /// adjunct, from the gold frames.
 fn is_preposition(word: &str) -> bool {
-    matches!(
-        word,
-        "in" | "on" | "at" | "to" | "for" | "with" | "by" | "about" | "round"
-            | "since" | "of" | "from" | "into" | "over" | "under"
-    )
+    lists::prepositions().contains(word)
 }
 // ----- The round-trip measure -----
 

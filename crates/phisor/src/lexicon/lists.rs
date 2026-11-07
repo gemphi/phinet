@@ -219,3 +219,57 @@ tagged_list!(
     "contraction_s.tsv",
     "has"
 );
+tagged_list!(
+    /// Determiners, which open a noun phrase.
+    determiners,
+    "word_class.tsv",
+    "determiner"
+);
+tagged_list!(
+    /// Closed auxiliaries the first reader declines to parse.
+    auxiliaries,
+    "word_class.tsv",
+    "aux"
+);
+tagged_list!(
+    /// Present-tense copulas the reader builds a `be` frame from.
+    copulas,
+    "word_class.tsv",
+    "copula"
+);
+tagged_list!(
+    /// Prepositions that open an adjunct.
+    prepositions,
+    "word_class.tsv",
+    "preposition"
+);
+tagged_list!(
+    /// Ordinal/number modifiers a noun phrase may carry before its head.
+    modifiers,
+    "word_class.tsv",
+    "modifier"
+);
+tagged_list!(
+    /// Cardinal number words that count the head they precede.
+    cardinals,
+    "word_class.tsv",
+    "cardinal"
+);
+tagged_list!(
+    /// Bare time adverbs the Guide stores under a preposition.
+    time_adverbs,
+    "word_class.tsv",
+    "time_adverb"
+);
+tagged_list!(
+    /// Bare place adverbs the Guide stores under `in`.
+    place_adverbs,
+    "word_class.tsv",
+    "place_adverb"
+);
+tagged_list!(
+    /// Adjectives used only when the POS lexicon is not primed.
+    fallback_adjectives,
+    "word_class.tsv",
+    "adjective"
+);
