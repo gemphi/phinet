@@ -17,6 +17,7 @@
 //! the terminating mark kept (R10.11).
 
 use crate::guide::holdout::normalise;
+use crate::lexicon::auxiliary::{Entry, Family};
 use crate::lexicon::lists;
 use crate::ir::{Act, Aspect, Filler, Force, Frame, Polarity, Role, Tense, Thing, Voice, Wh};
 
@@ -178,6 +179,15 @@ fn subject_of(frame: &Frame) -> Option<&Filler> {
     } else {
         frame.get(&Role::Agent).or_else(|| frame.get(&Role::Theme))
     }
+}
+
+fn aux_entry(word: &str) -> Option<Entry> {
+    crate::lexicon::auxiliary::entry(word)
+}
+
+/// Whether the word is an auxiliary of the given family (from `auxiliary.tsv`).
+fn aux_is(word: &str, family: Family) -> bool {
+    crate::lexicon::auxiliary::is_family(word, family)
 }
 
 /// Whether the frame has no argument at all and so needs an expletive `it`
@@ -1273,7 +1283,7 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
 
     // A lexical verb: abstain if the verb slot is any other auxiliary (a
     // modal group the aspect reader leaves to a later reader).
-    if is_aux(verb) && !matches!(verb.as_str(), "have" | "has" | "had") {
+    if is_aux(verb) && !aux_is(verb, Family::Have) {
         return None;
     }
     // A lexical verb: read its lemma and the tense it carries, so "boils"
@@ -1736,11 +1746,7 @@ fn lemma_number(head: &str) -> (String, bool) {
 /// The tense of a copula form the reader builds a `be` frame from: present for
 /// is/are/am, past for was/were. `None` for any other word.
 fn copula_tense(word: &str) -> Option<Tense> {
-    match word {
-        "is" | "are" | "am" => Some(Tense::Present),
-        "was" | "were" => Some(Tense::Past),
-        _ => None,
-    }
+    aux_entry(word).filter(|e| e.family == Family::Be).map(|e| e.tense)
 }
 
 /// A present-tense copula the reader builds a `be` frame from.
@@ -1767,7 +1773,7 @@ fn complement_filler(rest: &[String]) -> Option<Filler> {
 /// subject), so a determiner-led subject does not shift the verb index.
 fn detect_negation_from(words: &[String], from: usize) -> (bool, usize) {
     for i in from..words.len().saturating_sub(1) {
-        if matches!(words[i].as_str(), "do" | "does" | "did") && words[i + 1] == "not" {
+        if aux_is(&words[i], Family::Do) && words[i + 1] == "not" {
             return (true, i + 2);
         }
     }
@@ -1881,11 +1887,9 @@ fn read_verb_group(words: &[String], from: usize) -> Option<(String, Tense, Aspe
     let head = words.get(i)?;
     // The first auxiliary fixes tense and the family. `have`/`has`/`had` open
     // a perfect; `be`-forms open a progressive or a passive.
-    let (tense, family) = match head.as_str() {
-        "has" | "have" => (Tense::Present, Aux::Have),
-        "had" => (Tense::Past, Aux::Have),
-        "is" | "are" | "am" => (Tense::Present, Aux::Be),
-        "was" | "were" => (Tense::Past, Aux::Be),
+    let (tense, family) = match aux_entry(head) {
+        Some(Entry { tense, family: Family::Have, .. }) => (tense, Aux::Have),
+        Some(Entry { tense, family: Family::Be, .. }) => (tense, Aux::Be),
         _ => return None, // a modal or a plain verb: not this reader's job
     };
     i += 1;
@@ -1940,19 +1944,10 @@ fn read_verb_group(words: &[String], from: usize) -> Option<(String, Tense, Aspe
 /// `cannot` reads as `can` (its negation is handled by the caller). Returns
 /// `None` for a non-modal word.
 fn read_modal(word: &str) -> Option<(crate::ir::Modal, Tense)> {
-    use crate::ir::Modal;
-    Some(match word {
-        "can" | "cannot" => (Modal::Can, Tense::Present),
-        "could" => (Modal::Can, Tense::Past),
-        "will" => (Modal::Will, Tense::Present),
-        "would" => (Modal::Will, Tense::Past),
-        "may" => (Modal::May, Tense::Present),
-        "might" => (Modal::May, Tense::Past),
-        "shall" => (Modal::Shall, Tense::Present),
-        "should" => (Modal::Shall, Tense::Past),
-        "must" => (Modal::Must, Tense::Present),
-        _ => return None,
-    })
+    match aux_entry(word)? {
+        Entry { tense, family: Family::Modal(modal), .. } => Some((modal, tense)),
+        _ => None,
+    }
 }
 
 /// Read the tenseless tail after a modal into its lemma, aspect, voice and the
@@ -2041,10 +2036,10 @@ fn read_question(words: &[String]) -> Option<Act> {
     // lifted out and read by the shared verb-group reader. A `be`-form that
     // is not followed by a participle is a copula question instead.
     if let Some(op) = words.get(i) {
-        if matches!(op.as_str(), "has" | "have" | "had") {
+        if aux_is(op, Family::Have) {
             return read_aspect_question(words, i, wh);
         }
-        if matches!(op.as_str(), "is" | "are" | "am" | "was" | "were") {
+        if aux_is(op, Family::Be) {
             // "are you going to eat?" - a near-future question: the subject
             // after the copula, then "going to V", as a will-modal.
             if wh.is_none() {
@@ -2176,7 +2171,7 @@ fn lift_operator_negation(words: &[String], op_at: usize) -> Vec<String> {
 /// after the copula.
 fn read_copula_question(words: &[String], op_at: usize, wh: Option<Wh>) -> Option<Act> {
     let op = words.get(op_at)?;
-    let tense = if matches!(op.as_str(), "was" | "were") { Tense::Past } else { Tense::Present };
+    let tense = if aux_entry(op).is_some_and(|e| e.family == Family::Be && e.tense == Tense::Past) { Tense::Past } else { Tense::Present };
     let rest = &words[op_at + 1..];
     let (subject, end) = read_subject(rest)?;
     let mut tail = &rest[end..];
@@ -2325,21 +2320,11 @@ fn wh_role(wh: Wh) -> Role {
 /// carries tense; a modal keeps its sense and the tense its past form shows.
 /// Returns `None` for an aspect/passive operator this reader does not build.
 fn read_operator(word: &str) -> Option<(Tense, Option<crate::ir::Modal>)> {
-    use crate::ir::Modal;
-    Some(match word {
-        "do" | "does" => (Tense::Present, None),
-        "did" => (Tense::Past, None),
-        "can" => (Tense::Present, Some(Modal::Can)),
-        "could" => (Tense::Past, Some(Modal::Can)),
-        "will" => (Tense::Present, Some(Modal::Will)),
-        "would" => (Tense::Past, Some(Modal::Will)),
-        "may" => (Tense::Present, Some(Modal::May)),
-        "might" => (Tense::Past, Some(Modal::May)),
-        "shall" => (Tense::Present, Some(Modal::Shall)),
-        "should" => (Tense::Past, Some(Modal::Shall)),
-        "must" => (Tense::Present, Some(Modal::Must)),
-        _ => return None,
-    })
+    match aux_entry(word)? {
+        Entry { tense, family: Family::Do, operator: true } => Some((tense, None)),
+        Entry { tense, family: Family::Modal(modal), operator: true } => Some((tense, Some(modal))),
+        _ => None,
+    }
 }
 /// Read an imperative, or `None` if the sentence does not open as a command.
 /// The shape is `[do not] VERB [recipient] [object] [prepositions]`, with the
@@ -2484,7 +2469,7 @@ fn fold_going_to(words: &[String]) -> Vec<String> {
     let mut out: Vec<String> = Vec::new();
     let mut i = 0;
     while i < words.len() {
-        if matches!(words[i].as_str(), "is" | "are" | "am" | "was" | "were")
+        if aux_is(&words[i], Family::Be)
             && words.get(i + 1).map(String::as_str) == Some("going")
             && words.get(i + 2).map(String::as_str) == Some("to")
         {

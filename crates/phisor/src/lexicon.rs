@@ -21,6 +21,7 @@
 //! rules unchanged. Only the foundation lexicon is a source here - never the
 //! gold - so priming does not train the reader on its own yardstick.
 
+pub mod auxiliary;
 pub mod contraction;
 pub mod irregular;
 pub mod lists;
