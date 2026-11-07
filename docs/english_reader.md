@@ -126,7 +126,7 @@ the layer on. The record holds no such figure, so none is given.
 | `ladder.terminator_purity.learned` | 85.4 | 0 at least | pass |
 | `ladder.river_z.learned` | 3.39 | 3 at least | pass |
 | `ladder.river_z.above_hash` | 3.39 | 0 at least | pass |
-| `curriculum.perplexity` | 129.1 | 84.7 at most | miss by 44.4 (trigram 63.0) |
+| `curriculum.perplexity` | 129.1 | 84.7 at most | miss by 44.4 |
 
 ## Bars missed
 
