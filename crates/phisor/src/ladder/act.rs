@@ -1669,7 +1669,8 @@ fn read_noun_phrase(words: &[String]) -> Option<(Filler, usize)> {
         }
     }
     let head = words.get(i)?;
-    if is_determiner(head) || is_aux(head) || is_copula(head) {
+    // A conjunction ("and", "but") joins; it is never the head of a noun phrase.
+    if is_determiner(head) || is_aux(head) || is_copula(head) || lists::clause_conjunctions().contains(&head.as_str()) {
         return None;
     }
     let (singular, plural) = lemma_number(head);

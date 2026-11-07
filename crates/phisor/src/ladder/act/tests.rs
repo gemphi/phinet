@@ -1072,6 +1072,13 @@ fn three_clauses_read_whole_and_round_trip() {
 }
 
 #[test]
+fn and_is_not_a_noun_phrase_head() {
+    assert!(super::read_noun_phrase(&["and".to_string()]).is_none());
+    assert!(super::read_noun_phrase(&["the".to_string(), "and".to_string()]).is_none());
+    assert!(read("he reads and.").is_none());
+}
+
+#[test]
 fn a_trailing_clause_that_does_not_read_leaves_no_partial_frame() {
     // The last span ("and") is not a clause, so the whole sentence is
     // uncovered rather than read as the first two clauses only.
