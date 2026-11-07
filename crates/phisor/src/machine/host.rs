@@ -30,10 +30,10 @@ use phiclm::lisp::{as_text, Host, Machine, Value};
 
 mod apply;
 
-/// phiclm's 39 reserved core names, held as a static so the count is checked
+/// phiclm's 40 reserved core names, held as a static so the count is checked
 /// where it is written and [`PhisorHost::core_names`] can hand out a
 /// `'static` reference to it.
-static CORE: [&str; 39] = phiclm::lisp::NAMES;
+static CORE: [&str; 40] = phiclm::lisp::NAMES;
 
 /// The primitives phisor adds. Every one is prefixed, and the five are
 /// declared together here so the disjointness check sees the whole set at
@@ -97,8 +97,8 @@ impl PhisorHost {
         Ok(PhisorHost { arena, kinds })
     }
 
-    /// The 39 reserved core names, for the disjointness check.
-    pub fn core_names() -> &'static [&'static str; 39] {
+    /// The 40 reserved core names, for the disjointness check.
+    pub fn core_names() -> &'static [&'static str; 40] {
         &CORE
     }
 

@@ -6,7 +6,7 @@ use super::*;
 
 #[test]
 fn every_host_name_is_prefixed_and_absent_from_the_39() {
-    assert_eq!(PhisorHost::core_names().len(), 39);
+    assert_eq!(PhisorHost::core_names().len(), 40);
     for name in NAMES {
         assert!(name.starts_with("phisor-"), "{name} carries no prefix");
     }

@@ -34,7 +34,7 @@ pub use agree::{agree, Agreement, Mismatch, STEP_CAP};
 pub use ask::{answer, answer_kinds, answer_with_oracle, Answered, AskError};
 
 pub use host::{checked, HostError, KindRows, PhisorHost};
-pub use ops::{add as add_op, load as load_ops, Loaded};
+pub use ops::{add as add_op, add_to as add_op_to, load as load_ops, load_from as load_ops_from, Loaded};
 pub use told::{answer_told, answer_told_kinds};
 pub use lower::{
     is_declared_ocode, Bar, Judged, Lowered, Lowering, LoweringReport, Operation, Sense, Unlowered,

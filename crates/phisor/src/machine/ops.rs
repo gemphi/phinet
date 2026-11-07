@@ -20,7 +20,7 @@
 //! The 64 keyboard Operators are cards too, cut by the lowering: every
 //! machine [`load`]s them as `phisor-op-<index>-<name>` before the files.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use phiclm::lisp::{read, Env, Host, Machine, Value};
 
@@ -41,7 +41,12 @@ pub fn learned() -> PathBuf {
 
 /// The card files, in name order: `core.lisp` before `learned.lisp`.
 pub fn files() -> Vec<PathBuf> {
-    let mut out: Vec<PathBuf> = std::fs::read_dir(dir())
+    files_in(&dir())
+}
+
+/// The card files under `dir`, in name order.
+pub fn files_in(dir: &Path) -> Vec<PathBuf> {
+    let mut out: Vec<PathBuf> = std::fs::read_dir(dir)
         .into_iter()
         .flatten()
         .flatten()
@@ -65,6 +70,11 @@ pub struct Loaded {
 /// that does not read or evaluate is the error, named; the files before it
 /// stay loaded.
 pub fn load<H: Host>(machine: &mut Machine<H>, env: &mut Env) -> Result<Loaded, String> {
+    load_from(machine, env, &dir())
+}
+
+/// As [`load`], the cards read from `dir` instead of the crate's.
+pub fn load_from<H: Host>(machine: &mut Machine<H>, env: &mut Env, dir: &Path) -> Result<Loaded, String> {
     let mut loaded = Loaded::default();
     for lowered in Lowering::new().lower_all().lowered {
         for form in read(&lowered.lisp)? {
@@ -72,7 +82,7 @@ pub fn load<H: Host>(machine: &mut Machine<H>, env: &mut Env) -> Result<Loaded, 
         }
         loaded.keyboard += 1;
     }
-    for file in files() {
+    for file in files_in(dir) {
         let src = std::fs::read_to_string(&file).map_err(|e| format!("{}: {e}", file.display()))?;
         for form in read(&src).map_err(|e| format!("{}: {e}", file.display()))? {
             if let Some(name) = defined(&form) {
@@ -89,13 +99,18 @@ pub fn load<H: Host>(machine: &mut Machine<H>, env: &mut Env) -> Result<Loaded, 
 /// in `machine`, so this machine and every later one know it. Returns the
 /// name defined.
 pub fn add<H: Host>(machine: &mut Machine<H>, env: &mut Env, source: &str) -> Result<String, String> {
+    add_to(machine, env, &learned(), source)
+}
+
+/// As [`add`], the card appended to `file` instead of the crate's `learned.lisp`.
+pub fn add_to<H: Host>(machine: &mut Machine<H>, env: &mut Env, file: &Path, source: &str) -> Result<String, String> {
     let forms = read(source)?;
     let [form] = forms.as_slice() else {
         return Err(format!("a card is one form, not {}", forms.len()));
     };
     let name = defined(form).ok_or_else(|| format!("a card is (define name (lambda (…) …)), not {form}"))?;
     let line = source.trim().replace(['\r', '\n'], " ");
-    phistd::lexfile::append(learned(), &line).map_err(|e| format!("{}: {e}", learned().display()))?;
+    phistd::lexfile::append(file, &line).map_err(|e| format!("{}: {e}", file.display()))?;
     machine.eval(form, env)?;
     Ok(name)
 }

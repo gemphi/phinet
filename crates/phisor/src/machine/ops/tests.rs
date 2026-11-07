@@ -28,27 +28,40 @@ fn a_punched_card_is_known_now_and_by_the_next_machine() {
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).unwrap();
     std::fs::copy(super::dir().join("core.lisp"), dir.join("core.lisp")).unwrap();
-    std::env::set_var("PHISOR_OPS", &dir);
+    let learned = dir.join("learned.lisp");
 
     let mut m = machine();
     let mut env = Env::new();
-    let before = load(&mut m, &mut env).unwrap();
+    let before = load_from(&mut m, &mut env, &dir).unwrap();
     assert!(!before.cards.iter().any(|c| c == "twice"), "no card yet");
-    let name = add(&mut m, &mut env, "(define twice (lambda (x) (+ x x)))").expect("the card punches");
+    let name = add_to(&mut m, &mut env, &learned, "(define twice (lambda (x) (+ x x)))").expect("the card punches");
     assert_eq!(name, "twice");
     assert_eq!(m.run("(twice 4)"), Ok(Value::Num(8.0)), "known now");
 
     let mut next = machine();
     let mut env = Env::new();
-    let loaded = load(&mut next, &mut env).unwrap();
+    let loaded = load_from(&mut next, &mut env, &dir).unwrap();
     assert!(loaded.cards.iter().any(|c| c == "twice"), "the next machine is born knowing it");
     assert_eq!(next.run("(twice 21)"), Ok(Value::Num(42.0)));
 
-    assert!(add(&mut m, &mut env, "(twice 1)").is_err(), "not a define of a lambda");
-    assert!(add(&mut m, &mut env, "(define a (lambda (x) x)) (define b (lambda (x) x))").is_err(), "one form per card");
-    let _ = add(&mut m, &mut env, "(define twice (lambda (x) (+ x x)))");
-    assert_eq!(phistd::lexfile::read(dir.join("learned.lisp")).len(), 1, "not doubled");
+    assert!(add_to(&mut m, &mut env, &learned, "(twice 1)").is_err(), "not a define of a lambda");
+    assert!(add_to(&mut m, &mut env, &learned, "(define a (lambda (x) x)) (define b (lambda (x) x))").is_err(), "one form per card");
+    let _ = add_to(&mut m, &mut env, &learned, "(define twice (lambda (x) (+ x x)))");
+    assert_eq!(phistd::lexfile::read(&learned).len(), 1, "not doubled");
 
-    std::env::remove_var("PHISOR_OPS");
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn note_g_runs_on_the_mill() {
+    // Lovelace's Bernoulli table (Note G), her numbering: B1 = 1/6, B3 = -1/30, B5 = 1/42, B7 = -1/30.
+    let mut m = machine();
+    let mut env = Env::new();
+    let loaded = load(&mut m, &mut env).expect("the cards load");
+    assert!(loaded.cards.iter().any(|c| c == "bernoulli"), "bernoulli.lisp is a card file: {:?}", loaded.cards);
+    for (m_, want) in [(1, 1.0 / 6.0), (3, -1.0 / 30.0), (5, 1.0 / 42.0), (7, -1.0 / 30.0)] {
+        let Ok(Value::Num(got)) = m.run(&format!("(bernoulli {m_})")) else { panic!("B{m_} is a number") };
+        assert!((got - want).abs() < 1e-9, "B{m_}: {got} against {want}");
+    }
+    assert!(m.run("(/ 1 0)").is_err(), "the engine stops on an impossible order");
 }
