@@ -30,7 +30,11 @@ Last read over: 2026-10-29.
 
 ## The intermediate language (crates/phisor, docs/phisor)
 
-The crate is new and its first two runs are recorded. What it does **not** do yet is the honest part.
+- [x] **The loop is closed (2026-11-07, docs/211):** told English, it answers English about what it was told — reader → `ground` → rows → `machine::told::answer_told` in phiclm's Lisp. `examples/converse`: four told, four answered (work, book, london, suit). The two halves had used two shapes of row — things and events — and `told` answers over events.
+- [ ] **The reader's gaps, from the loop:** a subject wh-question ("who was reading a book?", "who lives in london?") is not read; "boy" is outside the unprimed words; primed, "wearing" is refused in a statement as noun-and-verb. Each is the reader's, and its words go in files.
+- [ ] `told` passes over a clause filling a role, and takes the told force to be `assert`.
+
+The crate's first two runs are recorded below. What it does **not** do yet is the honest part.
 
 - [ ] The kinds of intention carry almost no label: function purity 53.3% against a 51.7% baseline, with 6 to 20 kinds paid for. Knowing which kind follows which is not enough to tell an explanation from an instruction. Next, per `docs/phisor/plan.md`: what a sentence is *made of*, not only what follows it.
 - [x] No cap, by the user's ruling ("built dynamically, we can't limit the templates"): the data pays for 53 word classes at depth 7 and grows about 4,500 templates.

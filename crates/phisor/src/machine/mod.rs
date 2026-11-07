@@ -26,12 +26,14 @@ pub mod agree;
 pub mod ask;
 pub mod host;
 pub mod lower;
+pub mod told;
 pub mod word;
 
 pub use agree::{agree, Agreement, Mismatch, STEP_CAP};
 pub use ask::{answer, answer_kinds, answer_with_oracle, Answered, AskError};
 
 pub use host::{checked, HostError, KindRows, PhisorHost};
+pub use told::{answer_told, answer_told_kinds};
 pub use lower::{
     is_declared_ocode, Bar, Judged, Lowered, Lowering, LoweringReport, Operation, Sense, Unlowered,
     DISPATCH_SLOT, MAX_OCODE, MIN_OCODE, OCODE_NAMES,
