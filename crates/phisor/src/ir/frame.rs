@@ -18,6 +18,11 @@ pub struct Frame {
     pub modal: Option<Modal>,
     pub voice: Voice,
     pub polarity: Polarity,
+    /// The negation is written `never`, not `not`. A surface marker on a
+    /// Negative frame, which the gold records as plain `negative`: it is
+    /// outside the gold format, the Arena encoding and `same_fields`, and
+    /// only the English Reader and Realiser read it.
+    pub never: bool,
 }
 
 impl Frame {
@@ -31,6 +36,7 @@ impl Frame {
             modal: None,
             voice: Voice::Active,
             polarity: Polarity::Positive,
+            never: false,
         }
     }
 

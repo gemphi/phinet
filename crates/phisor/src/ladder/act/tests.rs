@@ -1314,3 +1314,25 @@ fn a_negative_question_puts_nt_on_the_operator_and_reads_back() {
     let act = read("am i not late?").expect("am i not is covered");
     assert_eq!(realise(&act), "am i not late?");
 }
+
+#[test]
+fn never_is_carried_through_the_frame_and_written_back() {
+    use crate::ir::Polarity;
+    // Task 7.3: `never` is read as a negative frame that remembers its word,
+    // and the Realiser writes it where English puts it.
+    for said in [
+        "she never eats fish.",
+        "he has never finished the work.",
+        "they will never come.",
+        "i was never late.",
+    ] {
+        let act = read(said).unwrap_or_else(|| panic!("{said} is covered"));
+        assert_eq!(act.frame.polarity, Polarity::Negative, "{said}");
+        assert!(act.frame.never, "{said}");
+        assert_eq!(realise(&act), said);
+    }
+    // A plain `not` stays `not`.
+    let act = read("she does not eat fish.").expect("covered");
+    assert!(!act.frame.never);
+    assert_eq!(realise(&act), "she does not eat fish.");
+}

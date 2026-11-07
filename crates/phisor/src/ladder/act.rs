@@ -86,7 +86,7 @@ fn statement(frame: &Frame) -> Vec<String> {
             let be = be_form(frame.tense, third, false);
             let mut words = vec!["there".to_string(), be];
             if frame.polarity == Polarity::Negative {
-                words.push("not".into());
+                words.push(negation_word(frame).into());
             }
             words.extend(say_filler(theme));
             return words;
@@ -111,8 +111,10 @@ fn statement(frame: &Frame) -> Vec<String> {
 fn imperative(frame: &Frame) -> Vec<String> {
     let mut words: Vec<String> = Vec::new();
     if frame.polarity == Polarity::Negative {
-        words.push("do".into());
-        words.push("not".into());
+        if !frame.never {
+            words.push("do".into());
+        }
+        words.push(negation_word(frame).into());
     }
     words.push(frame.pred.clone());
     words.extend(complements(frame, true));
@@ -340,7 +342,7 @@ fn split_operator(frame: &Frame, mut group: Vec<String>) -> (String, Vec<String>
         };
         let mut rest = Vec::new();
         if neg {
-            rest.push("not".into());
+            rest.push(negation_word(frame).into());
         }
         rest.push(frame.pred.clone());
         return (operator, rest);
@@ -401,16 +403,18 @@ fn subject_has_wh(frame: &Frame) -> bool {
 fn verb_group(frame: &Frame) -> Vec<String> {
     let third = third_singular(frame);
     let neg = frame.polarity == Polarity::Negative;
+    // `never` is the negation word when the frame carries it, else `not`.
+    let neg_w = neg.then(|| negation_word(frame));
     // A modal (`will`, `can`): the lexical verb stays a bare lemma after it,
-    // negation is `modal not`.
+    // negation is `modal not` (`modal never`).
     if let Some(modal) = frame.modal {
         let word = modal_word(modal, frame.tense);
         let mut out = Vec::new();
-        if neg && word == "can" {
+        if neg && word == "can" && !frame.never {
             out.push("cannot".into()); // the book writes it as one word
         } else {
             out.push(word);
-            if neg { out.push("not".into()); }
+            if let Some(w) = neg_w { out.push(w.into()); }
         }
         // After a modal the rest is tenseless: `be` and `have` are bare, so a
         // modal composes with the aspect and the voice (Murphy Unit 21-30):
@@ -423,41 +427,47 @@ fn verb_group(frame: &Frame) -> Vec<String> {
         (Aspect::Simple, Voice::Passive) => {
             // `be` + past participle: "the window was broken", "is closed".
             let be = be_form(frame.tense, third, is_first_person(frame));
-            with_not(vec![be], neg, participle(&frame.pred))
+            with_not(vec![be], neg_w, participle(&frame.pred))
         }
         (Aspect::Progressive, Voice::Active) => {
             // `be` + -ing: "a girl is wearing".
             let be = be_form(frame.tense, third, is_first_person(frame));
-            with_not(vec![be], neg, ing(&frame.pred))
+            with_not(vec![be], neg_w, ing(&frame.pred))
         }
         (Aspect::Progressive, Voice::Passive) => {
             // `be being` + past participle: "the car is being repaired".
             let be = be_form(frame.tense, third, is_first_person(frame));
-            with_not(vec![be, "being".into()], neg, participle(&frame.pred))
+            with_not(vec![be, "being".into()], neg_w, participle(&frame.pred))
         }
         (Aspect::Perfect, Voice::Active) => {
             // `have` + past participle: "she has worn", "they have not finished".
             let have = have_form(frame.tense, third);
-            with_not(vec![have], neg, participle(&frame.pred))
+            with_not(vec![have], neg_w, participle(&frame.pred))
         }
         (Aspect::Perfect, Voice::Passive) => {
             // `have been` + past participle: "the house has been sold".
             let have = have_form(frame.tense, third);
-            with_not(vec![have, "been".into()], neg, participle(&frame.pred))
+            with_not(vec![have, "been".into()], neg_w, participle(&frame.pred))
         }
         (Aspect::PerfectProgressive, _) => {
             // `have been` + -ing: "she has been wearing".
             let have = have_form(frame.tense, third);
-            with_not(vec![have, "been".into()], neg, ing(&frame.pred))
+            with_not(vec![have, "been".into()], neg_w, ing(&frame.pred))
         }
     }
 }
 
+/// The word that writes a frame's negation: `never` when the Reader read it,
+/// otherwise `not`.
+fn negation_word(frame: &Frame) -> &'static str {
+    if frame.never { "never" } else { "not" }
+}
+
 /// Prepend the auxiliaries, insert `not` after the first when negative, then
 /// the main form: `has not finished`, `is not working`.
-fn with_not(mut aux: Vec<String>, neg: bool, main: String) -> Vec<String> {
-    if neg {
-        aux.insert(1.min(aux.len()), "not".into());
+fn with_not(mut aux: Vec<String>, neg: Option<&str>, main: String) -> Vec<String> {
+    if let Some(word) = neg {
+        aux.insert(1.min(aux.len()), word.into());
     }
     aux.push(main);
     aux
@@ -528,10 +538,14 @@ fn simple_active(frame: &Frame, third: bool, neg: bool) -> Vec<String> {
     // `not` directly, never do-support.
     if frame.pred == "be" {
         let be = be_form(frame.tense, third, is_first_person(frame));
-        return if neg { vec![be, "not".into()] } else { vec![be] };
+        return if neg { vec![be, negation_word(frame).into()] } else { vec![be] };
     }
     let mut out = Vec::new();
-    if neg {
+    // `never` sits before a lexical verb that keeps its own tense: "she never
+    // eats fish", no do-support.
+    if neg && frame.never {
+        out.push("never".into());
+    } else if neg {
         out.push(match frame.tense {
             Tense::Past => "did".into(),
             Tense::Present => if third { "does".into() } else { "do".into() },
@@ -1096,6 +1110,12 @@ const SET_ASIDE_ADVERB_PHRASES: [&[&str]; 4] = [
 /// (it carries negation). Phrases are matched first so a word inside a kept
 /// phrase is not stripped on its own.
 fn strip_adverbs(words: &[String]) -> (Vec<String>, bool) {
+    strip_adverbs_keeping(words, false)
+}
+
+/// As [`strip_adverbs`], optionally leaving "never" in the words, so the
+/// round-trip comparison checks where it is written.
+fn strip_adverbs_keeping(words: &[String], keep_never: bool) -> (Vec<String>, bool) {
     let without_phrases = strip_adverb_phrases(words);
     let mut never = false;
     let kept = without_phrases
@@ -1105,7 +1125,7 @@ fn strip_adverbs(words: &[String]) -> (Vec<String>, bool) {
             if is_adverb && w.as_str() == "never" {
                 never = true;
             }
-            !is_adverb
+            !is_adverb || (keep_never && w.as_str() == "never")
         })
         .cloned()
         .collect();
@@ -1184,6 +1204,7 @@ pub fn read(sentence: &str) -> Option<Act> {
     }
     if never {
         act.frame.polarity = Polarity::Negative;
+        act.frame.never = true;
     }
     Some(act)
 }
@@ -2746,7 +2767,7 @@ fn canonical(s: &str) -> String {
     let bare = s.trim_end_matches(|c| MARKS.contains(&c));
     let words: Vec<String> = bare.split_whitespace().map(str::to_string).collect();
     let words = fold_going_to(&words);
-    let (kept, _) = strip_adverbs(&expand_contractions(&words));
+    let (kept, _) = strip_adverbs_keeping(&expand_contractions(&words), true);
     format!("{}{}", kept.join(" "), mark)
 }
 
