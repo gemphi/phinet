@@ -27,6 +27,7 @@ graph LR
             LReader["reader.rs: impl Reader"]
             Store["store.rs<br/>save, load, lines_told<br/>the checkpoint: whole, bit-exact (docs/208)"]
             Widen["widen.rs<br/>widen(channels): the old channels kept bit for bit,<br/>the new born at a thousandth of a fresh birth,<br/>new operator rows with their siblings' Adagrad experience (docs/210)"]
+            Forget["forget.rs<br/>forget(share): every Adagrad accumulator scaled,<br/>every phasor kept - a sure learner's stride back (docs/214)"]
         end
     end
 
@@ -59,9 +60,10 @@ graph LR
     Read -->|"rank, prob"| ScoreT
     Read --> LReader
     Read -->|"speak, ranked"| Talk
-    Example["phiano examples/learner<br/>--save · --resume · --no-guide<br/>a curriculum as two runs"]
+    Example["phiano examples/learner<br/>--save · --resume · --no-guide<br/>--rate and --epochs are the run's on resume<br/>a curriculum as two runs"]
     Example -->|"save, load"| Store
     Example -->|"--widen"| Widen
+    Example -->|"--forget"| Forget
     Example -->|"tell only what is new"| LReader
     Count --> Board
     Concept --> Board
