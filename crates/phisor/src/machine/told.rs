@@ -50,7 +50,14 @@ pub fn answer_told(act: &Act, rows: &[phiecs::Row]) -> Result<Answered, AskError
 /// As [`answer_told`], against a prepared set of Kinds. A relation the rows
 /// never named is declared empty, so a question about a role nobody told
 /// has an empty class, not an error.
-pub fn answer_told_kinds(act: &Act, mut kinds: KindRows) -> Result<Answered, AskError> {
+pub fn answer_told_kinds(act: &Act, kinds: KindRows) -> Result<Answered, AskError> {
+    answer_told_traced_kinds(act, kinds, None).map(|(answered, _)| answered)
+}
+
+/// As [`answer_told_kinds`], with Note G's trace beside the answer, and
+/// optionally a `card` — a `(define told-answer (lambda …))` — that replaces
+/// the shipped card for this run (`engine::arrange` tries several).
+pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&str>) -> Result<(Answered, Vec<super::engine::Step>), AskError> {
     let (filters, hole) = events_and_hole(act)?;
     let mut roles = vec![hole.role.clone()];
     if hole.anywhere {
@@ -65,13 +72,19 @@ pub fn answer_told_kinds(act: &Act, mut kinds: KindRows) -> Result<Answered, Ask
     let mut machine = checked(host).map_err(|e| AskError::Host(e.to_string()))?;
     let mut environment = Env::new();
     super::ops::load(&mut machine, &mut environment).map_err(AskError::Machine)?;
+    if let Some(card) = card {
+        for form in phiclm::lisp::read(card).map_err(AskError::Machine)? {
+            machine.eval(&form, &mut environment).map_err(AskError::Machine)?;
+        }
+    }
     machine.eval(&define_told(query_told(&filters, &roles)), &mut environment).map_err(AskError::Machine)?;
     let value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
+    let trace = machine.host.take_trace();
     match value {
         Value::Class(class) => {
             let members: Vec<String> = class.into_iter().collect();
             let count = members.len();
-            Ok(Answered { members, count })
+            Ok((Answered { members, count }, trace))
         }
         other => Err(AskError::Machine(format!("{BINDING} returned {other}, not a class"))),
     }

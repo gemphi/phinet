@@ -86,6 +86,8 @@ pub fn checked<H: Host>(host: H) -> Result<Machine<H>, HostError> {
 pub struct PhisorHost {
     arena: Arena,
     kinds: KindRows,
+    /// Note G's table: every store read and mill operation, numbered.
+    trace: Vec<super::engine::Step>,
 }
 
 impl PhisorHost {
@@ -94,7 +96,7 @@ impl PhisorHost {
     /// built for its own sake is held to it too.
     pub fn new(arena: Arena, kinds: KindRows) -> Result<Self, HostError> {
         Self::check_names(&NAMES)?;
-        Ok(PhisorHost { arena, kinds })
+        Ok(PhisorHost { arena, kinds, trace: Vec::new() })
     }
 
     /// The 40 reserved core names, for the disjointness check.
@@ -128,6 +130,16 @@ impl PhisorHost {
         &mut self.arena
     }
 
+    /// The trace so far: every column fetched and operation performed.
+    pub fn trace(&self) -> &[super::engine::Step] {
+        &self.trace
+    }
+
+    /// The trace, taken; the host starts a new one.
+    pub fn take_trace(&mut self) -> Vec<super::engine::Step> {
+        std::mem::take(&mut self.trace)
+    }
+
     /// The rows `phisor-rows` reads.
     pub fn kinds(&self) -> &KindRows {
         &self.kinds
@@ -140,9 +152,24 @@ impl Host for PhisorHost {
     }
 
     fn call(&mut self, name: &'static str, args: Vec<Value>) -> Result<Value, String> {
+        let n = self.trace.len() + 1;
         match name {
-            "phisor-rows" => self.kinds.value(&as_text(&args, 0, name)?),
-            "phisor-apply" => apply::call(&mut self.arena, &args),
+            "phisor-rows" => {
+                let kind = as_text(&args, 0, name)?;
+                let value = self.kinds.value(&kind)?;
+                let count = match &value {
+                    Value::List(rows) => rows.len(),
+                    _ => 0,
+                };
+                self.trace.push(super::engine::Step::store(n, &kind, count));
+                Ok(value)
+            }
+            "phisor-apply" => {
+                let result = apply::call(&mut self.arena, &args);
+                let operation = args.first().map(|v| v.to_string()).unwrap_or_default();
+                self.trace.push(super::engine::Step::mill(n, &operation, &args[args.len().min(1)..], &result));
+                result
+            }
             "phisor-encode" | "phisor-decode" => Err(format!(
                 "{name}: the machine-word carriage is not built yet (machine::word)"
             )),

@@ -4,7 +4,7 @@
 > of numbers could weave the patterns of thought - in this project's reckoning
 > the most brilliant mind who ever turned mathematics into music.*
 
-> *2026-11-08: this reading has grown into paper 27, [The Cards and the Mill](../crates/phiano/docs/papers/27_LOVELACE_THE_CARDS_AND_THE_MILL.md) — all twelve of her ideas against the code, with a ledger of what is done, measured, partial and not there. The fifth correspondence it adds is below.*
+> *2026-11-08: this reading has grown into paper 27, [The Cards and the Mill](../crates/phiano/docs/papers/27_LOVELACE_THE_CARDS_AND_THE_MILL.md) — all twelve of her ideas against the code, with a ledger of what is done, measured, partial and not there. The fifth correspondence it adds is below. Paper 28, [Note G Runs on the Mill](../crates/phiano/docs/papers/28_NOTE_G_RUNS_ON_THE_MILL.md), runs her Bernoulli program on the mill, keeps her trace for every run, and lets the engine arrange by economy.*
 
 ## Why her Notes, and not someone else's
 
