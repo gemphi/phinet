@@ -34,6 +34,8 @@ Paths are under `src/`. The plan and the full checklist: [docs/phisor/plan.md](.
 
 ## The loop (2026-11-07)
 
+- [x] `machine::host::apply` (2026-11-08): `(phisor-apply index a0 …)` reaches every keyboard Operator from the Lisp — operands read by the row's declared types (a phasor `(re im)`, a handle its index), applied through `phical::keyboard::apply` against the host's Arena, a Fault returned as the error text. The lowering's own lambdas (`phisor-op-11-centroid`) now evaluate. Before this the arm answered "not built yet", and the mill ran only inside the agreement check.
+- [ ] The keyboard's 64 is the right count until a measured operation is missing: ask/told answer with six of phiclm's 39 primitives composed and call none of the 64. Before adding an Operator, have the harness count which primitives and Operators the guide's questions invoke; add operations as named lambdas in files, not keyboard rows.
 - [x] `machine::told`: a question answered over what was told — the fixed roles name the events, the hole's role is read off them with `image`; a `where` over every preposition role, told structurally. `examples/converse` is the loop in English. docs/211.
 - [ ] A subject wh-question ("who was reading a book?") is not read; "boy" is outside the unprimed words; primed, "wearing" is refused in a statement. The reader's, and its words go in files.
 - [ ] `told`: a clause filling a role is passed over; the told force is taken as `assert`.

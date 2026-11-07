@@ -17,7 +17,9 @@
 //!
 //! `phisor-rows` is answered here (Requirement 7 criterion 2): the rows of a
 //! named Kind, an empty row sequence for a Kind holding none, and an error
-//! naming the Kind when the set holds no Kind of that name. The four other
+//! naming the Kind when the set holds no Kind of that name. `phisor-apply`
+//! is answered by [`apply`]: the 64 keyboard Operators, called by index with
+//! their operands as Lisp values, against the host's Arena. The three other
 //! names are bound here and answered by this module's siblings as they land.
 
 use std::collections::BTreeMap;
@@ -25,6 +27,8 @@ use std::fmt;
 
 use phical::keyboard::Arena;
 use phiclm::lisp::{as_text, Host, Machine, Value};
+
+mod apply;
 
 /// phiclm's 39 reserved core names, held as a static so the count is checked
 /// where it is written and [`PhisorHost::core_names`] can hand out a
@@ -138,9 +142,7 @@ impl Host for PhisorHost {
     fn call(&mut self, name: &'static str, args: Vec<Value>) -> Result<Value, String> {
         match name {
             "phisor-rows" => self.kinds.value(&as_text(&args, 0, name)?),
-            "phisor-apply" => Err(format!(
-                "{name}: the lowering is not built yet (machine::lower)"
-            )),
+            "phisor-apply" => apply::call(&mut self.arena, &args),
             "phisor-encode" | "phisor-decode" => Err(format!(
                 "{name}: the machine-word carriage is not built yet (machine::word)"
             )),
