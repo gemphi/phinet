@@ -1260,3 +1260,34 @@ fn the_reader_returns_whole_frames_or_none() {
         }
     }
 }
+
+#[test]
+fn short_stressed_verbs_double_the_final_consonant() {
+    assert_eq!(ing("run"), "running");
+    assert_eq!(ing("sit"), "sitting");
+    assert_eq!(past("stop"), "stopped");
+    assert_eq!(past("admit"), "admitted");
+    assert_eq!(ing("quit"), "quitting");
+    // No doubling: two vowels, final w/x/y, unstressed, or a consonant pair.
+    assert_eq!(past("wait"), "waited");
+    assert_eq!(ing("rain"), "raining");
+    assert_eq!(past("show"), "showed");
+    assert_eq!(past("fix"), "fixed");
+    assert_eq!(past("visit"), "visited");
+    assert_eq!(ing("open"), "opening");
+    assert_eq!(past("add"), "added");
+}
+
+#[test]
+fn doubled_forms_read_back_to_the_lemma() {
+    assert_eq!(read_ing("stopping"), Some("stop".to_string()));
+    assert_eq!(read_ing("sitting"), Some("sit".to_string()));
+    assert_eq!(read_ing("adding"), Some("add".to_string()));
+    assert_eq!(read_ing("kissing"), Some("kiss".to_string()));
+    assert_eq!(read_verb("stopped"), ("stop".to_string(), Tense::Past));
+    assert_eq!(read_verb("admitted"), ("admit".to_string(), Tense::Past));
+    assert_eq!(read_participle("stopped"), Some("stop".to_string()));
+    let act = read("he stopped the car.").expect("a doubled past reads");
+    assert_eq!(act.frame.pred, "stop");
+    assert_eq!(realise(&act), "he stopped the car.");
+}

@@ -571,12 +571,67 @@ fn ing(verb: &str) -> String {
     if verb == "be" {
         return "being".into();
     }
+    if doubles_final(verb) {
+        return format!("{verb}{}ing", verb.chars().last().unwrap_or_default());
+    }
     if let Some(stem) = verb.strip_suffix('e') {
         if !stem.is_empty() && !verb.ends_with("ee") {
             return format!("{stem}ing");
         }
     }
     format!("{verb}ing")
+}
+
+/// Multi-syllable verbs stressed on the last syllable, which double the final
+/// consonant before `-ed`/`-ing` (admit -> admitted). The standard English
+/// spelling rule (Murphy, English Grammar in Use, Appendix 6): a syllable
+/// count cannot be read from the spelling, so these are named, not guessed.
+const DOUBLING_STRESSED: [&str; 24] = [
+    "admit", "permit", "submit", "commit", "omit", "prefer", "refer", "occur",
+    "begin", "regret", "forget", "control", "equip", "forbid", "rebel", "expel",
+    "compel", "propel", "patrol", "upset", "transfer", "confer", "defer", "recur",
+];
+
+/// Whether `-ed`/`-ing` double the verb's final consonant: a one-syllable
+/// lemma that ends consonant + single vowel + consonant (stop, sit, run,
+/// plan), or a named stressed multi-syllable verb. A final `w`, `x` or `y`
+/// never doubles, and `qu` counts as a consonant (quit -> quitting). The
+/// irregular table overrides this for the past (`past` consults it first).
+fn doubles_final(verb: &str) -> bool {
+    if DOUBLING_STRESSED.contains(&verb) {
+        return true;
+    }
+    let masked = verb.replace("qu", "kw");
+    let chars: Vec<char> = masked.chars().collect();
+    let n = chars.len();
+    let vowel = |c: char| "aeiou".contains(c);
+    if n < 3 || !chars.iter().all(|c| c.is_ascii_lowercase()) {
+        return false;
+    }
+    let groups = chars.windows(2).filter(|w| vowel(w[1]) && !vowel(w[0])).count() + usize::from(vowel(chars[0]));
+    !vowel(chars[n - 1])
+        && !"wxy".contains(chars[n - 1])
+        && vowel(chars[n - 2])
+        && !vowel(chars[n - 3])
+        && groups == 1
+}
+
+/// Undo the doubling in a stem read off `-ed`/`-ing` (`stopp` -> `stop`). The
+/// bare stem wins when the lexicon knows it as a verb ("add", "kiss", "purr");
+/// `s`, `f` and `z` never undouble, and a lemma under three letters is not
+/// proposed. Otherwise the result is a lemma that would double again.
+fn undouble(stem: &str) -> Option<String> {
+    let mut it = stem.chars().rev();
+    let (last, prev) = (it.next()?, it.next()?);
+    if last != prev || "aeiouyswfz".contains(last) || crate::lexicon::verb_capable(stem) {
+        return None;
+    }
+    let lemma = &stem[..stem.len() - last.len_utf8()];
+    let named = DOUBLING_STRESSED.contains(&lemma);
+    if (last == 'l' && !named) || lemma.len() < 3 || !doubles_final(lemma) {
+        return None;
+    }
+    Some(lemma.to_string())
 }
 
 /// The past participle used by the perfect and the passive. Irregulars the
@@ -661,6 +716,9 @@ fn read_ing(word: &str) -> Option<String> {
     // Prefer the silent-e restoration for the closed set of e-dropping verbs
     // the Guide uses; otherwise the bare stem. Confirm by re-realising so a
     // mismatch abstains rather than guesses.
+    if let Some(lemma) = undouble(stem).filter(|l| ing(l) == word) {
+        return Some(lemma);
+    }
     let with_e = format!("{stem}e");
     if SILENT_E_LEMMAS.contains(&with_e.as_str()) && ing(&with_e) == word {
         return Some(with_e);
@@ -688,6 +746,7 @@ fn regular_ed_candidates(word: &str) -> Vec<String> {
         out.push(format!("{stem}y"));
     }
     if let Some(stem) = word.strip_suffix("ed") {
+        out.extend(undouble(stem));
         out.push(stem.to_string());
         out.push(format!("{stem}e"));
     }
@@ -722,6 +781,9 @@ fn past(verb: &str) -> String {
     }
     if let Some(p) = crate::lexicon::irregular_past(verb) {
         return p;
+    }
+    if doubles_final(verb) {
+        return format!("{verb}{}ed", verb.chars().last().unwrap_or_default());
     }
     if let Some(stem) = verb.strip_suffix('e') {
         if !stem.is_empty() {
@@ -1991,6 +2053,9 @@ fn read_verb(word: &str) -> (String, Tense) {
         // that the realiser would have written with `d` only. The gold's
         // regular pasts are e-verbs (arrive, like) or plain (-ed) verbs; the
         // reader keeps the lemma that re-realises, which `past` decides.
+        if let Some(lemma) = undouble(stem).filter(|l| past(l) == word) {
+            return (lemma, Tense::Past);
+        }
         let with_e = format!("{stem}e");
         if past(&with_e) == word {
             return (with_e, Tense::Past);
