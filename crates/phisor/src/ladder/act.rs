@@ -1012,26 +1012,6 @@ fn clause_verb_is_verbal(pred: &str) -> bool {
         || crate::lexicon::verb_capable(pred)
 }
 
-/// Multi-word adverbials the IR has no slot for, set aside as a unit the same
-/// way the single words above are. Each is a fixed adverb phrase of time or
-/// degree that the gold leaves out of its frames, never a noun phrase ("a lot
-/// of money") or a place phrase the gold keeps under a preposition. They are
-/// matched as a contiguous run of words and dropped whole, so a sentence whose
-/// only remainder is a frame the reader covers becomes readable, and the same
-/// phrase is dropped on both sides of the round-trip (task 6.2, R3.3, R5.2).
-///
-/// Linguistic source: Murphy's *English Grammar in Use* adverbials of time -
-/// Unit 19 ("i'm doing it right now", the present moment) and Unit 108's
-/// position note, plus the fixed phrase "at the moment" Murphy uses throughout
-/// Units 1-3 and 25 for the present. "these days" is the present-period
-/// adverbial of Unit 5. Like the single adverbs, these sit around the verb and
-/// the gold has no slot for them.
-const SET_ASIDE_ADVERB_PHRASES: [&[&str]; 4] = [
-    &["right", "now"],
-    &["at", "the", "moment"],
-    &["these", "days"],
-    &["right", "away"],
-];
 
 /// Remove the set-aside adverb phrases, then the single set-aside adverbs, from
 /// a word list. Returns the remaining words and whether "never" was among them
@@ -1066,10 +1046,10 @@ fn strip_adverb_phrases(words: &[String]) -> Vec<String> {
     let mut out: Vec<String> = Vec::with_capacity(words.len());
     let mut i = 0;
     while i < words.len() {
-        let matched = SET_ASIDE_ADVERB_PHRASES
+        let matched = lists::set_aside_adverb_phrases()
             .iter()
             .filter(|phrase| phrase.len() <= words.len() - i)
-            .find(|phrase| phrase.iter().zip(&words[i..]).all(|(p, w)| *p == w.as_str()));
+            .find(|phrase| phrase.iter().zip(&words[i..]).all(|(p, w)| p == w));
         match matched {
             Some(phrase) => i += phrase.len(),
             None => {
@@ -1082,8 +1062,8 @@ fn strip_adverb_phrases(words: &[String]) -> Vec<String> {
 }
 
 /// The closed word lists the Reader consults, each as a named list of
-/// lower-case words, as loaded from their files under data/lex. Exposed so the harness can audit how much
-/// held-out text each covers and how much would change if the list were
+/// lower-case words, as loaded from their files under data/lex. Exposed so
+/// the harness can audit how much held-out text each covers and how much would change if the list were
 /// learned instead (R5.2, R5.3). The names match the lists' identifiers in
 /// this module. This is a read-only view: it does not change the Reader.
 pub fn word_lists() -> Vec<(&'static str, &'static [String])> {
@@ -1519,19 +1499,6 @@ fn finish_predicate(frame: Frame, words: &[String], from: usize, force: Force) -
         .or_else(|| finish_with_purpose(frame, words, from, force))
 }
 
-/// Nouns and adverbs whose following `to` + verb modifies them ("something to
-/// eat", "somewhere to stay") instead of giving the purpose of the action. The
-/// reader leaves these to abstain: reading them as purpose would round-trip
-/// the words but state the wrong structure.
-///
-/// Linguistic source: Murphy's *English Grammar in Use*, the infinitive after
-/// `something`, `anything`, `somewhere` and the like ("I need something to
-/// eat"), where the infinitive modifies the pronoun.
-const TO_MODIFIED_HOSTS: [&str; 12] = [
-    "something", "anything", "nothing", "everything", "somewhere", "anywhere",
-    "nowhere", "someone", "anyone", "everyone", "somebody", "anybody",
-];
-
 /// Whether `word` can open a purpose infinitive: a bare lexical verb. The
 /// primed foundation lexicon decides (verb-capable, not a function word);
 /// unprimed, only the reader's closed instructional verbs count, so the rule
@@ -1544,7 +1511,7 @@ fn is_purpose_verb(word: &str) -> bool {
     let known = if crate::lexicon::is_primed() {
         crate::lexicon::verb_capable(word) && !crate::lexicon::function_word(word)
     } else {
-        IMPERATIVE_VERBS.contains(&word)
+        lists::imperative_verbs().contains(&word)
     };
     known && read_verb(word).0 == word
 }
@@ -1568,7 +1535,7 @@ fn finish_with_purpose(frame: Frame, words: &[String], from: usize, force: Force
         if words[k] != "to" || !is_purpose_verb(&words[k + 1]) {
             continue;
         }
-        if k > 0 && TO_MODIFIED_HOSTS.contains(&words[k - 1].as_str()) {
+        if k > 0 && lists::to_modified_hosts().contains(&words[k - 1].as_str()) {
             continue;
         }
         let Some(head) = finish_plain(frame.clone(), &words[..k], from, force) else { continue };
@@ -2135,14 +2102,6 @@ enum Aux {
     Be,
 }
 
-/// The closed set of base-form verbs the Guide uses to give an instruction,
-/// so the reader recognises an imperative without guessing from word order.
-const IMPERATIVE_VERBS: [&str; 19] = [
-    "ask", "boil", "choose", "close", "compare", "complete", "finish", "forget",
-    "give", "listen", "look", "open", "put", "read", "repeat", "study", "tell",
-    "use", "write",
-];
-
 /// Read a question into an Act, or `None` when the shape is one this reader
 /// does not yet parse soundly (an aspect, a passive, a proper-name object).
 /// The shape is `[wh] OPERATOR subject [not] verb [recipient] [object]
@@ -2488,7 +2447,7 @@ fn read_imperative(words: &[String]) -> Option<Act> {
         i = 2;
     }
     let verb = words.get(i)?;
-    if !IMPERATIVE_VERBS.contains(&verb.as_str()) {
+    if !lists::imperative_verbs().contains(&verb.as_str()) {
         return None;
     }
     let mut frame = Frame::new(verb, Tense::Present);
@@ -2532,7 +2491,7 @@ fn leading_recipient(verb: &str, rest: &[String]) -> bool {
     if rest.first().map(|w| is_object_pronoun(w)) != Some(true) {
         return false;
     }
-    if DITRANSITIVE_VERBS.contains(&verb) {
+    if lists::ditransitive_verbs().contains(&verb) {
         return true;
     }
     match rest.get(1) {
@@ -2541,9 +2500,6 @@ fn leading_recipient(verb: &str, rest: &[String]) -> bool {
     }
 }
 
-/// Verbs that take a recipient as their first object, from the Guide's
-/// ditransitive patterns ("give/tell/show someone something").
-const DITRANSITIVE_VERBS: [&str; 6] = ["give", "tell", "show", "send", "offer", "teach"];
 /// The object-form pronouns that read as a recipient at the head of a
 /// ditransitive command.
 fn is_object_pronoun(word: &str) -> bool {

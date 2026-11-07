@@ -189,3 +189,24 @@ plain_list!(
     set_aside_adverbs,
     "set_aside_adverb.txt"
 );
+plain_list!(
+    /// Base-form verbs that give an instruction.
+    imperative_verbs,
+    "imperative_verb.txt"
+);
+plain_list!(
+    /// Verbs that take a recipient as their first object.
+    ditransitive_verbs,
+    "ditransitive_verb.txt"
+);
+plain_list!(
+    /// Pronoun hosts whose following 	o + verb modifies them.
+    to_modified_hosts,
+    "to_modified_host.txt"
+);
+
+/// Multi-word adverbials set aside as a unit, one phrase (a word list) each.
+pub fn set_aside_adverb_phrases() -> &'static Vec<Vec<String>> {
+    static CELL: OnceLock<Vec<Vec<String>>> = OnceLock::new();
+    CELL.get_or_init(|| load_phrases("set_aside_adverb_phrase.txt"))
+}
