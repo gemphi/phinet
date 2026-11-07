@@ -7,16 +7,16 @@ use phical::keyboard::table;
 
 #[test]
 fn the_four_correspondences_name_the_four_real_modules() {
-    assert_eq!(Correspondence::ALL.len(), 4);
+    assert_eq!(Correspondence::ALL.len(), 5);
     let modules: Vec<&str> = Correspondence::ALL.iter().map(|c| c.phisor_module()).collect();
-    assert_eq!(modules, ["ground", "machine", "ladder", "truth"]);
+    assert_eq!(modules, ["ground", "machine", "ladder", "truth", "ops"]);
     // Every module name is one word, as the crate's path rule requires.
     assert!(modules.iter().all(|m| m.chars().all(|c| c.is_ascii_lowercase())));
     // The four are distinct ideas and distinct modules.
     let mut terms: Vec<&str> = Correspondence::ALL.iter().map(|c| c.lovelace_term()).collect();
     terms.sort_unstable();
     terms.dedup();
-    assert_eq!(terms.len(), 4);
+    assert_eq!(terms.len(), 5);
 }
 
 #[test]
@@ -34,9 +34,10 @@ fn her_famous_lines_are_quoted_verbatim_and_attributed() {
     let objection = Correspondence::Objection.quotation().expect("the objection is quoted");
     assert!(objection.contains("no pretensions whatever to originate anything"));
     assert_eq!(QUOTATIONS[1].1, "Note G");
-    // The store and the mill are her terms, not quoted sentences.
+    // The store, the mill and the cards are her terms, not quoted sentences.
     assert_eq!(Correspondence::Store.quotation(), None);
     assert_eq!(Correspondence::Mill.quotation(), None);
+    assert_eq!(Correspondence::Cards.quotation(), None);
     // Every quotation names the Note it is from.
     assert!(QUOTATIONS.iter().all(|(_, source)| source.starts_with("Note ")));
 }

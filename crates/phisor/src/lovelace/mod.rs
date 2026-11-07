@@ -2,8 +2,8 @@
 //! Augusta Ada Lovelace's 1843 Notes on the Analytical Engine.
 //!
 //! This module is an analytic model, not a runtime. It adds no execution of
-//! its own; it names the correspondence between the four ideas Lovelace set
-//! down in her Notes and the four parts of phisor that already carry them,
+//! its own; it names the correspondence between the five ideas Lovelace set
+//! down in her Notes and the five parts of phisor that already carry them,
 //! and it offers two thin readings over the live outputs of those parts so
 //! the correspondence can be checked rather than merely asserted.
 //!
@@ -20,6 +20,7 @@
 //! | [`Mill`](Correspondence::Mill) | the mill | [`machine`](crate::machine) | the 64 operators lowered and operated, checked against the reader |
 //! | [`Weave`](Correspondence::Weave) | the weave | [`ladder`](crate::ladder) | structure woven from text, no word of the text carried |
 //! | [`Objection`](Correspondence::Objection) | her objection | [`truth`](crate::truth) | the machine originates nothing; it classifies what it is given |
+//! | [`Cards`](Correspondence::Cards) | the operation cards | [`machine::ops`](crate::machine::ops) | operators as lambdas in files, punched at run time; the mill untouched |
 //!
 //! Her architecture was already the one this crate is built on: a store that
 //! holds quantities apart from a mill that operates on them, an engine that
@@ -34,9 +35,9 @@
 mod tests;
 
 /// One correspondence between an idea in Lovelace's Notes and the phisor
-/// module that carries it. The four are exhaustive over the architecture's
-/// spine: what is held, what operates, what is woven, and what the machine
-/// may not do.
+/// module that carries it. The five are exhaustive over the architecture's
+/// spine: what is held, what operates, what is woven, what the machine may
+/// not do, and how it is given a new operation.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Correspondence {
     /// The store: the Analytical Engine's columns held its quantities apart
@@ -60,16 +61,25 @@ pub enum Correspondence {
     /// claim before a row is told from it and originates none; the mill does
     /// only what it is ordered to do.
     Objection,
+    /// The operation cards: the mill's operations were fixed, and a new
+    /// operation was punched on a card and fed in from outside. phisor's
+    /// [`machine::ops`](crate::machine::ops) keeps every operator that is
+    /// not one of the mill's 64 or the Lisp's 39 as a card — a lambda in
+    /// `data/ops/*.lisp`, read at every machine's birth, punched at run time
+    /// (paper 27, 2026-11-08).
+    Cards,
 }
 
 impl Correspondence {
-    /// The four correspondences, in the architecture's order: what is held,
-    /// what operates, what is woven, what may not be originated.
-    pub const ALL: [Correspondence; 4] = [
+    /// The five correspondences, in the architecture's order: what is held,
+    /// what operates, what is woven, what may not be originated, and how an
+    /// operation is added.
+    pub const ALL: [Correspondence; 5] = [
         Correspondence::Store,
         Correspondence::Mill,
         Correspondence::Weave,
         Correspondence::Objection,
+        Correspondence::Cards,
     ];
 
     /// Lovelace's own term for the idea.
@@ -79,6 +89,7 @@ impl Correspondence {
             Correspondence::Mill => "the mill",
             Correspondence::Weave => "the weave",
             Correspondence::Objection => "Lady Lovelace's objection",
+            Correspondence::Cards => "the operation cards",
         }
     }
 
@@ -89,6 +100,7 @@ impl Correspondence {
             Correspondence::Mill => "machine",
             Correspondence::Weave => "ladder",
             Correspondence::Objection => "truth",
+            Correspondence::Cards => "ops",
         }
     }
 
@@ -107,6 +119,9 @@ impl Correspondence {
             Correspondence::Objection => {
                 "the engine originates nothing; the detector classifies, it does not invent"
             }
+            Correspondence::Cards => {
+                "a new operation is a card fed in, never a wheel cut into the mill; ops keeps operators in files"
+            }
         }
     }
 
@@ -117,7 +132,7 @@ impl Correspondence {
         match self {
             Correspondence::Weave => Some(QUOTATIONS[0].0),
             Correspondence::Objection => Some(QUOTATIONS[1].0),
-            Correspondence::Store | Correspondence::Mill => None,
+            Correspondence::Store | Correspondence::Mill | Correspondence::Cards => None,
         }
     }
 }
