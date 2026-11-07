@@ -100,6 +100,17 @@ macro_rules! plain_list {
     };
 }
 
+/// Declare an accessor for one tag of a tagged list file.
+macro_rules! tagged_list {
+    ($(#[$doc:meta])* $name:ident, $file:literal, $tag:literal) => {
+        $(#[$doc])*
+        pub fn $name() -> &'static Words {
+            static CELL: OnceLock<Words> = OnceLock::new();
+            CELL.get_or_init(|| load_tagged($file, $tag))
+        }
+    };
+}
+
 plain_list!(
     /// Stressed multi-syllable verbs that double their final consonant.
     doubling_stressed,
@@ -119,4 +130,23 @@ plain_list!(
     /// Nouns ending in `s` that are singular.
     singular_s_nouns,
     "singular_s_noun.txt"
+);
+
+tagged_list!(
+    /// Pronouns the reader keeps as filler words, never as verbs.
+    pronouns,
+    "pronoun.tsv",
+    "reader"
+);
+tagged_list!(
+    /// Subject pronouns, which can open a clause.
+    subject_pronouns,
+    "pronoun.tsv",
+    "subject"
+);
+tagged_list!(
+    /// Object pronouns, which read as a recipient after a ditransitive verb.
+    object_pronouns,
+    "pronoun.tsv",
+    "object"
 );

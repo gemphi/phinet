@@ -155,10 +155,9 @@ fn no_leading_or(s: &str) -> bool {
 }
 
 fn no_label_a(s: &str) -> bool {
-    const PRONOUNS: [&str; 7] = ["i", "you", "he", "she", "it", "we", "they"];
     let toks = tokens(s);
     match (toks.first(), toks.get(1)) {
-        (Some(&"a"), Some(second)) => PRONOUNS.contains(&second.split('\'').next().unwrap_or("")),
+        (Some(&"a"), Some(second)) => crate::lexicon::lists::subject_pronouns().contains(second.split('\'').next().unwrap_or("")),
         _ => false,
     }
 }

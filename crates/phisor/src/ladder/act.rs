@@ -928,12 +928,6 @@ fn pluralise(head: &str) -> String {
 }
 // ----- The reader: English -> Act, for the shapes it handles -----
 
-/// A pronoun table: the reader keeps a pronoun in the nominative as the IR
-/// does, mapping object forms back (`her` stays `her` as a filler word).
-const PRONOUNS: [&str; 12] = [
-    "i", "you", "he", "she", "it", "we", "they", "me", "him", "us", "them", "mine",
-];
-
 /// Expand the common English contractions into the words they stand for, so
 /// the reader meets "do not" where the text wrote "don't" (phiecs tokenises a
 /// contraction as one word). Only the unambiguous contractions the Guide uses
@@ -1634,7 +1628,7 @@ const TO_MODIFIED_HOSTS: [&str; 12] = [
 /// stays sound without the lexicon. An inflected form ("buying", "buys") is
 /// not a bare verb and does not qualify.
 fn is_purpose_verb(word: &str) -> bool {
-    if is_aux(word) || is_determiner(word) || is_preposition(word) || PRONOUNS.contains(&word) {
+    if is_aux(word) || is_determiner(word) || is_preposition(word) || lists::pronouns().contains(&word) {
         return false;
     }
     let known = if crate::lexicon::is_primed() {
@@ -1751,7 +1745,7 @@ fn is_by_agent(words: &[String]) -> bool {
 /// noun phrase fills the theme. Returns `None` when nothing reads cleanly.
 fn read_theme(words: &[String]) -> Option<(Role, Filler, usize)> {
     let first = words.first()?;
-    if is_object_pronoun(first) || PRONOUNS.contains(&first.as_str()) {
+    if is_object_pronoun(first) || lists::pronouns().contains(&first.as_str()) {
         return Some((Role::Theme, Filler::pronoun(&canon_pronoun(first)), 1));
     }
     if is_time_adverb(first) {
@@ -1789,7 +1783,7 @@ fn is_expletive_subject(lemma: &str, subject: &Filler) -> bool {
 /// reader abstains (None) when it cannot find a head, so it never treats a
 /// verb as a subject.
 fn read_subject(words: &[String]) -> Option<(Filler, usize)> {
-    if PRONOUNS.contains(&words[0].as_str()) {
+    if lists::pronouns().contains(&words[0].as_str()) {
         return Some((subject_filler(&words[0]), 1));
     }
     let (thing, end) = read_noun_phrase(words)?;
@@ -2001,7 +1995,7 @@ fn is_aux(word: &str) -> bool {
 
 /// A subject word as a filler: a pronoun kept nominative, else a bare word.
 fn subject_filler(word: &str) -> Filler {
-    if PRONOUNS.contains(&word) {
+    if lists::pronouns().contains(&word) {
         Filler::pronoun(&canon_pronoun(word))
     } else {
         Filler::word(word)
@@ -2643,7 +2637,7 @@ const DITRANSITIVE_VERBS: [&str; 6] = ["give", "tell", "show", "send", "offer", 
 /// The object-form pronouns that read as a recipient at the head of a
 /// ditransitive command.
 fn is_object_pronoun(word: &str) -> bool {
-    matches!(word, "me" | "him" | "her" | "us" | "them" | "you")
+    lists::object_pronouns().contains(word)
 }
 /// Read trailing prepositional phrases into `Via` slots: "in a bank", "on
 /// time", "at eight". Each is a known preposition followed by a noun phrase
