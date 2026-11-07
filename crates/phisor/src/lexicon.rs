@@ -22,6 +22,7 @@
 //! gold - so priming does not train the reader on its own yardstick.
 
 pub mod contraction;
+pub mod irregular;
 pub mod lists;
 use std::collections::HashMap;
 use std::sync::OnceLock;

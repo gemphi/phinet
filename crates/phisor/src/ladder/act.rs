@@ -589,8 +589,8 @@ fn third_s(verb: &str) -> String {
 /// The `-ing` present participle: `wear` -> `wearing`, `wait` -> `waiting`,
 /// `rain` -> `raining`, a silent-e dropped (`make` -> `making`).
 fn ing(verb: &str) -> String {
-    if verb == "be" {
-        return "being".into();
+    if let Some(form) = crate::lexicon::irregular::ing(verb) {
+        return form;
     }
     if doubles_final(verb) {
         return format!("{verb}{}ing", verb.chars().last().unwrap_or_default());
@@ -649,26 +649,9 @@ fn undouble(stem: &str) -> Option<String> {
 /// gold set uses are named; the rest take `-ed`. These are the book's own
 /// irregular list, learned once.
 fn participle(verb: &str) -> String {
-    match verb {
-        "wear" => "worn".into(),
-        "write" => "written".into(),
-        "break" => "broken".into(),
-        "send" => "sent".into(),
-        "lose" => "lost".into(),
-        "sell" => "sold".into(),
-        "see" => "seen".into(),
-        "leave" => "left".into(),
-        "be" => "been".into(),
-        "do" => "done".into(),
-        "go" => "gone".into(),
-        "know" => "known".into(),
-        "give" => "given".into(),
-        "take" => "taken".into(),
-        "come" => "come".into(),
-        "tell" => "told".into(),
-        "say" => "said".into(),
-        _ => crate::lexicon::irregular_participle(verb).unwrap_or_else(|| past(verb)),
-    }
+    crate::lexicon::irregular_participle(verb)
+        .or_else(|| crate::lexicon::irregular::participle(verb))
+        .unwrap_or_else(|| past(verb))
 }
 
 /// Read a surface past participle back to its lemma, the inverse of
@@ -679,7 +662,7 @@ fn participle(verb: &str) -> String {
 /// unknown word makes the whole verb group abstain rather than guess.
 fn read_participle(word: &str) -> Option<String> {
     // Irregulars: a known lemma whose participle is this surface word.
-    for lemma in lists::irregular_lemmas().iter() {
+    for lemma in crate::lexicon::irregular::lemmas().iter() {
         if participle(lemma) == word {
             return Some(lemma.to_string());
         }
@@ -751,30 +734,7 @@ fn regular_ed_candidates(word: &str) -> Vec<String> {
 /// The simple past form. Irregulars the gold set uses are named; the rest
 /// take `-ed` (with the silent-e and consonant rules the book gives).
 fn past(verb: &str) -> String {
-    match verb {
-        "have" => return "had".into(),
-        "do" => return "did".into(),
-        "wear" => return "wore".into(),
-        "write" => return "wrote".into(),
-        "break" => return "broke".into(),
-        "send" => return "sent".into(),
-        "lose" => return "lost".into(),
-        "sell" => return "sold".into(),
-        "see" => return "saw".into(),
-        "leave" => return "left".into(),
-        "go" => return "went".into(),
-        "give" => return "gave".into(),
-        "take" => return "took".into(),
-        "come" => return "came".into(),
-        "tell" => return "told".into(),
-        "say" => return "said".into(),
-        "know" => return "knew".into(),
-        "discover" => return "discovered".into(),
-        "answer" => return "answered".into(),
-        "arrive" => return "arrived".into(),
-        _ => {}
-    }
-    if let Some(p) = crate::lexicon::irregular_past(verb) {
+    if let Some(p) = crate::lexicon::irregular_past(verb).or_else(|| crate::lexicon::irregular::past(verb)) {
         return p;
     }
     if doubles_final(verb) {
@@ -1872,17 +1832,9 @@ fn read_verb(word: &str) -> (String, Tense) {
             return (lemma, Tense::Past);
         }
     }
-    // Irregular past -> lemma (the inverse of the realiser's `past` table).
-    let irregular = [
-        ("wore", "wear"), ("wrote", "write"), ("broke", "break"), ("sent", "send"),
-        ("lost", "lose"), ("sold", "sell"), ("saw", "see"), ("left", "leave"),
-        ("went", "go"), ("gave", "give"), ("took", "take"), ("knew", "know"),
-        ("came", "come"), ("told", "tell"), ("said", "say"), ("had", "have"), ("did", "do"),
-    ];
-    for (surface, lemma) in irregular {
-        if word == surface {
-            return (lemma.into(), Tense::Past);
-        }
+    // Irregular past -> lemma from the file (the inverse of the `past` table).
+    if let Some(lemma) = crate::lexicon::irregular::lemma_of_past(word) {
+        return (lemma, Tense::Past);
     }
     // Regular past `-ed`: "discovered" -> discover, "arrived" -> arrive,
     // "studied" -> study. Undo the doubling the realiser never adds for the

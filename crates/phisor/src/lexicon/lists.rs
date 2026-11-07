@@ -118,11 +118,6 @@ plain_list!(
     "doubling_stressed.txt"
 );
 plain_list!(
-    /// The irregular lemmas the reader inverts a surface form against.
-    irregular_lemmas,
-    "irregular_lemma.txt"
-);
-plain_list!(
     /// Silent-e verbs whose `-ing`/`-ed` drops the e.
     silent_e_lemmas,
     "silent_e_lemma.txt"
