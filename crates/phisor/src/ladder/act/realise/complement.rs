@@ -121,7 +121,10 @@ pub(in crate::ladder::act) fn adjuncts(frame: &Frame, skip: Option<&Role>) -> Ve
                     }
                     continue;
                 }
-                if is_bare_adverb(filler) {
+                if lists::postpositions().contains(&prep.as_str()) {
+                    out.extend(say_filler(filler));
+                    out.push(prep.clone());
+                } else if is_bare_adverb(filler) {
                     out.extend(say_filler(filler));
                 } else {
                     out.push(prep.clone());

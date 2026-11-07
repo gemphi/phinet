@@ -12,3 +12,8 @@ pub fn set_aside_adverb_phrases() -> &'static Vec<Vec<String>> {
     static CELL: OnceLock<Vec<Vec<String>>> = OnceLock::new();
     CELL.get_or_init(|| load_phrases("set_aside_adverb_phrase.txt"))
 }
+plain_list!(
+    /// Postpositions: words that follow their noun phrase ("two hours ago").
+    postpositions,
+    "postposition.txt"
+);

@@ -36,6 +36,16 @@
 //! `good at` (copula + gerund), `would you mind closing` (question), `spend
 //! time -ing`, perception verbs ("hear a dog barking"), `suggest -ing`.
 //!
+//! Task 7.6 (`ago`, the top remaining cause once `or` proved to be mostly
+//! ungrammatical exercise stems and noun coordination): a trailing `<noun
+//! phrase> ago` is a postposition phrase. read/postposition.rs reads a word of
+//! `postposition.txt` after a noun phrase, stored under `Via(ago)`; the
+//! Realiser says the phrase then the word. Clean coverage 408/1201 ->
+//! 413/1201, soundness 323/408 -> 327/413 (unsound 85 -> 86);
+//! CLEAN_COVERAGE_BAR 33.9 -> 34.3. Left for `ago`: a leading "a year ago she
+//! ..." and "ago" before `and`/`but` (the join halves). Left for `or`: noun
+//! coordination ("brothers or sisters"), "x or y" questions, "i'll" contraction.
+//!
 //! Abstention by distance bucket (`abstention_kinds`): simple 305,
 //! one_join 274, infinitive 122, ing_form 76, multi_clause 26, very_long 10.
 //!
