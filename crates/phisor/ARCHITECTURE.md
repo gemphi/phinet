@@ -13,7 +13,7 @@ graph TB
         english["english (planned)<br/>closed · chunk · clause · realise · morph"]
         learn["learn (planned)<br/>the one loop · position · moves"]
         ground["ground (planned)<br/>rows · flatten"]
-        machine["machine (planned)<br/>host · query · a lambda per operation"]
+        machine["machine<br/>host · ask (a thing by its descriptors) · told (what was told, over events; docs/211)<br/>lower · word · agree · a lambda per operation"]
         measure["measure (planned)<br/>records · the thinkers"]
     end
     code --> units

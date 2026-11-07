@@ -22,8 +22,8 @@ Below the act, phisor is a code at 16, 32 and 64 levels: a story in mode 16 is e
 | `units` | names as unit ids, handed to the one routine (`phical::classes::halve`: exchange by halving, a split kept only while it pays) | built, 1 test |
 | `english` | the closed words, the chunker, the clause reader, the realiser, morphology | planned |
 | `learn` | the one loop: Huberman's stage and measure, better and worse, forcing | planned |
-| `ground` | an act → `phiecs::Row`s, the event as an entity | planned |
-| `machine` | phiclm's Lisp `Host` over the rows; every operation a `lambda`; `ASK` → expression → answer | planned |
+| `ground` | an act → `phiecs::Row`s, the event as an entity: one row for the predicate under its force, one per role, one per marked feature | built |
+| `machine` | phiclm's Lisp `Host` over the rows; every operation a `lambda`; `ask` answers a question about a thing by its descriptors, `told` answers one about what was told, over the events (docs/211); `examples/converse` is the loop in English | built |
 | `measure` | each run's record; the thinkers' table | planned |
 
 Measured 2026-10-29 ([docs/phisor/kinds.md](../../docs/phisor/kinds.md)):

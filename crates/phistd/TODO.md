@@ -42,3 +42,7 @@ graph LR
 
 ## hrr
 - nothing open found in the code
+
+## Data to files (2026-11-07)
+
+- [x] `lexfile`: a word list in a file — `read`, `parse`, `append` — what every crate uses instead of holding words in code (docs/phistd/lexfile.md). 1 test.

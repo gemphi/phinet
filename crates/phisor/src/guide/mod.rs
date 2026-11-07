@@ -16,7 +16,7 @@ mod units;
 #[cfg(test)]
 mod tests;
 
-pub use split::{Part, Split};
+pub use split::{Operator, Part, Split, OPERATORS};
 
 /// What the layout says a sentence is for (docs/201).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]

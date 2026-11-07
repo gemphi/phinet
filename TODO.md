@@ -7,7 +7,22 @@ Last read over: 2026-10-29.
 
 - [ ] Beat the smoothed Witten–Bell trigram on the guide's held-out sentences. Where it stands: the learner 21.3% top-1 and perplexity 101.2, the trigram 24.8% and 84.7 (the guide alone, 142k words).
 - [x] Train on more text than one book. Done, and it did not work: the guide plus 173 Simple Wikipedia articles and phi4 prose made **every** model worse on the guide (the learner 21.3% → 19.8% top-1). An encyclopedia is not the guide's register. docs/207.
-- [ ] **The next run, one of two, the user's call:** English in the guide's own register (Tatoeba's English sentences, 24.9 MB, short everyday sentences — closest open source), or a curriculum with no download: tell the wide text first and the guide's own sentences in the last epochs.
+- [x] **Learning accumulates now** (2026-11-07, docs/208). The learner had no save/load: every run since docs/203 began at the seed and dropped what it learned, which is why nine days of runs carried nothing forward. `Learner::save`/`load` are bit-exact and tested; `examples/learner --save --resume --no-guide`. Checkpoints in `gemphi/_corpus/checkpoints/`. **Every run from here resumes the newest checkpoint.**
+- [x] The curriculum ran as two accumulating runs: the wide text (230k words) first, the guide on top. Result: 19.9% top-1 — the same as mixing (19.8%), both below the guide alone (21.3%). Order was not the problem; the wide text's register is. Run 1's dev perplexity rose with every epoch past the first: learning Wikipedia better is learning the guide worse.
+- [x] **Tatoeba, first instalment (2026-11-07, docs/209):** 80,000 sentences in the guide's register on top of the checkpoint, 8 epochs, saved `tatoeba1.ckpt` (115,076 lines, 25,806 words). Perplexity 123.4 → 119.6 and top-5 up; top-1 flat at 19.7%, still under the guide alone (21.3%). The register is right; 64 channels over 25,806 words is the constraint now.
+- [ ] **Next instalment:** resume `tatoeba1.ckpt` with the next 80,000 (the sample is seed 7's first 80k of 1.79M; take the next slice), once `widen` exists — or before it, to see whether more of the right register moves top-1 at 64 channels.
+- [x] **Widen the channels without starting over** (`Learner::widen`, `--widen`, 2026-11-07, docs/210): the old channels kept bit for bit, the new born at a thousandth of a fresh birth so the learner reads as it did, the new operator rows with their siblings' Adagrad experience. Tested: within 5% before training, the error falls on, round-trips.
+- [x] **The guide told again (docs/212): dilution was it.** Same learner, the guide's share of the rehearsal doubled: 20.9% / 41.4% / 104.3, up from 19.7 / 39.7 / 119.6 — level with the guide alone and above it on top-5, still improving at epoch 8. Newest checkpoint: `guide_twice.ckpt`.
+- [ ] **Next run:** resume `guide_twice.ckpt` for 8 more epochs (it was still falling), then the second Tatoeba 80k with the guide told again beside it, so its share holds.
+- [x] **Widened to 128 and trained on the same text (docs/210):** nothing. Dev perplexity 127.2 → 128.6 → 127.6, the stop ended it at two epochs, test unchanged at 19.7% / 119.6. The mechanism is right (the widened read matched the 64-channel one to the digit); the hypothesis that capacity was the constraint is not confirmed by this run. Two things it could still be, each one run: channels born this quiet need more than two epochs' patience; or the guide, a sixth of the lines rehearsed, is diluted — tell it again on top of a checkpoint so it weighs double, and see whether top-1 climbs back toward 21.3%.
+- [ ] **No data in code (the user's ruling, 2026-11-07, for every crate):** contractions (we're → we are, I'll → I will), irregular verbs, closed-word lists, templates — every such table lives in a file the system reads at run time and can append to; the Rust keeps only the functions that find the abstractions. The reader and appender is `phistd::lexfile` (docs/phistd/lexfile.md).
+  - [x] phiton's given dictionary: the nine part-of-speech lists (238 words) are `crates/phiton/data/lex/*.txt`; `PosDictionary` reads them and `learn(word, pos)` appends, so the next run is born knowing a learned word. phiton 30 tests, phisor 261 unchanged.
+  - [x] phiano's intent classifier: its seven phrase lists (119 entries) are `crates/phiano/data/intent/*.txt`, read once, the whole line the entry. phiano 24 tests unchanged. (`data/stop_words.txt` already was a file; the two stop lists differ and stay two files.)
+  - [x] Already files before the ruling, for the record: phisor's irregular verbs are mined from the guide's Appendix 1.4 at run time (`lexicon::parse_irregulars`); its open-class words come from `data/lex/pos.tsv` when primed.
+  - [ ] phisor's Reader (`ladder/act.rs`, 2,798 lines, another agent's today): the small closed sets its rules name are literals in `match` arms, not arrays; they come out to `data/` files with the harness numbers (docs/234's table) as the check. Not touched here because that file is being edited by another session.
+  - [ ] phiecs (3 named lists across 37 files) and phient (1 across 14): survey each — `KIND_NAMES` and the like are enum names, which is code, not data; what names English words moves.
+  - [ ] phiano's 48 cwd-relative `"data/…"` paths: resolve them from the crate's manifest dir like the new files, so a binary run from the workspace root finds them.
+  - phiclm's `KEYWORDS`, `PUNCT`, `NATIVE` are BCPL's own syntax: a programming language's keywords are code, and stay.
 - [ ] More channels when the vocabulary grows: 64 channels over 15,609 words is thinner than over 4,705.
 - [ ] A dev set that mixes registers, to tell a model that learned English from one that learned the guide.
 - [ ] Try a wider operator block and more channels with more silence (the block-8 run was still improving when it stopped).
@@ -17,7 +32,11 @@ Last read over: 2026-10-29.
 
 ## The intermediate language (crates/phisor, docs/phisor)
 
-The crate is new and its first two runs are recorded. What it does **not** do yet is the honest part.
+- [x] **The loop is closed (2026-11-07, docs/211):** told English, it answers English about what it was told — reader → `ground` → rows → `machine::told::answer_told` in phiclm's Lisp. `examples/converse`: four told, four answered (work, book, london, suit). The two halves had used two shapes of row — things and events — and `told` answers over events.
+- [ ] **The reader's gaps, from the loop:** a subject wh-question ("who was reading a book?", "who lives in london?") is not read; "boy" is outside the unprimed words; primed, "wearing" is refused in a statement as noun-and-verb. Each is the reader's, and its words go in files.
+- [ ] `told` passes over a clause filling a role, and takes the told force to be `assert`.
+
+The crate's first two runs are recorded below. What it does **not** do yet is the honest part.
 
 - [ ] The kinds of intention carry almost no label: function purity 53.3% against a 51.7% baseline, with 6 to 20 kinds paid for. Knowing which kind follows which is not enough to tell an explanation from an instruction. Next, per `docs/phisor/plan.md`: what a sentence is *made of*, not only what follows it.
 - [x] No cap, by the user's ruling ("built dynamically, we can't limit the templates"): the data pays for 53 word classes at depth 7 and grows about 4,500 templates.

@@ -56,9 +56,9 @@ impl fmt::Display for AskError {
 impl std::error::Error for AskError {}
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-struct Constraint {
-    kind: String,
-    other: String,
+pub(super) struct Constraint {
+    pub(super) kind: String,
+    pub(super) other: String,
 }
 
 /// Answer `act` from `rows` without an external source.
@@ -185,7 +185,7 @@ fn query(filters: &[Constraint]) -> Value {
     call("domain", vec![intersection])
 }
 
-fn relation(filter: &Constraint) -> Value {
+pub(super) fn relation(filter: &Constraint) -> Value {
     let rows = call(
         "phisor-rows",
         vec![Value::Str(filter.kind.clone())],
@@ -197,7 +197,7 @@ fn relation(filter: &Constraint) -> Value {
     call("identity", vec![referents])
 }
 
-fn define(body: Value) -> Value {
+pub(super) fn define(body: Value) -> Value {
     let lambda = Value::List(vec![Value::Sym("lambda".into()), Value::Nil, body]);
     Value::List(vec![
         Value::Sym("define".into()),
@@ -206,7 +206,7 @@ fn define(body: Value) -> Value {
     ])
 }
 
-fn call(name: &str, arguments: Vec<Value>) -> Value {
+pub(super) fn call(name: &str, arguments: Vec<Value>) -> Value {
     Value::List(
         std::iter::once(Value::Sym(name.to_string()))
             .chain(arguments)

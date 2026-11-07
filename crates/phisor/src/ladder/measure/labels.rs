@@ -47,7 +47,18 @@ pub fn function_purity(
     split: &Split,
     guard: &mut HoldoutGuard,
 ) -> Result<FunctionReport, Breach> {
-    let test = split.of(Part::Test);
+    function_purity_on(Part::Test, report, split, guard)
+}
+
+/// Function purity over one part of the split. Settings are chosen on
+/// Part::Dev; Part::Test is read once for the reported figure.
+pub fn function_purity_on(
+    part: Part,
+    report: &KindReport,
+    split: &Split,
+    guard: &mut HoldoutGuard,
+) -> Result<FunctionReport, Breach> {
+    let test = split.of(part);
     let (indices, unassigned) = assigned(report, split, &test);
     let table = function_table(report, split, guard, &indices)?;
     let value = one_decimal(100.0 * purity(&table));
@@ -201,6 +212,15 @@ fn best_question(table: &[Vec<f64>]) -> Option<BestKindF1> {
 }
 
 impl Ladder<'_> {
+    pub fn function_purity_on(
+        &self,
+        part: Part,
+        report: &KindReport,
+        guard: &mut HoldoutGuard,
+    ) -> Result<FunctionReport, Breach> {
+        function_purity_on(part, report, self.split(), guard)
+    }
+
     pub fn function_purity(
         &self,
         report: &KindReport,

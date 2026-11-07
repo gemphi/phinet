@@ -14,7 +14,7 @@ graph TD
         spectrum["spectrum.rs<br/>PhitonSpectrum"]
         hrr["hrr.rs<br/>role · bind · unbind · compose · holography"]
         physics["physics/<br/>Physics · PhysicsOp · ColorSpaceTimeManifold · Topology<br/>standing: harmonic_rotation · oscillator: Oscillator"]
-        p64["p64/<br/>Level P16 P32 P64 · syntax · searle · lexicon · topology · iching · words · bpe"]
+        p64["p64/<br/>Level P16 P32 P64 · syntax · searle · lexicon · topology · iching · words · bpe<br/>syntax's given classes read from data/lex/*.txt (no data in code, 2026-11-07)"]
         tests["tests.rs<br/>7 test functions"]
     end
     serde["serde · bincode<br/>Serialize · Deserialize · Mirror save, load"]

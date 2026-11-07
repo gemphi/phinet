@@ -1,0 +1,13 @@
+# determiner: the given closed class, one word per line. A run may append to it.
+a
+an
+the
+some
+any
+each
+every
+all
+both
+either
+neither
+no

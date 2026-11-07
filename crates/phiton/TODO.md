@@ -51,3 +51,8 @@ graph LR
 ## Moved in (2026-10-28)
 
 - [x] p64: phiano's `bpe` is `p64::bpe`; physics: the oscillator's sphere model is `physics::oscillator`, beside Bentov's `standing` (docs/phiano/distribution).
+
+## Data to files (2026-11-07)
+
+- [x] p64 `syntax::vocab`: the nine part-of-speech lists are `data/lex/*.txt`, read once through `phistd::lexfile`; `PosDictionary::learn` appends a learned word to its class's file. `$PHITON_LEX` points the loader elsewhere.
+- [ ] `syntax/dictionary.rs` `from_mined_tsv` still takes the mined text as a string the harness reads: fine (pure), but its caller's path should resolve from the manifest dir too.

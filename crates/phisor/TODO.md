@@ -31,3 +31,9 @@ Paths are under `src/`. The plan and the full checklist: [docs/phisor/plan.md](.
 ## Docs
 
 - [ ] One page per module in `phinet/docs/phisor/` as each lands (today: `ir.md`)
+
+## The loop (2026-11-07)
+
+- [x] `machine::told`: a question answered over what was told — the fixed roles name the events, the hole's role is read off them with `image`; a `where` over every preposition role, told structurally. `examples/converse` is the loop in English. docs/211.
+- [ ] A subject wh-question ("who was reading a book?") is not read; "boy" is outside the unprimed words; primed, "wearing" is refused in a statement. The reader's, and its words go in files.
+- [ ] `told`: a clause filling a role is passed over; the told force is taken as `assert`.

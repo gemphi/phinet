@@ -1,0 +1,13 @@
+# interjection: the given closed class, one word per line. A run may append to it.
+oh
+ah
+wow
+hey
+hi
+hello
+bye
+yes
+okay
+ok
+please
+thanks

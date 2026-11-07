@@ -923,6 +923,7 @@ dependencies = [
  "phient",
  "phifno",
  "philog",
+ "phisor",
  "phistd",
  "phiton",
  "proc-macro2",
