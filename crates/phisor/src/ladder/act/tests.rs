@@ -1427,18 +1427,18 @@ enum Miss {
 /// - 149 `i hereby appoint you chairman.` / `appoint`: no adverb field for
 ///   `hereby`.
 ///
-/// `RealiserForm`: 89 holds `Via(for)` with a `How` hole (`how long`); the
-/// Express frames 127 to 131 (`thank`, `apologise`, `congratulate`,
-/// `welcome`) are fixed phrases, fixed in task 2.1 from
-/// `expressive_phrase.tsv`; the wish frames 137, 138 and 143 are fixed in task 2.2 (`wish_form.tsv`).
-const GOLD_MISSES: [(usize, Miss); 14] = [
+/// `RealiserForm`: none left. Frame 89 (`Via(for)` with a `How` hole, said
+/// "how long") is fixed in task 2.3 from `wh_phrase.tsv`; the Express frames
+/// 127 to 131 (`thank`, `apologise`, `congratulate`, `welcome`) are fixed
+/// phrases, fixed in task 2.1 from `expressive_phrase.tsv`; the wish frames
+/// 137, 138 and 143 are fixed in task 2.2 (`wish_form.tsv`).
+const GOLD_MISSES: [(usize, Miss); 13] = [
     (0, Miss::NoSlot),
     (27, Miss::NoSlot),
     (38, Miss::NoSlot),
     (42, Miss::NoSlot),
     (43, Miss::NoSlot),
     (61, Miss::NoSlot),
-    (89, Miss::RealiserForm),
     (102, Miss::NoSlot),
     (104, Miss::NoSlot),
     (121, Miss::NoSlot),
@@ -1463,8 +1463,21 @@ fn the_failing_gold_frames_are_pinned_by_index_and_class() {
     let pinned: Vec<usize> = GOLD_MISSES.iter().map(|(i, _)| *i).collect();
     assert_eq!(failing, pinned, "the set of gold frames the strict round trip misses moved");
     let count = |m: Miss| GOLD_MISSES.iter().filter(|(_, c)| *c == m).count();
-    assert_eq!((count(Miss::RealiserForm), count(Miss::NoSlot)), (1, 13));
+    assert_eq!((count(Miss::RealiserForm), count(Miss::NoSlot)), (0, 13));
     assert!(pinned.iter().all(|i| *i < gold::COUNT));
+}
+
+/// Task 2.3: a `how` hole in a `for` slot is said "how long"; in a `by` slot
+/// it stays "how".
+#[test]
+fn a_how_hole_in_a_for_slot_is_said_how_long() {
+    let gold = gold::read().expect("the frozen gold set loads");
+    let pairs: Vec<_> = gold.pairs().collect();
+    let (act, sentence) = pairs[89];
+    assert_eq!(sentence, "how long have you been waiting?");
+    assert_eq!(realise(act), "how long have you been waiting?");
+    let (by, _) = pairs.iter().find(|(_, s)| *s == "how did you do it?").expect("the `by` how frame");
+    assert_eq!(realise(by), "how did you do it?");
 }
 
 /// Task 2.2: the three wish frames are said in the subjunctive, and a wish

@@ -323,6 +323,21 @@ pub fn wish_form(key: &str, negative: bool) -> Option<&'static Vec<String>> {
     rows.iter().find(|(k, n, _)| k == key && *n == negative).map(|(_, _, words)| words)
 }
 
+/// The words a fronted wh-hole is said as in a `Via(prep)` slot
+/// (`wh_phrase.tsv`), when that differs from the bare wh-word: `how` in a
+/// `for` slot is "how long".
+pub fn wh_phrase(wh: &str, prep: &str) -> Option<&'static Vec<String>> {
+    static CELL: OnceLock<Vec<(String, String, Vec<String>)>> = OnceLock::new();
+    let rows = CELL.get_or_init(|| {
+        data_rows(&read_file("wh_phrase.tsv"))
+            .into_iter()
+            .filter(|r| r.len() >= 3)
+            .map(|r| (r[0].clone(), r[1].clone(), r[2].split_whitespace().map(str::to_string).collect()))
+            .collect()
+    });
+    rows.iter().find(|(w, p, _)| w == wh && p == prep).map(|(_, _, words)| words)
+}
+
 /// Irregular noun plurals as `(singular, plural)`.
 pub fn irregular_plurals() -> &'static Vec<(String, String)> {
     static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();

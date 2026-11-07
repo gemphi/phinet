@@ -180,8 +180,13 @@ fn question(frame: &Frame) -> Vec<String> {
     let mut words: Vec<String> = Vec::new();
     // Front the wh word, dropping any preposition it carried (the gold stores
     // "where" for "in=?where", not "in where").
-    if let Some((_, w)) = &wh {
-        words.push(wh_surface(*w));
+    if let Some((role, w)) = &wh {
+        match role {
+            Role::Via(prep) if lists::wh_phrase(w.name(), prep).is_some() => {
+                words.extend(lists::wh_phrase(w.name(), prep).into_iter().flatten().cloned());
+            }
+            _ => words.push(wh_surface(*w)),
+        }
     }
     // The operator is the first word of the verb group; do-support supplies
     // one for a plain simple-active lexical verb that has none.
