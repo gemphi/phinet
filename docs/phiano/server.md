@@ -30,7 +30,7 @@ graph LR
 
         subgraph intent["intent/"]
             Classify["classify.rs<br/>ChatIntent::classify"]
-            Patterns["greeting.rs<br/>is_greeting, is_self_correction,<br/>is_explanation_request, extract_topic_term"]
+            Patterns["greeting.rs<br/>is_greeting, is_self_correction,<br/>is_explanation_request, extract_topic_term<br/>its seven phrase lists read from data/intent/*.txt"]
             Respond["response.rs<br/>ChatIntent::generate_response"]
             Grounded["grounded.rs<br/>explain, recommend"]
         end

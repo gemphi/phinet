@@ -1,0 +1,16 @@
+# conjunction: the given closed class, one word per line. A run may append to it.
+and
+or
+but
+if
+so
+than
+because
+while
+although
+though
+unless
+since
+where
+when
+whether

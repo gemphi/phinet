@@ -1,6 +1,6 @@
 //! Keyed Part-of-Speech dictionary and dynamic registry.
 
-use super::vocab::*;
+use super::vocab::{keys, lex_file};
 use super::PartOfSpeech;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -21,19 +21,49 @@ impl PosDictionary {
         Self::default()
     }
 
-    /// Builds the standard default keyed dictionary.
+    /// The given dictionary: every class read from its file under `data/lex/`.
     pub fn default_lexicon() -> Self {
         let mut dict = Self::new();
-        dict.register_batch(PRONOUN_KEYS, PartOfSpeech::Pronoun);
-        dict.register_batch(DETERMINER_KEYS, PartOfSpeech::Determiner);
-        dict.register_batch(AUXILIARY_KEYS, PartOfSpeech::Auxiliary);
-        dict.register_batch(PREPOSITION_KEYS, PartOfSpeech::Preposition);
-        dict.register_batch(CONJUNCTION_KEYS, PartOfSpeech::Conjunction);
-        dict.register_batch(INTERJECTION_KEYS, PartOfSpeech::Interjection);
-        dict.register_batch(ADVERB_KEYS, PartOfSpeech::Adverb);
-        dict.register_batch(ADJECTIVE_KEYS, PartOfSpeech::Adjective);
-        dict.register_batch(VERB_KEYS, PartOfSpeech::Verb);
+        for (name, pos) in Self::given() {
+            dict.register_batch(keys(name), pos);
+        }
         dict
+    }
+
+    /// The given classes and their files, open and closed alike.
+    fn given() -> [(&'static str, PartOfSpeech); 9] {
+        [
+            ("pronoun", PartOfSpeech::Pronoun),
+            ("determiner", PartOfSpeech::Determiner),
+            ("auxiliary", PartOfSpeech::Auxiliary),
+            ("preposition", PartOfSpeech::Preposition),
+            ("conjunction", PartOfSpeech::Conjunction),
+            ("interjection", PartOfSpeech::Interjection),
+            ("adverb", PartOfSpeech::Adverb),
+            ("adjective", PartOfSpeech::Adjective),
+            ("verb", PartOfSpeech::Verb),
+        ]
+    }
+
+    /// The closed classes: small, certain and structural, so they override
+    /// a mined open-class tag.
+    fn closed() -> [(&'static str, PartOfSpeech); 6] {
+        [
+            ("pronoun", PartOfSpeech::Pronoun),
+            ("determiner", PartOfSpeech::Determiner),
+            ("auxiliary", PartOfSpeech::Auxiliary),
+            ("preposition", PartOfSpeech::Preposition),
+            ("conjunction", PartOfSpeech::Conjunction),
+            ("interjection", PartOfSpeech::Interjection),
+        ]
+    }
+
+    /// Registers `word` under `pos` and appends it to that class's file, so
+    /// the next run is born knowing it. Returns whether the file gained it.
+    pub fn learn(&mut self, word: &str, pos: PartOfSpeech) -> std::io::Result<bool> {
+        self.register(word, pos);
+        let name = Self::given().iter().find(|(_, p)| *p == pos).map(|(n, _)| *n).unwrap_or("noun");
+        phistd::lexfile::append(lex_file(name), &word.trim().to_lowercase())
     }
 
     /// Builds a dictionary from a mined `word\ttag` lexicon (WordNet codes:
@@ -68,12 +98,9 @@ impl PosDictionary {
         }
         // The authoritative closed classes override, so a word the mined file
         // tagged open is still read as its structural class.
-        dict.register_batch(PRONOUN_KEYS, PartOfSpeech::Pronoun);
-        dict.register_batch(DETERMINER_KEYS, PartOfSpeech::Determiner);
-        dict.register_batch(AUXILIARY_KEYS, PartOfSpeech::Auxiliary);
-        dict.register_batch(PREPOSITION_KEYS, PartOfSpeech::Preposition);
-        dict.register_batch(CONJUNCTION_KEYS, PartOfSpeech::Conjunction);
-        dict.register_batch(INTERJECTION_KEYS, PartOfSpeech::Interjection);
+        for (name, pos) in Self::closed() {
+            dict.register_batch(keys(name), pos);
+        }
         dict
     }
 
@@ -93,9 +120,9 @@ impl PosDictionary {
     }
 
     /// Registers a batch of words under a POS tag.
-    pub fn register_batch(&mut self, words: &[&str], pos: PartOfSpeech) {
-        for &w in words {
-            self.register(w, pos);
+    pub fn register_batch<S: AsRef<str>>(&mut self, words: &[S], pos: PartOfSpeech) {
+        for w in words {
+            self.register(w.as_ref(), pos);
         }
     }
 

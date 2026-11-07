@@ -1,0 +1,25 @@
+# auxiliary: the given closed class, one word per line. A run may append to it.
+is
+are
+was
+were
+be
+been
+being
+am
+do
+does
+did
+have
+has
+had
+can
+could
+will
+would
+shall
+should
+may
+might
+must
+ought
