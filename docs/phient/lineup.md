@@ -26,6 +26,7 @@ graph LR
             Read["read.rs<br/>ranked, measure, speak"]
             LReader["reader.rs: impl Reader"]
             Store["store.rs<br/>save, load, lines_told<br/>the checkpoint: whole, bit-exact (docs/208)"]
+            Widen["widen.rs<br/>widen(channels): the old channels kept bit for bit,<br/>the new born at a thousandth of a fresh birth,<br/>new operator rows with their siblings' Adagrad experience (docs/210)"]
         end
     end
 
@@ -60,6 +61,7 @@ graph LR
     Read -->|"speak, ranked"| Talk
     Example["phiano examples/learner<br/>--save · --resume · --no-guide<br/>a curriculum as two runs"]
     Example -->|"save, load"| Store
+    Example -->|"--widen"| Widen
     Example -->|"tell only what is new"| LReader
     Count --> Board
     Concept --> Board
