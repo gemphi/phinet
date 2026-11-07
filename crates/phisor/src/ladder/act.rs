@@ -856,7 +856,16 @@ fn say_thing(thing: &Thing) -> Vec<String> {
         match attr {
             Attr::Via(prep) => {
                 post.push(prep.clone());
-                post.extend(say_filler(value));
+                // A host infinitive ("something to read"): `to`, the bare
+                // verb and its complements; it has no subject to say.
+                match value {
+                    Filler::Clause(inner) if prep == "to" => {
+                        post.push(inner.pred.clone());
+                        post.extend(complements_skipping(inner, None, true));
+                        post.extend(adjuncts(inner, None));
+                    }
+                    _ => post.extend(say_filler(value)),
+                }
             }
             _ => out.extend(say_filler(value)),
         }
@@ -1420,6 +1429,10 @@ fn finish_with_gerund(mut frame: Frame, words: &[String], from: usize, force: Fo
     if is_aux(word) {
         return None;
     }
+    // A host ending in `-ing` ("something", "nothing") is never a gerund.
+    if lists::to_modified_hosts().contains(&word.as_str()) {
+        return None;
+    }
     let lemma = read_ing(word)?;
     let inner = Frame::new(&lemma, Tense::Present).with(Role::Agent, agent).aspect(Aspect::Progressive);
     let inner = finish_predicate(inner, words, from + 1, Force::Assert)?;
@@ -1534,8 +1547,12 @@ fn finish_plain(mut frame: Frame, words: &[String], from: usize, force: Force) -
         let here = &rest[i..];
         if !here.is_empty() && !is_preposition(&here[0]) && !is_by_agent(here) {
             if let Some((role, filler, end)) = read_theme(here) {
+                let (filler, extra) = match role {
+                    Role::Theme => with_host_infinitive(filler, &here[end..], frame.get(&Role::Agent)),
+                    _ => (filler, 0),
+                };
                 frame = frame.with(role, filler);
-                i += end;
+                i += end + extra;
             }
         }
     } else {
@@ -1574,6 +1591,39 @@ fn finish_plain(mut frame: Frame, words: &[String], from: usize, force: Force) -
         return None;
     }
     Some(Act::new(force, frame))
+}
+
+/// Whether `tail` opens with `to` and a bare verb directly after `host`, a word
+/// from `to_modified_host.txt`: the infinitive then modifies the host.
+fn infinitive_after_host(host: &str, tail: &[String]) -> bool {
+    lists::to_modified_hosts().contains(&host)
+        && tail.first().is_some_and(|w| w == "to")
+        && tail.get(1).is_some_and(|w| is_purpose_verb(w))
+}
+
+/// A theme that is a host ("something", "anywhere") followed by `to` + a bare
+/// verb takes the infinitive as its own `to` attribute: "has something to
+/// read" is `something ~to [read]`, with `read` a verb, never the noun of a
+/// `to` phrase. The infinitive shares the matrix agent (no agent, no rule), is
+/// said without a subject, and must read to the end of `tail`. Returns the theme and the words consumed past it (0 when
+/// the rule does not apply, leaving the theme as read).
+fn with_host_infinitive(theme: Filler, tail: &[String], agent: Option<&Filler>) -> (Filler, usize) {
+    let Some(agent) = agent else { return (theme, 0) };
+    let head = match &theme {
+        Filler::Thing(t) if t.det.is_none() && t.attrs.is_empty() && !t.plural => t.head.clone(),
+        Filler::Pronoun(p) => p.clone(),
+        _ => return (theme, 0),
+    };
+    if !infinitive_after_host(&head, tail) {
+        return (theme, 0);
+    }
+    let lemma = tail[1].clone();
+    let inner = Frame::new(&lemma, Tense::Present).with(Role::Agent, agent.clone());
+    let Some(inner) = finish_predicate(inner, tail, 2, Force::Assert) else {
+        return (theme, 0);
+    };
+    let host = crate::ir::Thing::new(&head).with(crate::ir::Attr::Via("to".into()), Filler::clause(inner.frame));
+    (Filler::Thing(host), tail.len())
 }
 
 /// Whether the words begin a passive `by <noun phrase>` demoted agent, as
