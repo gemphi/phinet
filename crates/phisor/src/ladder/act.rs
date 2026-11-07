@@ -19,6 +19,7 @@
 use crate::guide::holdout::normalise;
 use crate::ir::{Act, Aspect, Filler, Force, Frame, Polarity, Role, Tense, Thing, Voice, Wh};
 
+mod names;
 #[cfg(test)]
 mod tests;
 
@@ -52,6 +53,11 @@ pub fn realise(act: &Act) -> String {
     normalise(&sentence.replace(" .", ".").replace(" ?", "?"))
 }
 
+/// [`realise`] with each proper name written back in its own case, as in
+/// `she lives in London.` Everything else stays lower case.
+pub fn realise_cased(act: &Act) -> String {
+    names::recase(&realise(act), &names::held(&act.frame))
+}
 /// A plain statement: subject, verb group, objects, complement, adjuncts.
 /// Whether a frame is an existential: `be`, active, no modal, no agent and no
 /// `as`-complement, with a theme. "there is a problem" is read and written as
@@ -1206,6 +1212,8 @@ pub fn read(sentence: &str) -> Option<Act> {
         act.frame.polarity = Polarity::Negative;
         act.frame.never = true;
     }
+    // `normalise` lowered the names; the raw sentence still spells them.
+    names::restore(&mut act.frame, &names::spelled(sentence));
     Some(act)
 }
 
@@ -2780,7 +2788,9 @@ pub fn read_realise_rate<'a>(sentences: impl IntoIterator<Item = &'a str>) -> (u
         total += 1;
         let Some(act) = read(sentence) else { continue };
         covered += 1;
-        if canonical(&realise(&act)) == canonical(&normalise(sentence)) {
+        if canonical(&realise(&act)) == canonical(&normalise(sentence))
+            && names::kept(&act.frame, &realise_cased(&act), sentence)
+        {
             matched += 1;
         }
     }
