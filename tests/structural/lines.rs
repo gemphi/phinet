@@ -161,3 +161,7 @@ pub fn one_word_paths() -> Vec<(PathBuf, String)> {
 // every path segment stays one word.
 #[cfg(test)]
 mod tests;
+
+// The hard 300-line cap on every crate's Rust source, failing rather than
+// warning, sits in `lines/cap.rs`.
+mod cap;
