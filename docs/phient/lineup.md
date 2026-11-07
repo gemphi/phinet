@@ -25,6 +25,7 @@ graph LR
             Train["train.rs<br/>build_sampler, positions, epoch"]
             Read["read.rs<br/>ranked, measure, speak"]
             LReader["reader.rs: impl Reader"]
+            Store["store.rs<br/>save, load, lines_told<br/>the checkpoint: whole, bit-exact (docs/208)"]
         end
     end
 
@@ -57,6 +58,9 @@ graph LR
     Read -->|"rank, prob"| ScoreT
     Read --> LReader
     Read -->|"speak, ranked"| Talk
+    Example["phiano examples/learner<br/>--save · --resume · --no-guide<br/>a curriculum as two runs"]
+    Example -->|"save, load"| Store
+    Example -->|"tell only what is new"| LReader
     Count --> Board
     Concept --> Board
     Mirror --> Board
