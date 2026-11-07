@@ -22,7 +22,7 @@ Last read over: 2026-10-29.
   - [x] Already files before the ruling, for the record: phisor's irregular verbs are mined from the guide's Appendix 1.4 at run time (`lexicon::parse_irregulars`); its open-class words come from `data/lex/pos.tsv` when primed.
   - [ ] phisor's Reader (`ladder/act.rs`, 2,798 lines, another agent's today): the small closed sets its rules name are literals in `match` arms, not arrays; they come out to `data/` files with the harness numbers (docs/234's table) as the check. Not touched here because that file is being edited by another session.
   - [ ] phiecs (3 named lists across 37 files) and phient (1 across 14): survey each — `KIND_NAMES` and the like are enum names, which is code, not data; what names English words moves.
-  - [ ] phiano's 48 cwd-relative `"data/…"` paths: resolve them from the crate's manifest dir like the new files, so a binary run from the workspace root finds them.
+  - [x] phiano's cwd-relative `"data/…"` paths: `phiano::data::path(rel)` resolves every one in src from `$PHIANO_DATA` or the crate's `data/` (2026-11-07); the examples' argv defaults and the harness are not converted.
   - phiclm's `KEYWORDS`, `PUNCT`, `NATIVE` are BCPL's own syntax: a programming language's keywords are code, and stay.
 - [ ] More channels when the vocabulary grows: 64 channels over 15,609 words is thinner than over 4,705.
 - [ ] A dev set that mixes registers, to tell a model that learned English from one that learned the guide.
