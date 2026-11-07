@@ -25,6 +25,8 @@ mod express;
 mod names;
 mod wish;
 #[cfg(test)]
+mod rank;
+#[cfg(test)]
 mod tests;
 
 /// The terminating marks a sentence may keep (R10.11).
