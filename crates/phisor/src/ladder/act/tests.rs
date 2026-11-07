@@ -1003,6 +1003,13 @@ fn abstention_kinds() {
         if e.len() < 4 { e.push((*s).clone()); }
     }
     println!("clean {} ; abstained {abst}", clean.len());
+    let (matched, covered, total) = read_realise_rate(clean.iter().map(|s| s.as_str()));
+    println!("clean coverage {covered}/{total} ; soundness {matched}/{covered}");
+    if let Ok(kind) = std::env::var("PHISOR_SHOW_KIND") {
+        for s in clean.iter().filter(|s| read(s).is_none() && crate::ladder::abstention_kind(s) == kind) {
+            println!("  | {s}");
+        }
+    }
     let mut rows: Vec<_> = kinds.into_iter().collect();
     rows.sort_by(|a, b| b.1.cmp(&a.1));
     for (k, n) in &rows {
@@ -1045,6 +1052,37 @@ fn a_trailing_clause_that_does_not_read_leaves_no_partial_frame() {
     // The last span ("and") is not a clause, so the whole sentence is
     // uncovered rather than read as the first two clauses only.
     assert!(read("he works in a shop and she stays at home and.").is_none());
+}
+
+#[test]
+fn a_gerund_complement_reads_and_round_trips() {
+    use crate::ir::{Aspect, Filler, Role};
+    // A gerund verb + an -ing form is a clause sharing the agent, kept as
+    // progressive aspect so it is told from a control infinitive.
+    let act = read("i enjoyed reading the book.").expect("a gerund complement is covered");
+    assert_eq!(act.frame.pred, "enjoy");
+    let Some(Filler::Clause(inner)) = act.frame.get(&Role::Theme) else { panic!("theme is not a clause") };
+    assert_eq!((inner.pred.as_str(), inner.aspect), ("read", Aspect::Progressive));
+    assert_eq!(act.frame.get(&Role::Agent), inner.get(&Role::Agent));
+    assert_eq!(realise(&act), "i enjoyed reading the book.");
+    let act = read("they avoided stealing the money.").expect("a past gerund complement is covered");
+    assert_eq!(act.frame.pred, "avoid");
+    assert_eq!(realise(&act), "they avoided stealing the money.");
+}
+
+#[test]
+fn a_gerund_is_not_read_after_a_verb_that_does_not_take_one() {
+    // "walk" is not a gerund verb, and an unfinished tail leaves no frame.
+    assert!(read("i walk reading the book.").is_none());
+    assert!(read("i enjoy reading the.").is_none());
+}
+
+#[test]
+fn a_blanked_exercise_stem_is_not_read_as_a_plain_sentence() {
+    // The blank leaves a stem with no verb. The Reader reads no frame for it,
+    // so the -ing rule does not turn a blank into a plain reading (R7.5).
+    assert!(read("he two hours every morning.").is_none());
+    assert!(read("he watching two hours every morning.").is_none());
 }
 
 #[test]

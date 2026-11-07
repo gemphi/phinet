@@ -197,6 +197,15 @@ fn say_theme(matrix: &Frame, theme: &Filler) -> Vec<String> {
             out.extend(adjuncts(inner, None));
             return out;
         }
+        // A gerund complement: the `-ing` form, then the clause's complements.
+        if (GERUND_VERBS.contains(&matrix.pred.as_str()) || CONTROL_VERBS.contains(&matrix.pred.as_str()))
+            && is_gerund_complement(matrix, inner)
+        {
+            let mut out = vec![ing(&inner.pred)];
+            out.extend(complements_skipping(inner, None, true));
+            out.extend(adjuncts(inner, None));
+            return out;
+        }
         // Any other clause is finite: its own subject, verb group and complements.
         return statement(inner);
     }
@@ -1083,6 +1092,7 @@ const PERFORMATIVES: [&str; 2] = ["promise", "wish"];
 pub fn word_lists() -> Vec<(&'static str, &'static [&'static str])> {
     vec![
         ("control_verbs", &CONTROL_VERBS),
+        ("gerund_verbs", &GERUND_VERBS),
         ("complement_verbs", &COMPLEMENT_VERBS),
         ("performatives", &PERFORMATIVES),
         ("set_aside_adverbs", &SET_ASIDE_ADVERBS),
@@ -1425,7 +1435,78 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
     }
 
     frame = frame.with(Role::Agent, subject);
-    finish_predicate(frame, &words, verb_at + 1, force)
+    // The plain reading first; only when it abstains is a gerund complement
+    // ("i enjoy reading the book") tried, so nothing that read is changed.
+    finish_predicate(frame.clone(), &words, verb_at + 1, force)
+        .or_else(|| finish_with_gerund(frame, &words, verb_at + 1, force))
+}
+
+/// Verbs whose complement is an `-ing` form with the same subject ("i enjoy
+/// reading", "she admitted stealing the money", "would you mind closing the
+/// door"). `like`, `love`, `hate`, `start` and `begin` also take `-ing`, and
+/// are already in [`CONTROL_VERBS`]. `suggest` and `imagine` are left out:
+/// they take a finite clause, which is said another way.
+///
+/// Linguistic source: Murphy's *English Grammar in Use*, Units 53-54 ("verb +
+/// -ing") and Unit 55 ("verb + -ing or to"). A hand list under the task 5.1
+/// audit (`word_lists`).
+const GERUND_VERBS: [&str; 22] = [
+    "enjoy", "mind", "admit", "avoid", "keep", "finish", "stop", "practise", "practice",
+    "consider", "deny", "risk", "miss", "delay", "postpone", "fancy", "dislike", "like",
+    "love", "hate", "start", "begin",
+];
+
+/// Whether `inner` is a gerund complement of `matrix`: the same agent and a
+/// plain present active positive progressive, with no modal. The `-ing` form is
+/// kept as progressive aspect, which a control infinitive (simple aspect) never
+/// has, so the two are told apart.
+fn is_gerund_complement(matrix: &Frame, inner: &Frame) -> bool {
+    let same_subject = matches!(
+        (matrix.get(&Role::Agent), inner.get(&Role::Agent)),
+        (Some(a), Some(b)) if a == b
+    );
+    same_subject
+        && inner.modal.is_none()
+        && inner.tense == Tense::Present
+        && inner.aspect == Aspect::Progressive
+        && inner.voice == Voice::Active
+        && inner.polarity == Polarity::Positive
+}
+
+/// The gerund reading of a predicate tail: a gerund verb followed by an `-ing`
+/// form, which opens a clause sharing the matrix agent and read to the end of
+/// the sentence. Stored as the theme, with progressive aspect. Returns `None`
+/// unless the whole tail is accounted for - never a partial frame (R3.4). A
+/// blanked exercise stem has no verb after the `-ing` word and does not reach
+/// here: Well_Formed removes those, not the Reader (R7.5).
+fn finish_with_gerund(mut frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
+    // `read_verb` undoes a regular `-ed` by guessing the lemma ("enjoyed" ->
+    // "enjoye", "admitted" -> "admitt"). The gerund verbs are a closed list, so
+    // name the lemma whose own past re-realises the surface word.
+    if let Some(surface) = from.checked_sub(1).and_then(|i| words.get(i)) {
+        if !GERUND_VERBS.contains(&frame.pred.as_str()) {
+            if let Some(g) = GERUND_VERBS.iter().find(|g| past(g) == *surface || third_s(g) == *surface) {
+                frame.pred = (*g).to_string();
+            }
+        }
+    }
+    if frame.voice != Voice::Active
+        || frame.aspect != Aspect::Simple
+        || frame.modal.is_some()
+        || !(GERUND_VERBS.contains(&frame.pred.as_str()) || CONTROL_VERBS.contains(&frame.pred.as_str()))
+        || frame.get(&Role::Theme).is_some()
+    {
+        return None;
+    }
+    let agent = frame.get(&Role::Agent)?.clone();
+    let word = words.get(from)?;
+    if is_aux(word) {
+        return None;
+    }
+    let lemma = read_ing(word)?;
+    let inner = Frame::new(&lemma, Tense::Present).with(Role::Agent, agent).aspect(Aspect::Progressive);
+    let inner = finish_predicate(inner, words, from + 1, Force::Assert)?;
+    Some(Act::new(force, frame.with(Role::Theme, Filler::clause(inner.frame))))
 }
 
 /// Read a to-infinitive complement clause: the words after "to", with the
