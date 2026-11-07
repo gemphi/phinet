@@ -336,17 +336,20 @@ pub fn expressive_predicates() -> &'static Words {
 /// The words that stand for a wished-for clause's verb group (`wish_form.tsv`):
 /// the row for `key` (`be`, or a modal's present form) and the polarity.
 pub fn wish_form(key: &str, negative: bool) -> Option<&'static Vec<String>> {
+    wish_forms().iter().find(|(k, n, _)| k == key && *n == negative).map(|(_, _, words)| words)
+}
+/// Every row of `wish_form.tsv` as `(key, negative, words)`, in file order, for
+/// the Reader to match a wished-for verb group against.
+pub fn wish_forms() -> &'static Vec<(String, bool, Vec<String>)> {
     static CELL: OnceLock<Vec<(String, bool, Vec<String>)>> = OnceLock::new();
-    let rows = CELL.get_or_init(|| {
+    CELL.get_or_init(|| {
         data_rows(&read_file("wish_form.tsv"))
             .into_iter()
             .filter(|r| r.len() >= 3)
             .map(|r| (r[0].clone(), r[1] == "negative", r[2].split_whitespace().map(str::to_string).collect()))
             .collect()
-    });
-    rows.iter().find(|(k, n, _)| k == key && *n == negative).map(|(_, _, words)| words)
+    })
 }
-
 /// The words a fronted wh-hole is said as in a `Via(prep)` slot
 /// (`wh_phrase.tsv`), when that differs from the bare wh-word: `how` in a
 /// `for` slot is "how long".

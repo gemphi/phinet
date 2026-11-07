@@ -1235,6 +1235,19 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
     }
 
     let (subject, after_subject) = read_subject(&words)?;
+    // "i wish <clause>" where the clause is a past-subjunctive modal group from
+    // `wish_form.tsv` ("i wish we did not have to go"). Tried before negation is
+    // looked for, because the clause's own "did not" is not the wish's negation.
+    if matches!(&subject, Filler::Pronoun(p) if p == "I")
+        && words.get(after_subject).is_some_and(|w| read_verb(w) == ("wish".to_string(), Tense::Present))
+        && !norm.ends_with('?')
+    {
+        let after = &words[after_subject + 1..];
+        let after = if after.first().map(String::as_str) == Some("that") { &after[1..] } else { after };
+        if let Some(inner) = wish::read_clause(after) {
+            return Some(Act::new(Force::Wish, inner.frame));
+        }
+    }
     let (neg, verb_at) = detect_negation_from(&words, after_subject);
     let verb = words.get(verb_at)?;
     let force = if norm.ends_with('?') { Force::Ask } else { Force::Assert };

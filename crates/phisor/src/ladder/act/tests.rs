@@ -1552,6 +1552,26 @@ fn wish_frames_are_said_in_the_subjunctive() {
     assert_eq!(realise(could), "i wish i could sing.");
 }
 
+/// The Reader reads a wished-for modal verb group back through `wish_form.tsv`,
+/// for any subject and verb, not only the gold sentence.
+#[test]
+fn a_wish_with_a_past_subjunctive_modal_group_reads_as_a_wish() {
+    use crate::ir::{Modal, Polarity, Tense};
+    for (said, negative) in [
+        ("i wish we did not have to go.", true),
+        ("i wish they did not have to leave.", true),
+        ("i wish she had to study.", false),
+    ] {
+        let act = read(said).unwrap_or_else(|| panic!("{said} reads"));
+        assert_eq!(act.force, Force::Wish, "{said}");
+        assert_eq!(act.frame.modal, Some(Modal::Must), "{said}");
+        assert_eq!(act.frame.tense, Tense::Past, "{said}");
+        assert_eq!(act.frame.polarity == Polarity::Negative, negative, "{said}");
+        assert_eq!(realise(&act), said, "{said}");
+    }
+    // A group with no row stays an ordinary clause.
+    assert_ne!(read("i wish they did not like it.").map(|a| a.frame.modal), Some(Some(Modal::Must)));
+}
 /// Task 2.1: the four Express frames are said as their fixed phrases, and an
 /// Express frame with no phrase in `expressive_phrase.tsv` stays a statement.
 #[test]
