@@ -193,7 +193,7 @@ fn aux_is(word: &str, family: Family) -> bool {
 /// Whether the frame has no argument at all and so needs an expletive `it`
 /// subject (a weather verb: rain, snow, ...).
 fn needs_expletive(frame: &Frame) -> bool {
-    frame.slots.is_empty() && matches!(frame.pred.as_str(), "rain" | "snow" | "freeze" | "thunder")
+    frame.slots.is_empty() && lists::weather_verbs().contains(&frame.pred)
 }
 
 /// The objects in English order: recipient then theme in the active, the
@@ -849,11 +849,8 @@ fn say_thing(thing: &Thing) -> Vec<String> {
 /// the `u`/`eu`-as-consonant words (university, european) the book notes.
 fn starts_vowel_sound(word: &str) -> bool {
     let w = word.to_lowercase();
-    if w.starts_with("hour") || w.starts_with("honest") || w.starts_with("honour") || w.starts_with("honor") {
-        return true;
-    }
-    if w.starts_with("uni") || w.starts_with("use") || w.starts_with("eu") || w.starts_with("one") {
-        return false;
+    if let Some((_, article)) = lists::article_exceptions().iter().find(|(prefix, _)| w.starts_with(prefix.as_str())) {
+        return article == "an";
     }
     w.chars().next().is_some_and(|c| "aeiou".contains(c))
 }
@@ -875,14 +872,8 @@ fn determiner_word(det: &crate::ir::Det, plural: bool) -> Option<String> {
 /// ending vowel+y takes `-s` (monday -> mondays), consonant+y takes `-ies`,
 /// a sibilant `-es`, the rest `-s`.
 fn pluralise(head: &str) -> String {
-    match head {
-        "child" => return "children".into(),
-        "man" => return "men".into(),
-        "woman" => return "women".into(),
-        "foot" => return "feet".into(),
-        "tooth" => return "teeth".into(),
-        "person" => return "people".into(),
-        _ => {}
+    if let Some((_, plural)) = lists::irregular_plurals().iter().find(|(singular, _)| singular == head) {
+        return plural.clone();
     }
     if head.ends_with('s') || head.ends_with('x') || head.ends_with("ch") || head.ends_with("sh") {
         format!("{head}es")
@@ -1594,7 +1585,7 @@ fn is_place_adverb(word: &str) -> bool {
 /// realiser's `needs_expletive`.
 fn is_expletive_subject(lemma: &str, subject: &Filler) -> bool {
     matches!(subject, Filler::Pronoun(p) if p.eq_ignore_ascii_case("it"))
-        && matches!(lemma, "rain" | "snow" | "freeze" | "thunder")
+        && lists::weather_verbs().contains(lemma)
 }
 /// Read the subject noun phrase from the front of the sentence, returning
 /// the filler and the index just past it. A pronoun is one word; a
@@ -1711,14 +1702,8 @@ fn is_modifier(word: &str) -> bool {
 fn lemma_number(head: &str) -> (String, bool) {
     // Irregular plurals the realiser's `pluralise` names, inverted so the
     // reader recovers the singular lemma: "children" -> (child, plural).
-    let irregular = [
-        ("children", "child"), ("men", "man"), ("women", "woman"),
-        ("feet", "foot"), ("teeth", "tooth"), ("people", "person"),
-    ];
-    for (plural, singular) in irregular {
-        if head == plural {
-            return (singular.to_string(), true);
-        }
+    if let Some((singular, _)) = lists::irregular_plurals().iter().find(|(_, plural)| plural == head) {
+        return (singular.clone(), true);
     }
     if let Some(stem) = head.strip_suffix("ies") {
         return (format!("{stem}y"), true);

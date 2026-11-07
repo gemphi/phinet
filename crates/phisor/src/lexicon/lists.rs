@@ -273,3 +273,23 @@ tagged_list!(
     "word_class.tsv",
     "adjective"
 );
+plain_list!(
+    /// Weather verbs, which take no argument and an empty expletive `it`.
+    weather_verbs,
+    "weather_verb.txt"
+);
+/// Read a two-column file as ordered `(first, second)` pairs.
+pub fn load_pairs(file: &str) -> Vec<(String, String)> {
+    data_rows(&read_file(file)).into_iter().filter(|r| r.len() >= 2).map(|r| (r[0].clone(), r[1].clone())).collect()
+}
+/// Irregular noun plurals as `(singular, plural)`.
+pub fn irregular_plurals() -> &'static Vec<(String, String)> {
+    static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();
+    CELL.get_or_init(|| load_pairs("irregular_plural.tsv"))
+}
+/// Words whose first letter misleads the indefinite article, as
+/// `(prefix, article)`; the first matching prefix wins.
+pub fn article_exceptions() -> &'static Vec<(String, String)> {
+    static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();
+    CELL.get_or_init(|| load_pairs("article_exception.tsv"))
+}
