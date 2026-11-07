@@ -2255,6 +2255,10 @@ fn read_question(words: &[String]) -> Option<Act> {
     if wh.is_some() {
         i = 1;
     }
+    // "don't you have?" expands to "do not you have": put the `not` back
+    // after the subject, where the rest of this reader expects it.
+    let lifted = lift_operator_negation(words, i);
+    let words = lifted.as_slice();
     // "how many people came?" - the wh modifies the subject, so it is not an
     // operator-fronted question. Left to a later reader; abstain for now.
     if wh == Some(Wh::HowMany) {
@@ -2372,6 +2376,31 @@ fn read_question(words: &[String]) -> Option<Act> {
     Some(Act::new(Force::Ask, frame))
 }
 
+/// Move a `not` (or the `cannot` of "can't") that directly follows the
+/// operator at `op_at` to just after the subject: `do not you have` ->
+/// `do you not have`. Words are returned unchanged when no subject follows,
+/// so a subject-less wh-question ("what isn't working?") is untouched.
+fn lift_operator_negation(words: &[String], op_at: usize) -> Vec<String> {
+    let Some(op) = words.get(op_at) else { return words.to_vec() };
+    let (operator, after) = if op == "cannot" {
+        ("can".to_string(), op_at + 1)
+    } else if words.get(op_at + 1).map(String::as_str) == Some("not") {
+        (op.clone(), op_at + 2)
+    } else {
+        return words.to_vec();
+    };
+    if after >= words.len() {
+        return words.to_vec();
+    }
+    let Some((_, end)) = read_subject(&words[after..]) else { return words.to_vec() };
+    let mut out: Vec<String> = words[..op_at].to_vec();
+    out.push(operator);
+    out.extend_from_slice(&words[after..after + end]);
+    out.push("not".into());
+    out.extend_from_slice(&words[after + end..]);
+    out
+}
+
 /// Read a copula question: "what is your name?" (wh fills `as`), "where were
 /// the keys?" (wh fills its preposition role). The subject is the noun phrase
 /// after the copula.
@@ -2380,8 +2409,13 @@ fn read_copula_question(words: &[String], op_at: usize, wh: Option<Wh>) -> Optio
     let tense = if matches!(op.as_str(), "was" | "were") { Tense::Past } else { Tense::Present };
     let rest = &words[op_at + 1..];
     let (subject, end) = read_subject(rest)?;
-    let tail = &rest[end..];
+    let mut tail = &rest[end..];
     let mut frame = Frame::new("be", tense).with(Role::Theme, subject);
+    // "is she not here?" - `not` after the subject negates the copula.
+    if wh.is_none() && tail.first().map(String::as_str) == Some("not") {
+        frame = frame.negative();
+        tail = &tail[1..];
+    }
     match wh {
         Some(wh) => {
             if !tail.is_empty() {
