@@ -28,7 +28,7 @@ Last read over: 2026-10-29.
   - [x] phiano's cwd-relative `"data/…"` paths: `phiano::data::path(rel)` resolves every one in src from `$PHIANO_DATA` or the crate's `data/` (2026-11-07); the examples' argv defaults and the harness are not converted.
   - phiclm's `KEYWORDS`, `PUNCT`, `NATIVE` are BCPL's own syntax: a programming language's keywords are code, and stay.
 - [ ] More channels when the vocabulary grows: 64 channels over 15,609 words is thinner than over 4,705.
-- [ ] A dev set that mixes registers, to tell a model that learned English from one that learned the guide.
+- [x] A second held-out set, never told (docs/217, 2026-11-08): 2,000 Tatoeba sentences, `--test-more`. The four checkpoints read 148.2 → 151.9 → 133.6 → 123.5 on it while the guide's test fell 119.6 → 95.3: both registers improve on every run that tells new Tatoeba with the guide beside it, so it is learning English, not the guide alone. Re-telling the guide alone traded one for the other.
 - [ ] Try a wider operator block and more channels with more silence (the block-8 run was still improving when it stopped).
 - [ ] Full softmax for the last epochs.
 - [x] Put the learner behind `talk` and the workshop, so nothing that generates runs on counts (docs/205).
