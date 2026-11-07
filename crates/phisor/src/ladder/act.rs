@@ -815,6 +815,12 @@ fn is_first_person(frame: &Frame) -> bool {
     }
 }
 
+/// Whether the frame's agent is a first-person pronoun (`I`/`we`).
+fn is_first_person_agent(frame: &Frame) -> bool {
+    matches!(frame.get(&Role::Agent),
+        Some(Filler::Pronoun(p)) if lists::first_person_pronouns().contains(p.to_lowercase()))
+}
+
 /// Say a filler as words: a name/pronoun/word as itself, a thing as its
 /// determiner, attributes and head.
 fn say_filler(filler: &Filler) -> Vec<String> {
@@ -1064,7 +1070,14 @@ pub fn read(sentence: &str) -> Option<Act> {
     // says thank you"). Only a full stop: the Realiser says the phrase with one,
     // so an exclamation would not round-trip.
     let phrase = norm.ends_with('.').then(|| express::read(&words)).flatten();
-    let mut act = match phrase {
+    // A politeness marker ahead of an imperative ("please close the window")
+    // is a request: the marker has no slot, the rest is the command.
+    let polite = (phrase.is_none() && !norm.ends_with('?'))
+        .then(|| words.split_first())
+        .flatten()
+        .filter(|(m, _)| lists::politeness_markers().contains(&m.as_str()))
+        .and_then(|(_, rest)| read_imperative(rest));
+    let mut act = match phrase.or(polite) {
         Some(act) => act,
         None => read_inner(&norm, words)?,
     };
@@ -1075,6 +1088,17 @@ pub fn read(sentence: &str) -> Option<Act> {
         && matches!(act.frame.get(&Role::Agent), Some(Filler::Pronoun(p)) if p == "I")
     {
         act.force = Force::Commit;
+    }
+    // A first-person present statement of a psychological-state predicate is
+    // an expressive (Searle 1979; `expressive_phrase.tsv`).
+    if act.force == Force::Assert
+        && act.frame.tense == Tense::Present
+        && act.frame.modal.is_none()
+        && act.frame.voice == Voice::Active
+        && lists::expressive_predicates().contains(&act.frame.pred)
+        && is_first_person_agent(&act.frame)
+    {
+        act.force = Force::Express;
     }
     if never {
         act.frame.polarity = Polarity::Negative;

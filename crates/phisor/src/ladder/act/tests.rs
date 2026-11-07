@@ -1605,3 +1605,15 @@ fn express_phrases_are_read_back_to_their_gold_frames() {
     assert!(read("welcome to our country!").is_none_or(|a| a.force != crate::ir::Force::Express));
     assert!(read("congratulations on your new job.").is_none_or(|a| a.force != crate::ir::Force::Express));
 }
+/// Task 4.3: a first-person present psychological-state predicate is Express,
+/// a third-person, past or future one stays Assert, and "please" ahead of an
+/// imperative is a Direct.
+#[test]
+fn state_predicates_and_politeness_set_the_force() {
+    use crate::ladder::read;
+    let force = |s: &str| read(s).map(|a| a.force);
+    assert_eq!(force("i enjoy the lesson."), Some(Force::Express));
+    assert_eq!(force("she enjoys the lesson."), Some(Force::Assert));
+    assert_eq!(force("i enjoyed the lesson."), Some(Force::Assert));
+    assert_eq!(force("please close the window."), Some(Force::Direct));
+}

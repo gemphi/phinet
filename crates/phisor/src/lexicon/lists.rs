@@ -181,6 +181,11 @@ plain_list!(
     "performative.txt"
 );
 plain_list!(
+    /// Politeness markers that may open an imperative ("please close the door").
+    politeness_markers,
+    "politeness_marker.txt"
+);
+plain_list!(
     /// Adverbs the IR has no slot for, set aside on reading.
     set_aside_adverbs,
     "set_aside_adverb.txt"
@@ -302,14 +307,29 @@ pub fn expressive_phrases() -> &'static Vec<ExpressivePhrase> {
     CELL.get_or_init(|| {
         data_rows(&read_file("expressive_phrase.tsv"))
             .into_iter()
-            .filter(|r| r.len() >= 3)
+            .filter(|r| r.len() >= 4 && r[1] == "phrase")
             .map(|r| ExpressivePhrase {
                 pred: r[0].clone(),
-                opening: r[1].split_whitespace().map(str::to_string).collect(),
-                theme: r[2] == "theme",
-                unsaid: r.get(3).and_then(|u| u.split_once('=')).map(|(role, who)| (role.to_string(), who.to_string())),
+                opening: r[2].split_whitespace().map(str::to_string).collect(),
+                theme: r[3] == "theme",
+                unsaid: r.get(4).and_then(|u| u.split_once('=')).map(|(role, who)| (role.to_string(), who.to_string())),
             })
             .collect()
+    })
+}
+
+/// The psychological-state predicates a first-person present statement is an
+/// Express for (the `predicate` rows of `expressive_phrase.tsv`).
+pub fn expressive_predicates() -> &'static Words {
+    static CELL: OnceLock<Words> = OnceLock::new();
+    CELL.get_or_init(|| {
+        Words::new(
+            data_rows(&read_file("expressive_phrase.tsv"))
+                .into_iter()
+                .filter(|r| r.len() >= 2 && r[1] == "predicate")
+                .map(|r| r[0].clone())
+                .collect(),
+        )
     })
 }
 
