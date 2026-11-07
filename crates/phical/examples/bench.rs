@@ -1,4 +1,4 @@
-//! Wall-clock of the hot paths on this machine. `cargo run --release --example bench`
+﻿//! Wall-clock of the hot paths on this machine. `cargo run --release --example phical_bench`
 use phistd::tensor::fft_inplace;
 use phistd::{unit_random, Adam, Tape, Tensor};
 use phical::{Tie, Example, Fno, FnoConfig, MixtureExample};
