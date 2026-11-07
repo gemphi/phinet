@@ -75,7 +75,8 @@ pub(in crate::ladder::act) fn finish_predicate(frame: Frame, words: &[String], f
     finish_plain(frame.clone(), words, from, force)
         .or_else(|| finish_with_purpose(frame.clone(), words, from, force))
         .or_else(|| finish_with_prep_gerund(frame.clone(), words, from, force))
-        .or_else(|| finish_with_postposition(frame, words, from, force))
+        .or_else(|| finish_with_postposition(frame.clone(), words, from, force))
+        .or_else(|| finish_with_time_phrase(frame, words, from, force))
 }
 
 /// The purpose-infinitive reading of a predicate tail: the first `to` followed

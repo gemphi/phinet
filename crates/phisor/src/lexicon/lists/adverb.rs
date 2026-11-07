@@ -17,3 +17,8 @@ plain_list!(
     postpositions,
     "postposition.txt"
 );
+plain_list!(
+    /// Words that open a trailing one-noun time phrase (last week).
+    time_openers,
+    "time_opener.txt"
+);

@@ -46,8 +46,29 @@
 //! ..." and "ago" before `and`/`but` (the join halves). Left for `or`: noun
 //! coordination ("brothers or sisters"), "x or y" questions, "i'll" contraction.
 //!
-//! Abstention by distance bucket (`abstention_kinds`): simple 305,
-//! one_join 274, infinitive 122, ing_form 76, multi_clause 26, very_long 10.
+//! Task 7.7 (`last`, the next ranked trigger): a trailing `last <noun>`
+//! ("food prices fell last month") is a time phrase. read/time_phrase.rs reads
+//! an opener from `time_opener.txt` plus a one-word noun, stored under
+//! `Via(last)`; the Realiser says the opener then the noun. Clean coverage
+//! 413/1201 -> 418/1201, soundness 327/413 -> 332/418 (unsound 86 -> 86);
+//! CLEAN_COVERAGE_BAR 34.3 -> 34.8. Left for `last`: leading "last year i
+//! visited ..." and "when you last met".
+//!
+//! FINAL coverage report, tasks 7.1-7.7 (clean held-out, 1201 sentences):
+//! | task | change                              | coverage      | soundness |
+//! |------|-------------------------------------|---------------|-----------|
+//! | base | (before 7.x)                        | 388/1201      | 309/388   |
+//! | 7.2  | existential `there` + prep phrases  | 391/1201      | 311/391   |
+//! | 7.3  | one_join: `wanted` lemma            | 400/1201      | 317/400   |
+//! | 7.4  | copula infinitive, control question | 404/1201      | 319/404   |
+//! | 7.5  | preposition + -ing clause           | 408/1201      | 323/408   |
+//! | 7.6  | `<np> ago` postposition             | 413/1201      | 327/413   |
+//! | 7.7  | trailing `last <noun>`              | 418/1201      | 332/418   |
+//! Net: coverage +30 (32.3% -> 34.8%), soundness 79.6% -> 79.4%, every change
+//! kept (Req 6.3: soundness never fell by more points than coverage gained).
+//! Remaining abstentions per Abstention_Kind (`abstention_kinds`, 783 total):
+//! simple 295, one_join 264, infinitive 115, ing_form 73, multi_clause 26,
+//! very_long 10 (was 305, 274, 122, 76, 26, 10 before 7.2).
 //!
 //! Gain = held-out abstained sentences containing the trigger word, from
 //! `abstention_words` (words in >= 12 abstained sentences and >= 90%
