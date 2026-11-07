@@ -1901,6 +1901,13 @@ fn read_verb(word: &str) -> (String, Tense) {
         if let Some(lemma) = undouble(stem).filter(|l| past(l) == word) {
             return (lemma, Tense::Past);
         }
+        // A stem ending in a doubled consonant ("add", "miss", "call") is the
+        // lemma itself: "added" is add, never the non-word "adde".
+        let mut tail = stem.chars().rev();
+        let doubled = matches!((tail.next(), tail.next()), (Some(a), Some(b)) if a == b && !"aeiou".contains(a));
+        if doubled && past(stem) == word {
+            return (stem.to_string(), Tense::Past);
+        }
         let with_e = format!("{stem}e");
         if past(&with_e) == word {
             return (with_e, Tense::Past);

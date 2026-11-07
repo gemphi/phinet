@@ -1548,3 +1548,13 @@ fn a_pronoun_is_never_read_as_a_verb() {
     // A pronoun subject still reads.
     assert!(read("she went home.").is_some());
 }
+
+#[test]
+fn read_verb_returns_the_lemma_for_a_doubled_consonant_ed() {
+    use crate::ir::Tense;
+    assert_eq!(super::read_verb("added"), ("add".to_string(), Tense::Past));
+    assert_eq!(super::read_verb("missed"), ("miss".to_string(), Tense::Past));
+    // A silent-e verb and a -ied verb keep their lemma.
+    assert_eq!(super::read_verb("arrived"), ("arrive".to_string(), Tense::Past));
+    assert_eq!(super::read_verb("studied"), ("study".to_string(), Tense::Past));
+}
