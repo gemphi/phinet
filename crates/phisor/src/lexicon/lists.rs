@@ -150,3 +150,42 @@ tagged_list!(
     "pronoun.tsv",
     "object"
 );
+
+tagged_list!(
+    /// Conjunctions that join two clauses.
+    clause_conjunctions,
+    "conjunction.tsv",
+    "clause"
+);
+tagged_list!(
+    /// Words that join or open a clause, for the abstention buckets.
+    clause_openers,
+    "conjunction.tsv",
+    "opener"
+);
+
+plain_list!(
+    /// Verbs that take a to-infinitive with the same subject (control verbs).
+    control_verbs,
+    "control_verb.txt"
+);
+plain_list!(
+    /// Verbs that take a -ing complement.
+    gerund_verbs,
+    "gerund_verb.txt"
+);
+plain_list!(
+    /// Verbs that take a finite clause as their complement.
+    complement_verbs,
+    "complement_verb.txt"
+);
+plain_list!(
+    /// Explicit performative verbs.
+    performatives,
+    "performative.txt"
+);
+plain_list!(
+    /// Adverbs the IR has no slot for, set aside on reading.
+    set_aside_adverbs,
+    "set_aside_adverb.txt"
+);

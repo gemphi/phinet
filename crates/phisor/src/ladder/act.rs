@@ -200,14 +200,14 @@ fn complements(frame: &Frame, subject_suppressed: bool) -> Vec<String> {
 /// is said as before.
 fn say_theme(matrix: &Frame, theme: &Filler) -> Vec<String> {
     if let Filler::Clause(inner) = theme {
-        if CONTROL_VERBS.contains(&matrix.pred.as_str()) && is_control_infinitive(matrix, inner) {
+        if lists::control_verbs().contains(&matrix.pred.as_str()) && is_control_infinitive(matrix, inner) {
             let mut out = vec!["to".to_string(), inner.pred.clone()];
             out.extend(complements_skipping(inner, None, true));
             out.extend(adjuncts(inner, None));
             return out;
         }
         // A gerund complement: the `-ing` form, then the clause's complements.
-        if (GERUND_VERBS.contains(&matrix.pred.as_str()) || CONTROL_VERBS.contains(&matrix.pred.as_str()))
+        if (lists::gerund_verbs().contains(&matrix.pred.as_str()) || lists::control_verbs().contains(&matrix.pred.as_str()))
             && is_gerund_complement(matrix, inner)
         {
             let mut out = vec![ing(&inner.pred)];
@@ -999,38 +999,8 @@ fn expand_contractions(words: &[String]) -> Vec<String> {
 /// The word after position `idx`, skipping the adverbs the reader sets aside,
 /// so a contraction can be resolved by the word that really follows it.
 fn following_word(words: &[String], idx: usize) -> Option<&str> {
-    words[idx + 1..].iter().map(String::as_str).find(|w| !SET_ASIDE_ADVERBS.contains(w))
+    words[idx + 1..].iter().map(String::as_str).find(|w| !lists::set_aside_adverbs().contains(w))
 }
-
-/// Verbs that take a to-infinitive whose subject is their own (control):
-/// "i want to go", "i promise to come", "i have to leave". The realiser says a
-/// same-subject clause under one of these as an infinitive and under any other
-/// verb as a finite clause, and the reader reads "to" only after one of these,
-/// so the two agree.
-///
-/// Linguistic source: the verbs Murphy's *English Grammar in Use* lists as
-/// taking a to-infinitive with the same subject (control / catenative verbs),
-/// Units 53-56 ("verb + to ...", "verb + -ing or to ..."). A hand list until
-/// task 5.1's audit; a learned proposal may later extend it (R5.2, R5.3).
-const CONTROL_VERBS: [&str; 22] = [
-    "want", "try", "promise", "need", "have", "decide", "hope", "plan", "agree", "learn",
-    "begin", "start", "like", "love", "hate", "refuse", "manage", "forget", "remember",
-    "expect", "offer", "prefer",
-];
-
-/// Verbs that take a finite clause as their complement, with or without
-/// "that": "i think she works in a shop", "i knew sarah was busy". The clause
-/// is read as a sentence of its own and becomes the matrix verb's theme.
-///
-/// Linguistic source: the reporting and mental-state verbs Murphy lists as
-/// taking a that-clause (the "that" optional), Units 47-48 ("say and tell",
-/// reported speech) and 51-52 ("i think ...", "i don't think ..."). A hand
-/// list pending task 5.1's audit and a possible learned proposal (R5.2, R5.3).
-const COMPLEMENT_VERBS: [&str; 18] = [
-    "think", "believe", "know", "say", "suppose", "guess", "realise", "realize", "notice",
-    "feel", "mean", "suggest", "bet", "doubt", "imagine", "understand", "discover",
-    "promise",
-];
 
 /// Whether the verb of a clause read as a complement is plausibly a verb. The
 /// reader takes the word after a subject as its verb without checking, so a
@@ -1041,23 +1011,6 @@ fn clause_verb_is_verbal(pred: &str) -> bool {
         || !crate::lexicon::is_primed()
         || crate::lexicon::verb_capable(pred)
 }
-
-/// Adverbs of manner, frequency and degree that the IR has no slot for and
-/// the gold leaves out of its frames ("she has worn that suit before" is just
-/// wear/perfect). Time and place adverbs (tomorrow, here) are not here: the
-/// gold keeps those, under a preposition. "never" is here too, but is also
-/// read as negation.
-///
-/// Linguistic source: the adverbs of frequency and degree Murphy groups and
-/// positions around the verb, Units 107-110 ("always/usually/often ...",
-/// "already/yet/still", "even", "also/too"). A hand list pending task 5.1's
-/// audit; task 6.2 extends it with multi-word adverbs such as "right now"
-/// (R3.3, R5.2).
-const SET_ASIDE_ADVERBS: [&str; 24] = [
-    "always", "often", "usually", "sometimes", "never", "already", "still", "soon",
-    "recently", "really", "quite", "very", "also", "too", "again", "ever", "almost",
-    "nearly", "probably", "perhaps", "maybe", "just", "yet", "certainly",
-];
 
 /// Multi-word adverbials the IR has no slot for, set aside as a unit the same
 /// way the single words above are. Each is a fixed adverb phrase of time or
@@ -1096,7 +1049,7 @@ fn strip_adverbs_keeping(words: &[String], keep_never: bool) -> (Vec<String>, bo
     let kept = without_phrases
         .iter()
         .filter(|w| {
-            let is_adverb = SET_ASIDE_ADVERBS.contains(&w.as_str());
+            let is_adverb = lists::set_aside_adverbs().contains(&w.as_str());
             if is_adverb && w.as_str() == "never" {
                 never = true;
             }
@@ -1128,32 +1081,19 @@ fn strip_adverb_phrases(words: &[String]) -> Vec<String> {
     out
 }
 
-/// The explicit performative verbs the reader reads as naming their own force:
-/// first-person present "i promise ..." is a Commit and "i wish ..." a Wish.
-/// The reading is still gated verb by verb at each site (the force each sets
-/// differs), so this list names the sources rather than driving the branch;
-/// the harness audits it alongside the other hand lists (task 5.1).
-///
-/// Linguistic source: Austin/Searle's explicit performatives as the Guide
-/// uses them - Murphy Unit 36 ("i promise ...", a present commitment) and the
-/// wish/subjunctive of Units 40-41 ("i wish ..."). The Reader never maps a
-/// bare "will" to Commit, because the surface cannot tell Commit from Predict
-/// (R2.5); only an explicit performative sets the force.
-const PERFORMATIVES: [&str; 2] = ["promise", "wish"];
-
-/// The hand-authored closed word lists the Reader consults, each as a named
-/// list of lower-case words. Exposed so the harness can audit how much
+/// The closed word lists the Reader consults, each as a named list of
+/// lower-case words, as loaded from their files under data/lex. Exposed so the harness can audit how much
 /// held-out text each covers and how much would change if the list were
 /// learned instead (R5.2, R5.3). The names match the lists' identifiers in
 /// this module. This is a read-only view: it does not change the Reader.
-pub fn word_lists() -> Vec<(&'static str, &'static [&'static str])> {
+pub fn word_lists() -> Vec<(&'static str, &'static [String])> {
     vec![
-        ("control_verbs", &CONTROL_VERBS),
-        ("gerund_verbs", &GERUND_VERBS),
-        ("complement_verbs", &COMPLEMENT_VERBS),
-        ("performatives", &PERFORMATIVES),
-        ("set_aside_adverbs", &SET_ASIDE_ADVERBS),
-        ("clause_conjunctions", &CLAUSE_CONJUNCTIONS),
+        ("control_verbs", lists::control_verbs().as_slice()),
+        ("gerund_verbs", lists::gerund_verbs().as_slice()),
+        ("complement_verbs", lists::complement_verbs().as_slice()),
+        ("performatives", lists::performatives().as_slice()),
+        ("set_aside_adverbs", lists::set_aside_adverbs().as_slice()),
+        ("clause_conjunctions", lists::clause_conjunctions().as_slice()),
     ]
 }
 
@@ -1200,21 +1140,6 @@ fn read_inner(norm: &str, words: Vec<String>) -> Option<Act> {
     read_compound(&words)
 }
 
-/// Conjunctions that join two clauses: coordinating (and, but, or, so) and
-/// subordinating (if, when, because, while, until, before, after, as, since,
-/// although, unless). The second clause is stored as an adjunct of the first,
-/// under the conjunction, the way a time phrase is stored under its preposition.
-///
-/// Linguistic source: Murphy's clause conjunctions - the coordinating set
-/// (Unit 93, "and but or so because") and the subordinating set for time and
-/// condition (Units 25 "when/while", 38 "if", 118-120 "when ... / after ...
-/// / before ... / until ... / while ... / as ... / since ... / although ...
-/// / unless ..."). A hand list pending task 5.1's audit (R5.2).
-const CLAUSE_CONJUNCTIONS: [&str; 15] = [
-    "and", "but", "or", "so", "if", "when", "because", "while", "until", "before",
-    "after", "as", "since", "although", "unless",
-];
-
 /// Read "A <conjunction> B" where A and B each read as a clause of their own.
 /// A conjunction between two nouns ("karen and joe played tennis") is not a
 /// split, because the words before it are not a clause; so this only fires
@@ -1228,7 +1153,7 @@ fn read_compound(words: &[String]) -> Option<Act> {
     // two nouns ("karen and joe played tennis") has no clause on its left, so
     // it is skipped and the sentence stays uncovered.
     for k in 2..=(words.len() - 3) {
-        if !CLAUSE_CONJUNCTIONS.contains(&words[k].as_str()) {
+        if !lists::clause_conjunctions().contains(&words[k].as_str()) {
             continue;
         }
         let Some(head) = read_plain_clause(&words[..k]) else { continue };
@@ -1265,7 +1190,7 @@ fn read_trailing_clauses(head: Frame, words: &[String], first: usize) -> Option<
         // The next clause conjunction after this one bounds the current clause;
         // with none left, the clause runs to the end of the sentence.
         let next = (start + 1..words.len())
-            .find(|&i| CLAUSE_CONJUNCTIONS.contains(&words[i].as_str()));
+            .find(|&i| lists::clause_conjunctions().contains(&words[i].as_str()));
         let end = next.unwrap_or(words.len());
         let clause = read_plain_clause(&words[start..end])?;
         frame = frame.with(Role::named(&words[conj]), Filler::clause(clause));
@@ -1456,7 +1381,7 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
     // clause, whose subject is the same as the matrix subject (control). The
     // inner clause is read by the reader itself, so it composes to any
     // depth ("promise to try to pay").
-    if CONTROL_VERBS.contains(&lemma.as_str()) && words.get(verb_at + 1).map(String::as_str) == Some("to") {
+    if lists::control_verbs().contains(&lemma.as_str()) && words.get(verb_at + 1).map(String::as_str) == Some("to") {
         if let Some(inner) = read_infinitive(&words[verb_at + 2..], &subject) {
             frame = frame.with(Role::Agent, subject);
             frame = frame.with(Role::Theme, Filler::clause(inner.frame));
@@ -1480,7 +1405,7 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
     // rest of the sentence, less an optional "that", is read as a sentence of
     // its own and becomes the theme. If it does not read as a clause the verb
     // is read as before, so a plain object ("i know the answer") is untouched.
-    if COMPLEMENT_VERBS.contains(&lemma.as_str()) {
+    if lists::complement_verbs().contains(&lemma.as_str()) {
         let after = &words[verb_at + 1..];
         let after = if after.first().map(String::as_str) == Some("that") { &after[1..] } else { after };
         // A clause opens with a subject, never an object pronoun ("you in your car").
@@ -1500,21 +1425,6 @@ fn read_plain(norm: &str, words: Vec<String>) -> Option<Act> {
     finish_predicate(frame.clone(), &words, verb_at + 1, force)
         .or_else(|| finish_with_gerund(frame, &words, verb_at + 1, force))
 }
-
-/// Verbs whose complement is an `-ing` form with the same subject ("i enjoy
-/// reading", "she admitted stealing the money", "would you mind closing the
-/// door"). `like`, `love`, `hate`, `start` and `begin` also take `-ing`, and
-/// are already in [`CONTROL_VERBS`]. `suggest` and `imagine` are left out:
-/// they take a finite clause, which is said another way.
-///
-/// Linguistic source: Murphy's *English Grammar in Use*, Units 53-54 ("verb +
-/// -ing") and Unit 55 ("verb + -ing or to"). A hand list under the task 5.1
-/// audit (`word_lists`).
-const GERUND_VERBS: [&str; 22] = [
-    "enjoy", "mind", "admit", "avoid", "keep", "finish", "stop", "practise", "practice",
-    "consider", "deny", "risk", "miss", "delay", "postpone", "fancy", "dislike", "like",
-    "love", "hate", "start", "begin",
-];
 
 /// Whether `inner` is a gerund complement of `matrix`: the same agent and a
 /// plain present active positive progressive, with no modal. The `-ing` form is
@@ -1544,8 +1454,8 @@ fn finish_with_gerund(mut frame: Frame, words: &[String], from: usize, force: Fo
     // "enjoye", "admitted" -> "admitt"). The gerund verbs are a closed list, so
     // name the lemma whose own past re-realises the surface word.
     if let Some(surface) = from.checked_sub(1).and_then(|i| words.get(i)) {
-        if !GERUND_VERBS.contains(&frame.pred.as_str()) {
-            if let Some(g) = GERUND_VERBS.iter().find(|g| past(g) == *surface || third_s(g) == *surface) {
+        if !lists::gerund_verbs().contains(&frame.pred.as_str()) {
+            if let Some(g) = lists::gerund_verbs().iter().find(|g| past(g) == *surface || third_s(g) == *surface) {
                 frame.pred = (*g).to_string();
             }
         }
@@ -1553,7 +1463,7 @@ fn finish_with_gerund(mut frame: Frame, words: &[String], from: usize, force: Fo
     if frame.voice != Voice::Active
         || frame.aspect != Aspect::Simple
         || frame.modal.is_some()
-        || !(GERUND_VERBS.contains(&frame.pred.as_str()) || CONTROL_VERBS.contains(&frame.pred.as_str()))
+        || !(lists::gerund_verbs().contains(&frame.pred.as_str()) || lists::control_verbs().contains(&frame.pred.as_str()))
         || frame.get(&Role::Theme).is_some()
     {
         return None;
@@ -1586,7 +1496,7 @@ fn read_infinitive(words: &[String], subject: &Filler) -> Option<Act> {
     // A nested to-infinitive ("to try to pay"): the inner clause is the theme.
     // A nested "to" is another infinitive only after a control verb; after any
     // other it is a preposition ("go to london").
-    if CONTROL_VERBS.contains(&lemma.as_str()) && words.get(1).map(String::as_str) == Some("to") {
+    if lists::control_verbs().contains(&lemma.as_str()) && words.get(1).map(String::as_str) == Some("to") {
         let inner = read_infinitive(&words[2..], subject)?;
         frame = frame.with(Role::Theme, Filler::clause(inner.frame));
         return Some(Act::new(Force::Assert, frame));
@@ -1650,7 +1560,7 @@ fn is_purpose_verb(word: &str) -> bool {
 /// control verb, whose `to` is its own complement and is read by the control
 /// branch, so a control infinitive is never read twice.
 fn finish_with_purpose(frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
-    if frame.voice != Voice::Active || CONTROL_VERBS.contains(&frame.pred.as_str()) {
+    if frame.voice != Voice::Active || lists::control_verbs().contains(&frame.pred.as_str()) {
         return None;
     }
     let agent = frame.get(&Role::Agent)?.clone();

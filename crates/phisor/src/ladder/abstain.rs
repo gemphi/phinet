@@ -5,11 +5,6 @@
 //! and tells which reader rule could pay next. Buckets are mutually exclusive
 //! and tried in the order of [`KINDS`].
 
-/// Words that join or open a clause.
-const CONJUNCTIONS: [&str; 18] = [
-    "and", "but", "or", "so", "if", "when", "because", "while", "until", "before", "after",
-    "although", "unless", "that", "who", "which", "where", "whose",
-];
 
 /// Sentences of this many words or more are `very_long`.
 const LONG: usize = 16;
@@ -21,7 +16,7 @@ pub const KINDS: [&str; 6] =
 /// The kind of an abstained sentence. Always one of [`KINDS`].
 pub fn abstention_kind(sentence: &str) -> &'static str {
     let words: Vec<&str> = sentence.trim_end_matches(['.', '?']).split_whitespace().collect();
-    let joins = words.iter().filter(|w| CONJUNCTIONS.contains(w)).count();
+    let joins = words.iter().filter(|w| crate::lexicon::lists::clause_openers().contains(w)).count();
     if words.len() >= LONG {
         KINDS[0]
     } else if joins >= 2 {
