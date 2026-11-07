@@ -17,6 +17,7 @@
 //! the terminating mark kept (R10.11).
 
 use crate::guide::holdout::normalise;
+use crate::lexicon::lists;
 use crate::ir::{Act, Aspect, Filler, Force, Frame, Polarity, Role, Tense, Thing, Voice, Wh};
 
 mod names;
@@ -602,23 +603,13 @@ fn ing(verb: &str) -> String {
     format!("{verb}ing")
 }
 
-/// Multi-syllable verbs stressed on the last syllable, which double the final
-/// consonant before `-ed`/`-ing` (admit -> admitted). The standard English
-/// spelling rule (Murphy, English Grammar in Use, Appendix 6): a syllable
-/// count cannot be read from the spelling, so these are named, not guessed.
-const DOUBLING_STRESSED: [&str; 24] = [
-    "admit", "permit", "submit", "commit", "omit", "prefer", "refer", "occur",
-    "begin", "regret", "forget", "control", "equip", "forbid", "rebel", "expel",
-    "compel", "propel", "patrol", "upset", "transfer", "confer", "defer", "recur",
-];
-
 /// Whether `-ed`/`-ing` double the verb's final consonant: a one-syllable
 /// lemma that ends consonant + single vowel + consonant (stop, sit, run,
 /// plan), or a named stressed multi-syllable verb. A final `w`, `x` or `y`
 /// never doubles, and `qu` counts as a consonant (quit -> quitting). The
 /// irregular table overrides this for the past (`past` consults it first).
 fn doubles_final(verb: &str) -> bool {
-    if DOUBLING_STRESSED.contains(&verb) {
+    if lists::doubling_stressed().contains(&verb) {
         return true;
     }
     let masked = verb.replace("qu", "kw");
@@ -647,7 +638,7 @@ fn undouble(stem: &str) -> Option<String> {
         return None;
     }
     let lemma = &stem[..stem.len() - last.len_utf8()];
-    let named = DOUBLING_STRESSED.contains(&lemma);
+    let named = lists::doubling_stressed().contains(&lemma);
     if (last == 'l' && !named) || lemma.len() < 3 || !doubles_final(lemma) {
         return None;
     }
@@ -680,16 +671,6 @@ fn participle(verb: &str) -> String {
     }
 }
 
-/// The candidate lemmas the reader considers when inverting a surface verb
-/// form: the irregular lemmas the morphology tables name, so a reversed
-/// lookup can be confirmed by re-realising. These are exactly the stems the
-/// forward `participle`/`past`/`ing` tables key on, no more.
-const IRREGULAR_LEMMAS: [&str; 20] = [
-    "wear", "write", "break", "send", "lose", "sell", "see", "leave", "be",
-    "do", "go", "know", "give", "take", "come", "tell", "say", "discover",
-    "answer", "arrive",
-];
-
 /// Read a surface past participle back to its lemma, the inverse of
 /// [`participle`]. An irregular is recognised by trying each known lemma and
 /// confirming it re-realises to the surface; a regular `-ed` form is inverted
@@ -698,7 +679,7 @@ const IRREGULAR_LEMMAS: [&str; 20] = [
 /// unknown word makes the whole verb group abstain rather than guess.
 fn read_participle(word: &str) -> Option<String> {
     // Irregulars: a known lemma whose participle is this surface word.
-    for lemma in IRREGULAR_LEMMAS {
+    for lemma in lists::irregular_lemmas().iter() {
         if participle(lemma) == word {
             return Some(lemma.to_string());
         }
@@ -711,7 +692,7 @@ fn read_participle(word: &str) -> Option<String> {
     // consonant+y rule restores `y` from `ied`. Confirmed by re-realising.
     let candidates = regular_ed_candidates(word);
     for candidate in &candidates {
-        if SILENT_E_LEMMAS.contains(&candidate.as_str()) && participle(candidate) == word {
+        if lists::silent_e_lemmas().contains(&candidate.as_str()) && participle(candidate) == word {
             return Some(candidate.clone());
         }
     }
@@ -740,7 +721,7 @@ fn read_ing(word: &str) -> Option<String> {
         return Some(lemma);
     }
     let with_e = format!("{stem}e");
-    if SILENT_E_LEMMAS.contains(&with_e.as_str()) && ing(&with_e) == word {
+    if lists::silent_e_lemmas().contains(&with_e.as_str()) && ing(&with_e) == word {
         return Some(with_e);
     }
     if ing(stem) == word {
@@ -751,12 +732,6 @@ fn read_ing(word: &str) -> Option<String> {
     }
     None
 }
-
-/// The silent-e verbs the Guide uses whose `-ing`/`-ed` drops the e, so the
-/// reader restores it ("living" -> live) rather than keeping the bare stem.
-const SILENT_E_LEMMAS: [&str; 8] = [
-    "live", "come", "make", "write", "give", "take", "arrive", "use",
-];
 
 /// The lemma candidates for a regular `-ed` participle: the bare stem, the
 /// stem with a restored silent e, and the consonant+y restoration from `ied`.
@@ -1950,7 +1925,7 @@ fn lemma_number(head: &str) -> (String, bool) {
     }
     // A singular noun that happens to end in `s` is not a plural: the Guide's
     // closed set of these is kept whole ("bus", not "bu").
-    if SINGULAR_S_NOUNS.contains(&head) {
+    if lists::singular_s_nouns().contains(&head) {
         return (head.to_string(), false);
     }
     // A plain `-s`: a plural when re-pluralising the stem reproduces the
@@ -1962,10 +1937,6 @@ fn lemma_number(head: &str) -> (String, bool) {
     }
     (head.to_string(), false)
 }
-
-/// Nouns ending in `s` that are singular, so the reader does not strip the
-/// `s` and read a spurious plural. The closed set the Guide uses.
-const SINGULAR_S_NOUNS: [&str; 5] = ["bus", "gas", "lens", "news", "class"];
 
 /// The tense of a copula form the reader builds a `be` frame from: present for
 /// is/are/am, past for was/were. `None` for any other word.
