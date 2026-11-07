@@ -8,6 +8,14 @@
 //! soundness 309/388 -> 311/391. `not` without an auxiliary was not taken: its
 //! abstained sentences are mostly ungrammatical exercise stems (he not do).
 //!
+//! Task 7.3 (one_join; the cause was in a clause half, not the join): the reader
+//! lemmatised `wanted` as the non-word `wante` because both stems re-realise to
+//! the surface; read/verb.rs now prefers the bare stem when the lexicon knows it
+//! as a verb and the e-form is not a named silent-e verb. Clean coverage
+//! 391/1201 -> 400/1201, soundness 311/391 -> 317/400; CLEAN_COVERAGE_BAR
+//! 32.5 -> 33.2. `but`/`or`/`if` joins mostly fail in a half (`it's <adj> than`,
+//! leading `now`, `go out now`, `ago`), so each is a separate later change.
+//!
 //! Abstention by distance bucket (`abstention_kinds`): simple 305,
 //! one_join 274, infinitive 122, ing_form 76, multi_clause 26, very_long 10.
 //!

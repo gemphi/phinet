@@ -105,6 +105,15 @@ pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
             return (stem.to_string(), Tense::Past);
         }
         let with_e = format!("{stem}e");
+        // Both stems re-realise to the same surface ("wanted" from want or
+        // wante); a stem the lexicon knows as a verb wins unless the e-form is
+        // a named silent-e verb, so "wanted" is want, never the non-word wante.
+        let bare_is_verb = crate::lexicon::is_primed()
+            && crate::lexicon::verb_capable(stem)
+            && !lists::silent_e_lemmas().contains(&with_e.as_str());
+        if bare_is_verb && past(stem) == word {
+            return (stem.to_string(), Tense::Past);
+        }
         if past(&with_e) == word {
             return (with_e, Tense::Past);
         }
