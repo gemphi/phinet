@@ -40,8 +40,13 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
             };
             let rest = &words[rest_at..];
             if let Some((theme, end)) = read_noun_phrase(rest) {
-                if end == rest.len() {
+                // Trailing prepositional phrases ("in the sky") are kept as Via slots.
+                let (preps, used) = read_prepositions(&rest[end..]);
+                if end + used == rest.len() {
                     let mut frame = Frame::new("be", tense).with(Role::Theme, theme);
+                    for (role, filler) in preps {
+                        frame = frame.with(role, filler);
+                    }
                     if neg {
                         frame = frame.negative();
                     }

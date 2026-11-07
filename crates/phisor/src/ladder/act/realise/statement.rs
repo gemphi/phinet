@@ -42,12 +42,19 @@ pub(in crate::ladder::act) fn is_existential(frame: &Frame) -> bool {
         && frame.voice == Voice::Active
         && frame.modal.is_none()
         && frame.aspect == Aspect::Simple
-        // Exactly one slot, the theme: a bare "there is X". A copula with a
-        // complement or a prepositional phrase has more, and is an ordinary copula.
-        && frame.slots.len() == 1
+        // The theme plus only prepositional phrases: "there is X in Y". Any other
+        // slot (agent, `as` complement) makes it an ordinary copula.
+        && frame.slots.iter().all(|(r, _)| r == &Role::Theme || matches!(r, Role::Via(_)))
         && frame.get(&Role::Theme).is_some()
+        // With a phrase after it, only an unspecific theme ("a", "some", bare
+        // plural) is existential; "the book is on the table" is an ordinary copula.
+        && (frame.slots.len() == 1 || frame.get(&Role::Theme).is_some_and(unspecific_theme))
 }
 
+/// A thing with no determiner, an indefinite or a quantifier.
+fn unspecific_theme(theme: &Filler) -> bool {
+    matches!(theme, Filler::Thing(t) if (t.det.is_none() && t.plural) || matches!(t.det, Some(crate::ir::Det::Indefinite) | Some(crate::ir::Det::Quant(_))))
+}
 /// Whether an existential theme takes a singular copula ("there is a problem"
 /// vs "there are tables"). A pronoun or a singular thing is singular.
 pub(in crate::ladder::act) fn theme_is_singular(theme: &Filler) -> bool {
@@ -70,6 +77,7 @@ pub(in crate::ladder::act) fn statement(frame: &Frame) -> Vec<String> {
                 words.push(negation_word(frame).into());
             }
             words.extend(say_filler(theme));
+            words.extend(adjuncts(frame, None));
             return words;
         }
     }

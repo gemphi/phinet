@@ -3,6 +3,11 @@
 //! Baseline: clean 1201, read 388, abstained 813; clean coverage 388/1201,
 //! soundness 309/388 (79 unsound readings).
 //!
+//! Task 7.2 (existential `there` with trailing prepositional phrases, read in
+//! read/plain.rs and said by the Realiser): clean coverage 388/1201 -> 391/1201,
+//! soundness 309/388 -> 311/391. `not` without an auxiliary was not taken: its
+//! abstained sentences are mostly ungrammatical exercise stems (he not do).
+//!
 //! Abstention by distance bucket (`abstention_kinds`): simple 305,
 //! one_join 274, infinitive 122, ing_form 76, multi_clause 26, very_long 10.
 //!
