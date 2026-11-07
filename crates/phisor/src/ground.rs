@@ -43,15 +43,18 @@
 //! | `canon` | the [`Canon`](phical::keyboard::Canon) forms: `Act`, `Frame`, [`Row`], [`Word`] |
 //! | `write` | the frame body's canonical bytes, with a clause minted as a handle |
 //! | `read` | the same bytes back, over a cursor that refuses a short or long form |
+//! | `unfold` | a clause unfolded as rows about its sub-event; rows read back as an act |
 
 pub mod canon;
 mod read;
+pub mod unfold;
 mod write;
 
 #[cfg(test)]
 mod tests;
 
 pub use canon::{mint, Row, Word};
+pub use unfold::{is_event, unfold, unground, CLAUSE};
 
 use crate::ir::{Act, Aspect, Filler, Frame, Polarity, Role, Tense, Voice};
 

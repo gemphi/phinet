@@ -58,3 +58,30 @@ fn the_hole_is_projected_over_the_events_the_fixed_roles_name() {
     assert_eq!(answer_told(&two, &rows), Err(AskError::HoleCount { given: 2 }));
 }
 
+
+/// A told predicate is found under whatever force it was told with, and a
+/// clause filling the hole's role is said in English, not named.
+#[test]
+fn any_force_and_a_clause_said_in_english() {
+    use crate::ground::{unfold, CLAUSE};
+    // Told by hand: a wish, and a want whose theme is a clause.
+    let wish = Act::new(Force::Wish, Frame::new("have", Tense::Past).with(Role::Agent, Filler::pronoun("i")).with(Role::Theme, Filler::word("money")));
+    let want = Act::new(
+        Force::Assert,
+        Frame::new("want", Tense::Present)
+            .with(Role::Agent, Filler::Name("sarah".into()))
+            .with(Role::Theme, Filler::clause(Frame::new("go", Tense::Present).with(Role::Via("to".into()), Filler::word("home")))),
+    );
+    let mut rows = unfold(&wish, "e1");
+    rows.extend(unfold(&want, "e2"));
+    assert!(rows.iter().any(|r| r.about == "e2/theme" && r.kind == CLAUSE && r.other == "go"), "the clause is unfolded: {rows:?}");
+    let ask = |frame: Frame| Act::new(Force::Ask, frame);
+    // The wish's predicate answers a question that does not say "wish".
+    let what_had = ask(Frame::new("have", Tense::Past).with(Role::Agent, Filler::pronoun("i")).with(Role::Theme, Filler::Hole(Wh::What)));
+    assert_eq!(answer_told(&what_had, &rows).unwrap().members, ["money"]);
+    // The want's theme is a sub-event, said in English.
+    let what_wants = ask(Frame::new("want", Tense::Present).with(Role::Agent, Filler::Name("sarah".into())).with(Role::Theme, Filler::Hole(Wh::What)));
+    let said = answer_told(&what_wants, &rows).unwrap().members;
+    assert_eq!(said.len(), 1, "{said:?}");
+    assert!(said[0].contains("go") && said[0].contains("home") && !said[0].contains("e2/") && !said[0].ends_with('.'), "the clause in English, not its name: {said:?}");
+}

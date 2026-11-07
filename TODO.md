@@ -38,7 +38,7 @@ Last read over: 2026-10-29.
 
 - [x] **The loop is closed (2026-11-07, docs/211):** told English, it answers English about what it was told — reader → `ground` → rows → `machine::told::answer_told` in phiclm's Lisp. `examples/converse`: four told, four answered (work, book, london, suit). The two halves had used two shapes of row — things and events — and `told` answers over events.
 - [ ] **The reader's gaps, from the loop:** a subject wh-question ("who was reading a book?", "who lives in london?") is not read; "boy" is outside the unprimed words; primed, "wearing" is refused in a statement as noun-and-verb. Each is the reader's, and its words go in files.
-- [ ] `told` passes over a clause filling a role, and takes the told force to be `assert`.
+- [x] `told` unfolds a clause (`ground::unfold`, kind `clause`) and matches the predicate under every force the store holds; a sub-event answer is said in English through `ground::unground` and the realiser (docs/219, 2026-11-08). Left: the complement form ("to go home" rather than "goes to home"), the realiser's; a hole inside a clause.
 
 The crate's first two runs are recorded below. What it does **not** do yet is the honest part.
 

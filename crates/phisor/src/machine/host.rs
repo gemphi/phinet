@@ -223,6 +223,11 @@ impl KindRows {
         }
     }
 
+    /// Every row held, whatever its Kind, in Kind order.
+    pub fn all(&self) -> Vec<phiecs::Row> {
+        self.0.values().flatten().cloned().collect()
+    }
+
     /// The Kind names held, in order.
     pub fn names(&self) -> Vec<&str> {
         self.0.keys().map(String::as_str).collect()

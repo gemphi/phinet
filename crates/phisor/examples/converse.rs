@@ -1,9 +1,10 @@
 //! `converse` — tell it English, ask it English (docs/211). Every sentence
-//! that ends in `.` is told: the reader makes it an act, `ground` makes the
-//! act rows about an event. Every sentence that ends in `?` is asked: the
-//! reader makes it an act with one hole, and `answer_told` reads the hole
-//! off the events the question's fixed roles name, in phiclm's Lisp. A
-//! sentence the reader cannot read is said so, not guessed at.
+//! that ends in `.` is told: the reader makes it an act, `ground::unfold` makes
+//! the act rows about an event, a clause in it rows about a sub-event. Every
+//! sentence that ends in `?` is asked: the reader makes it an act with one
+//! hole, and `answer_told` reads the hole off the events the question's fixed
+//! roles name, in phiclm's Lisp. A sentence the reader cannot read is said so,
+//! not guessed at.
 //!
 //! ```text
 //! cargo run -p phisor --example converse -- "sarah is driving to work." "tom was reading a book." "where is sarah driving?" "what was tom reading?"
@@ -18,7 +19,7 @@
 //! the reader first, as the harness does: more words, and a stricter reader
 //! that refuses a noun-and-verb in a statement.
 
-use phisor::ground::ground;
+use phisor::ground::unfold;
 use phisor::ladder::{read, realise};
 use phisor::machine::answer_told;
 
@@ -87,7 +88,7 @@ fn main() {
             false => {
                 told += 1;
                 let event = format!("e{told}");
-                let these = ground(&act, &event);
+                let these = unfold(&act, &event);
                 println!("told  {line}   → {} · {} rows about {event}", realise(&act), these.len());
                 rows.extend(these);
             }

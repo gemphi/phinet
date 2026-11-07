@@ -27,13 +27,17 @@
 //! preposition role is told structurally — a kind that is not one of the
 //! four named roles, a feature or a force — never from a list of words.
 //!
-//! What it does not do yet: a clause filling a role (a sub-event) is passed
-//! over, and the told force is taken to be `assert`.
+//! The predicate is matched under every force the store holds - told
+//! "i wish i had a lot of money", the wish's `have` answers "what did i
+//! have?" - and under [`CLAUSE`], so a sub-event unfolded by
+//! `ground::unfold` is found too. An answer that is itself an event (a
+//! clause filling the hole's role) is said in English again, through
+//! `ground::unground` and the realiser, rather than given as a name.
 
 use phical::keyboard::Arena;
 use phiclm::lisp::{Env, Value};
 
-use crate::ground::FEATURES;
+use crate::ground::{is_event, unground, CLAUSE, FEATURES};
 use crate::ir::{Act, Filler, Force, Role, Wh};
 
 use super::ask::{call, relation, Answered, AskError, Constraint};
@@ -58,12 +62,17 @@ pub fn answer_told_kinds(act: &Act, kinds: KindRows) -> Result<Answered, AskErro
 /// optionally a `card` — a `(define told-answer (lambda …))` — that replaces
 /// the shipped card for this run (`engine::arrange` tries several).
 pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&str>) -> Result<(Answered, Vec<super::engine::Step>), AskError> {
-    let (filters, hole) = events_and_hole(act)?;
+    let (pred, filters, hole) = events_and_hole(act)?;
     let mut roles = vec![hole.role.clone()];
     if hole.anywhere {
         roles.extend(preposition_roles(&kinds).into_iter().filter(|r| *r != hole.role));
     }
-    for kind in filters.iter().map(|f| f.kind.as_str()).chain(roles.iter().map(String::as_str)) {
+    // The predicate under every force the store holds, and under a clause.
+    let mut forces: Vec<String> = force_kinds(&kinds);
+    if forces.is_empty() {
+        forces.push("assert".into());
+    }
+    for kind in filters.iter().map(|f| f.kind.as_str()).chain(roles.iter().map(String::as_str)).chain(forces.iter().map(String::as_str)) {
         if kinds.rows(kind).is_err() {
             kinds = kinds.told(kind, &[]);
         }
@@ -77,12 +86,13 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
             machine.eval(&form, &mut environment).map_err(AskError::Machine)?;
         }
     }
-    machine.eval(&define_told(query_told(&filters, &roles)), &mut environment).map_err(AskError::Machine)?;
+    machine.eval(&define_told(query_told(&pred, &forces, &filters, &roles)), &mut environment).map_err(AskError::Machine)?;
     let value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
     let trace = machine.host.take_trace();
     match value {
         Value::Class(class) => {
-            let members: Vec<String> = class.into_iter().collect();
+            let rows = machine.host.kinds().all();
+            let members: Vec<String> = class.into_iter().map(|m| said(&m, &rows)).collect();
             let count = members.len();
             Ok((Answered { members, count }, trace))
         }
@@ -97,13 +107,34 @@ struct Hole {
     anywhere: bool,
 }
 
-/// The fixed roles as constraints on the event — each role with its filler,
-/// and the predicate under `assert` — and the one role the hole fills.
-fn events_and_hole(act: &Act) -> Result<(Vec<Constraint>, Hole), AskError> {
+/// An answer that is an event the rows describe, said in English through
+/// the realiser; any other answer is itself.
+fn said(member: &str, rows: &[phiecs::Row]) -> String {
+    match is_event(member, rows) {
+        // The realiser says a statement; an answer is a phrase, so the stop goes.
+        true => unground(member, rows).map(|act| crate::ladder::realise(&act).trim_end_matches('.').to_string()).unwrap_or_else(|| member.to_string()),
+        false => member.to_string(),
+    }
+}
+
+/// The force kinds the store holds, and [`CLAUSE`] when it holds one: the
+/// kinds a told predicate may sit under.
+fn force_kinds(kinds: &KindRows) -> Vec<String> {
+    kinds
+        .names()
+        .into_iter()
+        .filter(|k| *k == CLAUSE || Force::ALL.iter().any(|f| f.name().eq_ignore_ascii_case(k)))
+        .map(str::to_string)
+        .collect()
+}
+
+/// The predicate, the fixed roles as constraints on the event - each role
+/// with its filler - and the one role the hole fills.
+fn events_and_hole(act: &Act) -> Result<(String, Vec<Constraint>, Hole), AskError> {
     if act.force != Force::Ask {
         return Err(AskError::NotAsk { given: act.force });
     }
-    let mut filters = vec![Constraint { kind: "assert".into(), other: act.frame.pred.clone() }];
+    let mut filters = Vec::new();
     let mut holes = Vec::new();
     for (role, filler) in &act.frame.slots {
         let other = match filler {
@@ -118,7 +149,7 @@ fn events_and_hole(act: &Act) -> Result<(Vec<Constraint>, Hole), AskError> {
         filters.push(Constraint { kind: role.name().to_string(), other });
     }
     match holes.len() {
-        1 => Ok((filters, holes.remove(0))),
+        1 => Ok((act.frame.pred.clone(), filters, holes.remove(0))),
         n => Err(AskError::HoleCount { given: n }),
     }
 }
@@ -131,7 +162,7 @@ fn preposition_roles(kinds: &KindRows) -> Vec<String> {
     kinds
         .names()
         .into_iter()
-        .filter(|k| !named.contains(k) && !FEATURES.contains(k) && !forces.iter().any(|f| f == k))
+        .filter(|k| !named.contains(k) && !FEATURES.contains(k) && *k != CLAUSE && !forces.iter().any(|f| f == k))
         .map(str::to_string)
         .collect()
 }
@@ -139,8 +170,10 @@ fn preposition_roles(kinds: &KindRows) -> Vec<String> {
 /// `(told-answer (list (phisor-rows role)…) (list (identity (referents …))…))`:
 /// the card in `data/ops/core.lisp`, which is
 /// `image(union-all(roles), domain(meet-all(relations)))`.
-fn query_told(filters: &[Constraint], roles: &[String]) -> Value {
-    let relations: Vec<Value> = filters.iter().map(relation).collect();
+fn query_told(pred: &str, forces: &[String], filters: &[Constraint], roles: &[String]) -> Value {
+    let under: Vec<Value> = forces.iter().map(|f| relation(&Constraint { kind: f.clone(), other: pred.to_string() })).collect();
+    let mut relations: Vec<Value> = vec![call("union-all", vec![call("list", under)])];
+    relations.extend(filters.iter().map(relation));
     let rows: Vec<Value> = roles.iter().map(|r| call("phisor-rows", vec![Value::Str(r.clone())])).collect();
     call("told-answer", vec![call("list", rows), call("list", relations)])
 }
