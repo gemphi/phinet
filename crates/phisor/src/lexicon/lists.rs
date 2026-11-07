@@ -291,6 +291,9 @@ pub struct ExpressivePhrase {
     pub opening: Vec<String>,
     /// Whether the frame's theme follows the opening.
     pub theme: bool,
+    /// The role the phrase leaves unsaid and the pronoun that fills it, which
+    /// the Reader restores.
+    pub unsaid: Option<(String, String)>,
 }
 
 /// The fixed phrases Express frames are said as, in file order.
@@ -304,6 +307,7 @@ pub fn expressive_phrases() -> &'static Vec<ExpressivePhrase> {
                 pred: r[0].clone(),
                 opening: r[1].split_whitespace().map(str::to_string).collect(),
                 theme: r[2] == "theme",
+                unsaid: r.get(3).and_then(|u| u.split_once('=')).map(|(role, who)| (role.to_string(), who.to_string())),
             })
             .collect()
     })

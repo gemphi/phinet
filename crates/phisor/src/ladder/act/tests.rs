@@ -1585,3 +1585,23 @@ fn read_verb_returns_the_lemma_for_a_doubled_consonant_ed() {
     assert_eq!(super::read_verb("arrived"), ("arrive".to_string(), Tense::Past));
     assert_eq!(super::read_verb("studied"), ("study".to_string(), Tense::Past));
 }
+
+/// Task 4.2: the Reader reads `expressive_phrase.tsv` in reverse, so the four
+/// gold fixed phrases come back as the frames the Realiser said, with the
+/// unsaid speaker or addressee restored; a phrase inside a clause, an
+/// exclamation and a phrase that loses a word stay with the ordinary reader.
+#[test]
+fn express_phrases_are_read_back_to_their_gold_frames() {
+    let gold = gold::read().expect("the frozen gold set loads");
+    let pairs: Vec<_> = gold.pairs().collect();
+    for i in [127, 128, 129, 131] {
+        let (act, sentence) = pairs[i];
+        // The gold sentence is lower case, so a name is spelled from the original.
+        let said = if i == 131 { "Welcome to London." } else { sentence };
+        let read = read(said).unwrap_or_else(|| panic!("gold frame {i} reads"));
+        assert_eq!(&read, act, "gold frame {i}");
+    }
+    assert!(read("kevin never says thank you.").is_none_or(|a| a.force != crate::ir::Force::Express));
+    assert!(read("welcome to our country!").is_none_or(|a| a.force != crate::ir::Force::Express));
+    assert!(read("congratulations on your new job.").is_none_or(|a| a.force != crate::ir::Force::Express));
+}

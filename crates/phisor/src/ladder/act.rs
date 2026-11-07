@@ -1059,7 +1059,15 @@ pub fn read(sentence: &str) -> Option<Act> {
     // Set aside the manner/frequency adverbs the IR has no slot for, as the
     // gold does; "never" is also read as negation.
     let (words, never) = strip_adverbs(&expanded);
-    let mut act = read_inner(&norm, words)?;
+    // A fixed phrase of thanks, apology, congratulation or welcome is an Express
+    // when it is the whole sentence, never a clause inside one ("kevin never
+    // says thank you"). Only a full stop: the Realiser says the phrase with one,
+    // so an exclamation would not round-trip.
+    let phrase = norm.ends_with('.').then(|| express::read(&words)).flatten();
+    let mut act = match phrase {
+        Some(act) => act,
+        None => read_inner(&norm, words)?,
+    };
     // "i promise ..." is an explicit commissive: the verb itself says so.
     if act.force == Force::Assert
         && act.frame.pred == "promise"
