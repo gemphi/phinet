@@ -1224,7 +1224,9 @@ fn whole_frame(frame: &crate::ir::Frame, asks: bool, top_may_be_bare: bool) -> b
 }
 
 /// What the Reader returned for `sentence` must be nothing or a whole Act that
-/// can be written back: it realises to non-empty text with a terminating mark.\n/// Whether that text equals the input is the measured soundness rate, not this\n/// property (design, Property 4).
+/// can be written back: it realises to non-empty text with a terminating mark.
+/// Whether that text equals the input is the measured soundness rate, not this
+/// property (design, Property 4).
 fn assert_whole_or_none(sentence: &str) {
     use crate::ir::Force;
     let Some(act) = read(sentence) else { return };
@@ -1237,7 +1239,19 @@ fn assert_whole_or_none(sentence: &str) {
 
 /// Sentences the tasks 6.1-6.4 added (trailing clauses, multi-word adverbs,
 /// purpose infinitives, -ing forms), plus plain ones they must not disturb.
-const READER_SEEDS: [&str; 22] = [
+const READER_SEEDS: [&str; 32] = [
+    // Tasks 3.1-3.4: a pronoun as a verb, `and` as a head, host + `to` + verb,
+    // and regular `-ed` forms.
+    "she she went.",
+    "he she works here.",
+    "and is here.",
+    "the and went home.",
+    "karen and.",
+    "she has a book to read.",
+    "he has nothing to read.",
+    "he went to read.",
+    "he added the sugar.",
+    "she missed the bus.",
     "he works in a shop and she stays at home and they are happy.",
     "i was tired so i went to bed and i slept well.",
     "he works in a shop and she stays at home and.",
@@ -1308,6 +1322,19 @@ fn the_reader_returns_whole_frames_or_none() {
         let words: Vec<&str> = seed.trim_end_matches(|c| MARKS.contains(&c)).split_whitespace().collect();
         for n in 0..=words.len() {
             assert_whole_or_none(&format!("{}.", words[..n].join(" ")));
+        }
+    }
+    // And every clean Guide sentence (Property 4), when the Guide is present.
+    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data/person");
+    let (text, key) = (
+        std::fs::read_to_string(format!("{base}/murphy.txt")),
+        std::fs::read_to_string(format!("{base}/murphy_key.txt")),
+    );
+    let (Ok(text), Ok(key)) = (text, key) else { return };
+    let split = crate::guide::Split::new(crate::guide::read(&text, &key));
+    for part in [crate::guide::Part::Train, crate::guide::Part::Dev, crate::guide::Part::Test] {
+        for sentence in split.clean_strings(part) {
+            assert_whole_or_none(&sentence);
         }
     }
 }

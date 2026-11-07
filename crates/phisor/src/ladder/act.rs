@@ -1677,8 +1677,9 @@ fn is_expletive_subject(lemma: &str, subject: &Filler) -> bool {
 /// reader abstains (None) when it cannot find a head, so it never treats a
 /// verb as a subject.
 fn read_subject(words: &[String]) -> Option<(Filler, usize)> {
-    if lists::pronouns().contains(&words[0].as_str()) {
-        return Some((subject_filler(&words[0]), 1));
+    let first = words.first()?;
+    if lists::pronouns().contains(&first.as_str()) {
+        return Some((subject_filler(first), 1));
     }
     let (thing, end) = read_noun_phrase(words)?;
     // A subject noun phrase must leave at least one word for the verb.
