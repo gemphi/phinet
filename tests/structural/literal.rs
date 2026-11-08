@@ -1,4 +1,4 @@
-//! The language-literal scan (Requirement 8), run as a report.
+//! The language-literal scan (Requirement 8), run as an assertion.
 //!
 //! It reads `phisor/src` outside `#[cfg(test)]` code and test files and
 //! finds hard-coded language data of three kinds:
@@ -9,9 +9,7 @@
 //! - `eq`: a `==` or `!=` against a literal English word.
 //!
 //! The scan prints every hit as `file:line kind text`, then the count per
-//! file and the total, and does not fail on them: task 11.3 turns the report
-//! into an assertion once the cleanup (tasks 10.2 to 10.9) has taken the
-//! count to zero. `ALLOWED` holds the non-language identifiers the array
+//! file and the total, and fails on any hit. `ALLOWED` holds the non-language identifiers the array
 //! rule passes over, each with its reason (R8.4).
 //!
 //! Run it with `cargo test --test structural literal -- --nocapture`.
@@ -229,17 +227,23 @@ pub fn by_file(hits: &[Hit]) -> BTreeMap<&str, usize> {
 }
 
 #[test]
-fn the_language_literal_scan_reports_every_hit() {
+fn structural_no_language_literal() {
     let files = scanned_files();
     assert!(!files.is_empty(), "no source under crates/phisor/src was scanned");
     let hits = scan();
+    let mut report = String::new();
     for h in &hits {
-        println!("{}:{} {} {}", h.file, h.line, h.kind, h.text);
+        report.push_str(&format!("{}:{} {} {}\n", h.file, h.line, h.kind, h.text));
     }
     for (file, n) in by_file(&hits) {
-        println!("count {n:>4} {file}");
+        report.push_str(&format!("count {n:>4} {file}\n"));
     }
-    println!("language literal hits: {} in {} files scanned", hits.len(), files.len());
+    assert!(
+        hits.is_empty(),
+        "language literal hits: {} in {} files scanned\n{report}",
+        hits.len(),
+        files.len()
+    );
 }
 
 #[test]

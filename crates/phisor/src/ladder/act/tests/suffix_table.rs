@@ -1,6 +1,7 @@
 //! Property 6, recorded: the forms the old `-s/-ing/-ed` code gave, kept as a
 //! fixed table now that the code is gone. Each row is
-//! `(stem, third, plural, ing, past, doubles_final)`. Stems whose past is an\n//! irregular read from the primed lexicon are left out: that form depends on\n//! which test primed the lexicon first.
+//! `(stem, third, plural, ing, past, doubles_final)`. Stems whose past is an
+//! irregular read from the primed lexicon are left out: that form depends on\n//! which test primed the lexicon first.
 
 use crate::lexicon::suffix::{doubles_final, inflect, Suffix};
 
