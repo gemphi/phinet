@@ -1,4 +1,4 @@
-use super::words::{load_plain, Words};
+use super::words::{load_pairs, load_plain, Words};
 use std::sync::OnceLock;
 
 plain_list!(
@@ -54,3 +54,8 @@ plain_list!(
     weather_verbs,
     "weather_verb.txt"
 );
+/// A modal's past form as `(modal, past)`, from `modal_past.tsv`.
+pub fn modal_past() -> &'static Vec<(String, String)> {
+    static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();
+    CELL.get_or_init(|| load_pairs("modal_past.tsv"))
+}

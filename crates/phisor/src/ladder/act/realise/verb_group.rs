@@ -84,14 +84,13 @@ pub(in crate::ladder::act) fn with_not(mut aux: Vec<String>, neg: Option<&str>, 
 /// `could`, `will` -> `would`, `may` -> `might`, `shall` -> `should`. The
 /// book's Unit 19-25 modal table.
 pub(in crate::ladder::act) fn modal_word(modal: crate::ir::Modal, tense: Tense) -> String {
-    use crate::ir::Modal;
-    match (modal, tense) {
-        (Modal::Can, Tense::Past) => "could".into(),
-        (Modal::Will, Tense::Past) => "would".into(),
-        (Modal::May, Tense::Past) => "might".into(),
-        (Modal::Shall, Tense::Past) => "should".into(),
-        _ => modal.name().to_string(),
+    let base = modal.name();
+    if tense == Tense::Past {
+        if let Some((_, past)) = crate::lexicon::lists::modal_past().iter().find(|(m, _)| m == base) {
+            return past.clone();
+        }
     }
+    base.to_string()
 }
 
 /// The person and number the Realiser's `third`/`first` flags stand for;
