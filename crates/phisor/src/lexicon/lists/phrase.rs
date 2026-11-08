@@ -67,6 +67,16 @@ pub fn wish_forms() -> &'static Vec<(String, bool, Vec<String>)> {
     })
 }
 
+/// The preposition an adjunct wh-word is stored under (`wh_role.tsv`): the
+/// row for `wh`, else the `default` row. Empty when the file is missing.
+pub fn wh_preposition(wh: &str) -> Option<&'static str> {
+    static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();
+    let rows = CELL.get_or_init(|| {
+        data_rows(&read_file("wh_role.tsv")).into_iter().filter(|r| r.len() >= 2).map(|r| (r[0].clone(), r[1].clone())).collect()
+    });
+    let find = |key: &str| rows.iter().find(|(w, _)| w == key).map(|(_, p)| p.as_str());
+    find(wh).or_else(|| find("default"))
+}
 /// The words a fronted wh-hole is said as in a `Via(prep)` slot
 /// (`wh_phrase.tsv`), when that differs from the bare wh-word: `how` in a
 /// `for` slot is "how long".

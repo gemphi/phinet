@@ -196,13 +196,7 @@ pub(in crate::ladder::act) fn place_wh(frame: Frame, wh: Wh, subject_is_agent: b
 
 /// The preposition role the Guide stores an adjunct wh under.
 pub(in crate::ladder::act) fn wh_role(wh: Wh) -> Role {
-    match wh {
-        Wh::Where => Role::named("in"),
-        Wh::When => Role::named("at"),
-        Wh::Why => Role::named("for"),
-        Wh::How => Role::named("by"),
-        _ => Role::named("by"),
-    }
+    Role::named(crate::lexicon::lists::wh_preposition(wh.name()).unwrap_or("by"))
 }
 
 /// Read a question operator into `(tense, modal)`: do-support drops and
