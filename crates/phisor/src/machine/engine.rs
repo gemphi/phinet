@@ -52,8 +52,22 @@ impl Step {
     }
 }
 
+/// One run of the engine: the answer, Note G's trace, and what was invoked.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Run {
+    pub answered: Answered,
+    pub steps: Vec<Step>,
+    pub usage: super::usage::Usage,
+}
+
 /// The answer and the numbered trace that produced it.
 pub fn answer_traced(act: &Act, rows: &[phiecs::Row]) -> Result<(Answered, Vec<Step>), AskError> {
+    answer_told_traced_kinds(act, KindRows::of(rows), None).map(|run| (run.answered, run.steps))
+}
+
+/// The whole run: answer, trace, and the primitives, Operators and cards
+/// it invoked.
+pub fn answer_usage(act: &Act, rows: &[phiecs::Row]) -> Result<Run, AskError> {
     answer_told_traced_kinds(act, KindRows::of(rows), None)
 }
 
@@ -86,8 +100,8 @@ pub struct Arrangement {
 pub fn arrange(act: &Act, rows: &[phiecs::Row], cards: &[(&str, &str)]) -> Result<Arrangement, AskError> {
     let mut tried = Vec::new();
     for (name, card) in cards {
-        let (answered, trace) = answer_told_traced_kinds(act, KindRows::of(rows), Some(card))?;
-        tried.push(Tried { name: name.to_string(), steps: trace.len(), answer: answered.members });
+        let run = answer_told_traced_kinds(act, KindRows::of(rows), Some(card))?;
+        tried.push(Tried { name: name.to_string(), steps: run.steps.len(), answer: run.answered.members });
     }
     let Some(first) = tried.first() else {
         return Err(AskError::Machine("arrange: no cards to arrange".into()));

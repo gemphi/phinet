@@ -31,8 +31,8 @@ graph LR
 graph TD
     subgraph lispmod["src/lisp/"]
         mod_["mod.rs<br/>Value · read · tokens · parse · Display"]
-        eval["eval.rs<br/>Machine&lt;H&gt;: global, host<br/>eval · special · apply · run"]
-        prims["prims.rs<br/>NAMES (39) · call<br/>as_relation · as_class · as_num · as_text · arg"]
+        eval["eval.rs<br/>Machine&lt;H&gt;: global, host, tally<br/>eval · special · apply · run · tally · take_tally"]
+        prims["prims.rs<br/>NAMES (40) · call<br/>as_relation · as_class · as_num · as_text · arg"]
         host_["host.rs<br/>trait Host: names, call<br/>impl Host for ()"]
         subgraph setdir["set/"]
             setmod["mod.rs<br/>Relation · union · meet · compose · converse"]

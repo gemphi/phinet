@@ -15,13 +15,20 @@
 //! (docs/218): appended to `data/ops/learned.lisp`, known to every machine from
 //! then on. `--ops` lists what a machine is born knowing.
 //!
+//! `--guide murphy.txt --key murphy_key.txt` runs the guide's own sentences,
+//! in order, as the harness would: its statements told, its questions asked.
+//! `--usage` prints, at the end, what answering invoked - which of phiclm's
+//! primitives, which of the 64 Operators, which cards, how often
+//! (`machine::usage`); the count phisor's TODO asks for before any Operator
+//! is added to the keyboard.
+//!
 //! `--prime` reads the mined lexicon (`crates/phiano/data/lex/pos.tsv`) into
 //! the reader first, as the harness does: more words, and a stricter reader
 //! that refuses a noun-and-verb in a statement.
 
 use phisor::ground::unfold;
 use phisor::ladder::{read, realise};
-use phisor::machine::answer_told;
+use phisor::machine::{answer_usage, Usage};
 
 /// A machine over no rows, its cards loaded and listed.
 fn bare_machine() -> (phiclm::lisp::Machine<phisor::machine::PhisorHost>, phiclm::lisp::Env) {
@@ -36,6 +43,8 @@ fn bare_machine() -> (phiclm::lisp::Machine<phisor::machine::PhisorHost>, phiclm
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let mut lines: Vec<String> = Vec::new();
+    let mut usage: Option<Usage> = None;
+    let mut quiet = false;
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
@@ -52,6 +61,26 @@ fn main() {
                 }
                 i += 2;
             }
+            "--usage" => {
+                usage = Some(Usage::default());
+                i += 1;
+            }
+            // The guide's sentences in their order, the Key never told (phisor::guide).
+            "--guide" => {
+                let key = args.iter().position(|a| a == "--key").and_then(|k| args.get(k + 1)).map(|p| std::fs::read_to_string(p).expect("read the key")).unwrap_or_default();
+                let text = std::fs::read_to_string(&args[i + 1]).expect("read the guide");
+                lines.extend(phisor::guide::read(&text, &key).iter().filter(|s| s.function != phisor::guide::Function::Answer).map(|s| {
+                    let mark = match s.mark {
+                        phisor::guide::Mark::Question => "?",
+                        phisor::guide::Mark::Exclamation => "!",
+                        _ => ".",
+                    };
+                    format!("{}{mark}", s.words.join(" "))
+                }));
+                quiet = true;
+                i += 2;
+            }
+            "--key" => i += 2,
             "--ops" => {
                 let (_, _) = bare_machine();
                 i += 1;
@@ -77,10 +106,14 @@ fn main() {
     }
 
     let mut rows = Vec::new();
-    let (mut told, mut asked, mut unread) = (0, 0, 0);
+    let (mut told, mut asked, mut unread, mut answered) = (0, 0, 0, 0);
+    // Questions read but not answered, by what stopped them.
+    let mut refused: std::collections::BTreeMap<String, usize> = std::collections::BTreeMap::new();
     for line in &lines {
         let Some(act) = read(line) else {
-            println!("  ?  {line}   (the reader cannot read this)");
+            if !quiet {
+                println!("  ?  {line}   (the reader cannot read this)");
+            }
             unread += 1;
             continue;
         };
@@ -89,20 +122,47 @@ fn main() {
                 told += 1;
                 let event = format!("e{told}");
                 let these = unfold(&act, &event);
-                println!("told  {line}   → {} · {} rows about {event}", realise(&act), these.len());
+                if !quiet {
+                    println!("told  {line}   → {} · {} rows about {event}", realise(&act), these.len());
+                }
                 rows.extend(these);
             }
             true => {
                 asked += 1;
-                match answer_told(&act, &rows) {
-                    Ok(a) => println!("asked {line}   → {}", match a.count {
-                        0 => "nothing I was told".to_string(),
-                        _ => a.members.join(", "),
-                    }),
-                    Err(e) => println!("asked {line}   → cannot answer: {e}"),
+                match answer_usage(&act, &rows) {
+                    Ok(run) => {
+                        answered += 1;
+                        if let Some(u) = usage.as_mut() {
+                            u.add(&run.usage);
+                        }
+                        if !quiet || run.answered.count > 0 {
+                            println!("asked {line}   → {}", match run.answered.count {
+                                0 => "nothing I was told".to_string(),
+                                _ => run.answered.members.join(", "),
+                            });
+                        }
+                    }
+                    Err(e) => {
+                        let why = match &e {
+                            phisor::machine::AskError::NotAsk { .. } => "read as a statement".to_string(),
+                            phisor::machine::AskError::HoleCount { given } => format!("{given} holes"),
+                            phisor::machine::AskError::NoConstraints => "no fixed role to name the events".to_string(),
+                            phisor::machine::AskError::Host(_) | phisor::machine::AskError::Machine(_) => "the machine faulted".to_string(),
+                        };
+                        *refused.entry(why).or_insert(0) += 1;
+                        if !quiet {
+                            println!("asked {line}   → cannot answer: {e}");
+                        }
+                    }
                 }
             }
         }
     }
-    println!("\n{told} told ({} rows) · {asked} asked · {unread} not read", rows.len());
+    println!("\n{told} told ({} rows) · {asked} asked, {answered} answered · {unread} not read of {}", rows.len(), lines.len());
+    for (why, n) in &refused {
+        println!("  {n} read but not answered: {why}");
+    }
+    if let Some(u) = usage {
+        println!("\n{u}");
+    }
 }

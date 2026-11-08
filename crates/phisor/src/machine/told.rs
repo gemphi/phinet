@@ -35,7 +35,7 @@
 //! `ground::unground` and the realiser, rather than given as a name.
 
 use phical::keyboard::Arena;
-use phiclm::lisp::{Env, Value};
+use phiclm::lisp::{Env, Host, Value};
 
 use crate::ground::{is_event, unground, CLAUSE, FEATURES};
 use crate::ir::{Act, Filler, Force, Role, Wh};
@@ -55,13 +55,13 @@ pub fn answer_told(act: &Act, rows: &[phiecs::Row]) -> Result<Answered, AskError
 /// never named is declared empty, so a question about a role nobody told
 /// has an empty class, not an error.
 pub fn answer_told_kinds(act: &Act, kinds: KindRows) -> Result<Answered, AskError> {
-    answer_told_traced_kinds(act, kinds, None).map(|(answered, _)| answered)
+    answer_told_traced_kinds(act, kinds, None).map(|run| run.answered)
 }
 
 /// As [`answer_told_kinds`], with Note G's trace beside the answer, and
 /// optionally a `card` — a `(define told-answer (lambda …))` — that replaces
 /// the shipped card for this run (`engine::arrange` tries several).
-pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&str>) -> Result<(Answered, Vec<super::engine::Step>), AskError> {
+pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&str>) -> Result<super::engine::Run, AskError> {
     let (pred, filters, hole) = events_and_hole(act)?;
     let mut roles = vec![hole.role.clone()];
     if hole.anywhere {
@@ -86,15 +86,18 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
             machine.eval(&form, &mut environment).map_err(AskError::Machine)?;
         }
     }
+    // Loading the cards is the machine's birth, not the run: the tally starts here.
+    machine.take_tally();
     machine.eval(&define_told(query_told(&pred, &forces, &filters, &roles)), &mut environment).map_err(AskError::Machine)?;
     let value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
-    let trace = machine.host.take_trace();
+    let steps = machine.host.take_trace();
+    let usage = super::usage::Usage::of(machine.take_tally(), &steps, machine.host.names());
     match value {
         Value::Class(class) => {
             let rows = machine.host.kinds().all();
             let members: Vec<String> = class.into_iter().map(|m| said(&m, &rows)).collect();
             let count = members.len();
-            Ok((Answered { members, count }, trace))
+            Ok(super::engine::Run { answered: Answered { members, count }, steps, usage })
         }
         other => Err(AskError::Machine(format!("{BINDING} returned {other}, not a class"))),
     }
