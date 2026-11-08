@@ -78,7 +78,7 @@ file names, which are phiano's own.
 | `bin/persona/*` | `persona ingest\|chat\|quest` | `config`, `data`, `lab`, `persona`, `phasor`, `relate`, `tokenizer` | stays in `phiano` | Persona verbs; reduced to `main` plus calls into `src/persona` (section 6) |
 | `bin/prepare/prose.rs` | WikiText-2 into a prose corpus | `data`, `tokenizer` | stays in `phiano` | Writes `data/prose_corpus.txt` |
 | `bin/quest/*` | `quest ingest\|ask`: a `phiecs` quest into a facet, with measures (11 files) | `config`, `data`, `phasor` | stays in `phiano` | Reads phiano `data/quest`; its holdout and board measures go to `phient::metrics` in the groups (task 9.3) |
-| `bin/relate/main.rs` | ask a `.relate` model what a word calls for | `relate` only | `phient` (`relate`) | No phiano item used |
+| `bin/relate/main.rs` | ask a `.relate` model what a word calls for | `relate` only | `phient` (`relate`); moved in task 14.2 to `phient/src/bin/relate/main.rs` | No phiano item used |
 | `bin/rust/book.rs` | `train_rust_book` | `data` | stays in `phiano` | Reads `data/rust_book` |
 | `bin/word/json.rs` | two-sided phasors of words as JSON | `config`, `data` | stays in `phiano` | Reads the shipped lexicon in `data/` |
 
