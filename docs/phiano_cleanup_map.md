@@ -72,7 +72,7 @@ file names, which are phiano's own.
 | `bin/bootstrap/facet.rs` | builds the facet the REPL loads | `config`, `data`, `tokenizer` | stays in `phiano` | Produces the app's shipped model file |
 | `bin/bpe/check.rs`, `bin/bpe/lexicon.rs` | Phi-4 tokenizer checks on Austen | `config`, `data`, `lab`, `tokenizer` | stays in `phiano` | Read `data/tokenizers/phi4`; `lab` use becomes `phient::study` |
 | `bin/harness/*` | the level-by-level evaluation harness (39 files, about 6400 lines) | `bars`, `level`, `record`, `seam`; ten crates | stays in `phiano` | Its doc says it is a binary so no library names all ten crates (R1.11) |
-| `bin/helix/main.rs` | write or read a `.chroma` as a helix tree | no `phiano` item | `phical` (`helix`) | `phical/src/helix.rs` is the library half; the binary goes beside it |
+| `bin/helix/main.rs` | write or read a `.chroma` as a helix tree | no `phiano` item | `phical` (`helix`) | `phical/src/helix.rs` is the library half; the binary goes beside it. Task 14.3: blocked, the binary reads `phiecs::phasor::facet::{helix, storage}` and `phical` may not depend on `phiecs` (cycle) |
 | `bin/persona/*` | `persona ingest\|chat\|quest` | `config`, `data`, `lab`, `persona`, `phasor`, `relate`, `tokenizer` | stays in `phiano` | Persona verbs; reduced to `main` plus calls into `src/persona` (section 6) |
 | `bin/prepare/prose.rs` | WikiText-2 into a prose corpus | `data`, `tokenizer` | stays in `phiano` | Writes `data/prose_corpus.txt` |
 | `bin/quest/*` | `quest ingest\|ask`: a `phiecs` quest into a facet, with measures (11 files) | `config`, `data`, `phasor` | stays in `phiano` | Reads phiano `data/quest`; its holdout and board measures go to `phient::metrics` in the groups (task 9.3) |
