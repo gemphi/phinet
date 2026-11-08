@@ -18,7 +18,7 @@ pub(super) fn content(frame: &Frame) -> Option<Vec<String>> {
     }
     let key = match frame.modal {
         Some(modal) => modal.name(),
-        None if frame.pred == "be" => "be",
+        None if lists::is_role(&frame.pred, "copula_lemma") => lists::word_of("copula_lemma"),
         None => return None,
     };
     let form = lists::wish_form(key, frame.polarity == Polarity::Negative)?;

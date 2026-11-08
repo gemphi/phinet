@@ -190,7 +190,7 @@ pub fn parse_irregulars(text: &str) -> Irregulars {
             rows.push((chunk[0].to_lowercase(), split(chunk[1]), split(chunk[2])));
         }
     }
-    rows.retain(|(lemma, _, _)| lemma != "be");
+    rows.retain(|(lemma, _, _)| lemma != lists::word_of("copula_lemma"));
     let lemmas: std::collections::HashSet<String> = rows.iter().map(|(l, _, _)| l.clone()).collect();
     for (lemma, past, participle) in rows {
         for form in &past {

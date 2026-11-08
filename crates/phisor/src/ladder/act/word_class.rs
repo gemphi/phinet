@@ -17,7 +17,7 @@ pub(in crate::ladder::act) fn is_bare_adverb(filler: &Filler) -> bool {
 pub(in crate::ladder::act) fn starts_vowel_sound(word: &str) -> bool {
     let w = word.to_lowercase();
     if let Some((_, article)) = lists::article_exceptions().iter().find(|(prefix, _)| w.starts_with(prefix.as_str())) {
-        return article == "an";
+        return lists::is_role(article, "vowel_article");
     }
     w.chars().next().is_some_and(|c| "aeiou".contains(c))
 }
