@@ -6,14 +6,14 @@
 //! [`Phase::ScoreNumber`]. A missed Bar is [`Judged::Miss`] data, not an
 //! error, so recording it cannot stop a later height.
 
-mod counts;
-mod labels;
+mod count;
+mod label;
 mod river;
 #[cfg(test)]
 #[path = "measure/tests.rs"]
 mod tests;
-pub use counts::{counts, counts_agree, grown, CountReport, GrownCounts, ModeCount};
-pub use labels::{
+pub use count::{counts, counts_agree, grown, CountReport, GrownCounts, ModeCount};
+pub use label::{
     function_gap, function_purity, terminator_purity, BestKindF1, FunctionReport, GapReport,
     TerminatorReport,
 };

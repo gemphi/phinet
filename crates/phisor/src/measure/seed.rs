@@ -24,13 +24,13 @@ use phical::classes::Settings;
 use phistd::gen::Seeded;
 use phiton::p64::variants::Level;
 
-#[path = "seeds/blocked.rs"]
+#[path = "seed/blocked.rs"]
 mod blocked;
 #[cfg(test)]
-#[path = "seeds/property.rs"]
+#[path = "seed/property.rs"]
 mod property;
 #[cfg(test)]
-#[path = "seeds/tests.rs"]
+#[path = "seed/tests.rs"]
 mod tests;
 
 pub use blocked::{run_measures, Blocked, Home, Measure, Outcome};

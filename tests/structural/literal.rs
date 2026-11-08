@@ -47,7 +47,7 @@ pub const ALLOWED_HITS: &[(&str, &str, &str)] = &[
     ("machine/ops.rs", "== \"define\"", "machine op notation: the `define` special form"),
     ("machine/ops.rs", "== \"lambda\"", "machine op notation: the `lambda` special form"),
     ("machine/usage.rs", "\"rows\"", "machine op name: the `rows` operation"),
-    ("measure/twins.rs", "\"twins\"", "machine op name: the `twins` operation of the op table"),
+    ("measure/twin.rs", "\"twins\"", "machine op name: the `twins` operation of the op table"),
     ("truth/set/mod.rs", "=> Some(Standing::", "data file schema: the four class labels of the truth set file"),
 ];
 

@@ -117,10 +117,10 @@ fn a_blocked_measure_does_not_stop_the_measures_after_it() {
 fn no_arithmetic_leaves_this_group() {
     // The group's files, relative to this crate's `src`.
     const GROUP: [&str; 4] = [
-        "measure/seeds.rs",
-        "measure/seeds/blocked.rs",
-        "measure/seeds/tests.rs",
-        "measure/seeds/property.rs",
+        "measure/seed.rs",
+        "measure/seed/blocked.rs",
+        "measure/seed/tests.rs",
+        "measure/seed/property.rs",
     ];
     // The phisor types R9.13 forbids arithmetic over. A member followed by
     // an arithmetic operator inside the group's own expressions would be a

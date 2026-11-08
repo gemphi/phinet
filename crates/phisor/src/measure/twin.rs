@@ -242,8 +242,8 @@ fn one_decimal(value: f64) -> f64 {
 }
 
 #[cfg(test)]
-#[path = "twins/tests.rs"]
+#[path = "twin/tests.rs"]
 mod tests;
 #[cfg(test)]
-#[path = "twins/property.rs"]
+#[path = "twin/property.rs"]
 mod property;
