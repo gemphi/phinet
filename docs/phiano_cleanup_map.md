@@ -214,3 +214,10 @@ several copies (seeded shuffle, held-out split, slug, personality traits, date
 from the clock) and eight that sit apart (variation counts, twin combination,
 word-list loading, irregular forms, Searle markers, sector arithmetic, quest
 measures, oscillator and wave).
+
+## 9. The rule applied (R10.7, R10.8)
+
+`.kiro/steering` holds no `phinet` naming or line-cap rule. The rule applied is
+singular names, 300 lines per file, and `act.rs` split by role. See
+`docs/phiano_cleanup_map/rule.md`. `tests/structural/cleanup.rs` fails if a
+top-level entry of `phiano/src` has no row in section 1.
