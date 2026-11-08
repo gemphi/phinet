@@ -28,6 +28,11 @@ pub const PRIME_512: u64 = 521;
 /// The first prime ≥ 1024: mixing constant at 1024-sector resolution.
 pub const PRIME_1024: u64 = 1031;
 
+/// P64: the phase channels a word carries, one circle each: the 64 the
+/// hexagrams, the codons and the Q64 sectors all count. phiton::units re-exports
+/// it.
+pub const PHASE_CHANNELS: usize = 64;
+
 /// Number of color bands in the sector color wheel (always 16).
 pub const COLOR_BANDS: u16 = 16;
 

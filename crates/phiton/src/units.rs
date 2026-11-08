@@ -17,7 +17,7 @@ pub const BAND_N_EFFECTIVE_MAX: u32 = 13;
 
 /// P64: the phase channels a word carries, one circle each — the 64 the
 /// hexagrams, the codons and the Q64 sectors all count.
-pub const PHASE_CHANNELS: usize = 64;
+pub use phistd::constant::PHASE_CHANNELS;
 
 /// The quanta of one channel: `θ_k = phases[k] · 2π / CHANNEL_QUANTA`.
 pub const CHANNEL_QUANTA: f64 = 256.0;
