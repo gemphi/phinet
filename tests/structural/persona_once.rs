@@ -10,7 +10,8 @@
 //!   defined in at most one file across `phiano/src`, `phiano/examples` and
 //!   `phient/src`;
 //! * no top-level item name is defined in two files across the four persona
-//!   folders, `main` and `run` excepted: each binary has a `main` and each\n//!   subcommand module a `run` entry.
+//!   folders, `main` and `run` excepted: each binary has a `main` and each
+//!   subcommand module a `run` entry.
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
