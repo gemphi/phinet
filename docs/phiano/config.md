@@ -15,7 +15,7 @@ graph LR
             Primes["primes.rs<br/>CHANNEL_PRIMES 64, PRIME_CHANNEL_SPACING<br/>PRIME_MODULUS"]
         end
         subgraph functions["functions.rs"]
-            PhiConfig["phi.rs: PhiConfig<br/>sector_prime, sector_resolution<br/>eval_overall, is_stop_word, print_summary"]
+            PhiConfig["phi.rs: PhiConfig<br/>sector_prime, sector_per_color<br/>is_stop_word, print_summary<br/>(sector_resolution, sector_exponent, compose_variations, total_compose_weight moved to phient::generate::sector; eval_overall deleted, 14.2)"]
             Kernel["kernel.rs: channel_kernel(k, channels)<br/>decay lambda, prime rotation omega"]
         end
     end
