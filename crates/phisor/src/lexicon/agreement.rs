@@ -2,7 +2,7 @@
 //! from the person and number columns of `auxiliary.tsv`. Nothing is written
 //! here but the labels the file may use (`1`/`2`/`3`, `sg`/`pl`, `*`, `-`).
 use super::auxiliary::{parse_family, parse_tense, Family};
-use super::lists::{data_rows, lex_dir};
+use super::list::{data_rows, lex_dir};
 use crate::ir::Tense;
 use std::sync::OnceLock;
 

@@ -3,7 +3,7 @@
 
 use super::{adjuncts, read_prepositions, say_filler, subject_filler};
 use crate::ir::{Act, Aspect, Force, Frame, Polarity, Role, Tense, Voice};
-use crate::lexicon::lists;
+use crate::lexicon::list;
 
 /// The sentence of an Express frame whose predicate has a fixed phrase and
 /// that is a plain present positive active: the phrase, the theme when the
@@ -19,7 +19,7 @@ pub(super) fn phrase(force: Force, frame: &Frame) -> Option<Vec<String>> {
     if !plain {
         return None;
     }
-    let entry = lists::expressive_phrases().iter().find(|e| e.pred == frame.pred)?;
+    let entry = list::expressive_phrases().iter().find(|e| e.pred == frame.pred)?;
     let mut words = entry.opening.clone();
     if entry.theme {
         words.extend(say_filler(frame.get(&Role::Theme)?));
@@ -35,14 +35,14 @@ pub(super) fn phrase(force: Force, frame: &Frame) -> Option<Vec<String>> {
 /// file. `None` when no phrase opens the sentence or the rest is not clean, so
 /// the ordinary reader gets the sentence.
 pub(super) fn read(words: &[String]) -> Option<Act> {
-    for entry in lists::expressive_phrases() {
+    for entry in list::expressive_phrases() {
         let Some(mut rest) = words.strip_prefix(entry.opening.as_slice()) else { continue };
         let mut frame = Frame::new(&entry.pred, Tense::Present);
         if let Some((role, who)) = &entry.unsaid {
             frame = frame.with(Role::named(role), subject_filler(who));
         }
         if entry.theme {
-            let who = rest.first().filter(|w| lists::pronouns().contains(&w.as_str()))?;
+            let who = rest.first().filter(|w| list::pronouns().contains(&w.as_str()))?;
             frame = frame.with(Role::Theme, subject_filler(who));
             rest = &rest[1..];
         }

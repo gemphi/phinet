@@ -72,7 +72,7 @@ pub mod lovelace;
 pub mod machine;
 pub mod measure;
 pub mod truth;
-pub mod units;
+pub mod unit;
 
 pub use ir::{Act, Filler, Force, Frame, Role, Template};
 pub use lovelace::{dedication, Correspondence, QUOTATIONS};

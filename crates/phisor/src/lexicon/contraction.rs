@@ -8,7 +8,7 @@
 //!
 //! `'s` is not a rule: it is is/has/possessive, which only the following word
 //! can settle, so the reader resolves it (see `contraction_s.tsv`).
-use super::lists::{data_rows, lex_dir};
+use super::list::{data_rows, lex_dir};
 use std::collections::HashMap;
 use std::sync::OnceLock;
 

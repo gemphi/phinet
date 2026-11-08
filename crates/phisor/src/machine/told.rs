@@ -102,7 +102,7 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
     let host = PhisorHost::new(Arena::new(ARENA_SEED), kinds).map_err(|e| AskError::Host(e.to_string()))?;
     let mut machine = checked(host).map_err(|e| AskError::Host(e.to_string()))?;
     let mut environment = Env::new();
-    super::ops::load(&mut machine, &mut environment).map_err(AskError::Machine)?;
+    super::op::load(&mut machine, &mut environment).map_err(AskError::Machine)?;
     if let Some(card) = card {
         for form in phiclm::lisp::read(card).map_err(AskError::Machine)? {
             machine.eval(&form, &mut environment).map_err(AskError::Machine)?;

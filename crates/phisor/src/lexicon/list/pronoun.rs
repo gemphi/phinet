@@ -1,4 +1,4 @@
-use super::words::{load_plain, load_tagged, Words};
+use super::word::{load_plain, load_tagged, Words};
 use std::sync::OnceLock;
 
 tagged_list!(

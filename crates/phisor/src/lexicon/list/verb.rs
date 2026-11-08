@@ -1,4 +1,4 @@
-use super::words::{load_pairs, load_plain, Words};
+use super::word::{load_pairs, load_plain, Words};
 use std::sync::OnceLock;
 
 plain_list!(

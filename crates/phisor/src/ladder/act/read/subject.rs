@@ -5,8 +5,8 @@ use crate::ladder::act::*;
 /// the reader drops it: "it has been raining" has no argument, matching the
 /// realiser's `needs_expletive`.
 pub(in crate::ladder::act) fn is_expletive_subject(lemma: &str, subject: &Filler) -> bool {
-    matches!(subject, Filler::Pronoun(p) if crate::lexicon::lists::is_role(&p.to_ascii_lowercase(), "expletive_pronoun"))
-        && lists::weather_verbs().contains(lemma)
+    matches!(subject, Filler::Pronoun(p) if crate::lexicon::list::is_role(&p.to_ascii_lowercase(), "expletive_pronoun"))
+        && list::weather_verbs().contains(lemma)
 }
 /// Read the subject noun phrase from the front of the sentence, returning
 /// the filler and the index just past it. A pronoun is one word; a
@@ -15,7 +15,7 @@ pub(in crate::ladder::act) fn is_expletive_subject(lemma: &str, subject: &Filler
 /// verb as a subject.
 pub(in crate::ladder::act) fn read_subject(words: &[String]) -> Option<(Filler, usize)> {
     let first = words.first()?;
-    if lists::pronouns().contains(&first.as_str()) {
+    if list::pronouns().contains(&first.as_str()) {
         return Some((subject_filler(first), 1));
     }
     let (thing, end) = read_noun_phrase(words)?;
@@ -37,7 +37,7 @@ pub(in crate::ladder::act) fn subject_wh(word: &str) -> Option<Wh> {
 
 /// A subject word as a filler: a pronoun kept nominative, else a bare word.
 pub(in crate::ladder::act) fn subject_filler(word: &str) -> Filler {
-    if lists::pronouns().contains(&word) {
+    if list::pronouns().contains(&word) {
         Filler::pronoun(&canon_pronoun(word))
     } else {
         Filler::word(word)

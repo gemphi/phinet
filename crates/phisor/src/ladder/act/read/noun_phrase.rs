@@ -57,7 +57,7 @@ pub(in crate::ladder::act) fn read_noun_phrase(words: &[String]) -> Option<(Fill
 /// Whether a word can head a noun phrase: not a determiner, an auxiliary, a
 /// copula or a conjunction ("and", "but" join; they never head one).
 fn can_head(word: &str) -> bool {
-    !(is_determiner(word) || is_aux(word) || is_copula(word) || lists::clause_conjunctions().contains(&word))
+    !(is_determiner(word) || is_aux(word) || is_copula(word) || list::clause_conjunctions().contains(&word))
 }
 
 /// Read trailing prepositional phrases into `Via` slots: "in a bank", "on

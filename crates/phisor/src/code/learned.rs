@@ -6,7 +6,7 @@
 //! told is still read. A sentence's edges are words of their own (`<s>`,
 //! `</s>`).
 
-use crate::units::Units;
+use crate::unit::Units;
 use phical::classes::{halve, Grow, Halving};
 use std::collections::HashMap;
 

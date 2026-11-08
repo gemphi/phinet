@@ -116,7 +116,7 @@ pub(in crate::ladder::act) fn read_question(words: &[String]) -> Option<Act> {
     // now?"): the inner clause is the theme, as in the declarative. A wh
     // ("where does sarah want to go?") asks about the inner clause, so its
     // hole is placed there, not on the control verb.
-    if lists::control_verbs().contains(&lemma.as_str()) && words.get(i).map(String::as_str) == Some("to") {
+    if list::control_verbs().contains(&lemma.as_str()) && words.get(i).map(String::as_str) == Some("to") {
         if let Some(inner) = frame.get(&Role::Agent).and_then(|agent| read_infinitive(&words[i + 1..], agent)) {
             let inner = match wh {
                 Some(wh) => place_wh(inner.frame, wh, true),
@@ -164,7 +164,7 @@ pub(in crate::ladder::act) fn read_question(words: &[String]) -> Option<Act> {
 /// so a subject-less wh-question ("what isn't working?") is untouched.
 pub(in crate::ladder::act) fn lift_operator_negation(words: &[String], op_at: usize) -> Vec<String> {
     let Some(op) = words.get(op_at) else { return words.to_vec() };
-    let (operator, after) = if crate::lexicon::lists::is_role(op, "negated_can") {
+    let (operator, after) = if crate::lexicon::list::is_role(op, "negated_can") {
         ("can".to_string(), op_at + 1)
     } else if words.get(op_at + 1).map(String::as_str) == Some("not") {
         (op.clone(), op_at + 2)
@@ -202,7 +202,7 @@ pub(in crate::ladder::act) fn place_wh(frame: Frame, wh: Wh, subject_is_agent: b
 
 /// The preposition role the Guide stores an adjunct wh under.
 pub(in crate::ladder::act) fn wh_role(wh: Wh) -> Role {
-    Role::named(crate::lexicon::lists::wh_preposition(wh.name()).unwrap_or("by"))
+    Role::named(crate::lexicon::list::wh_preposition(wh.name()).unwrap_or("by"))
 }
 
 /// Read a question operator into `(tense, modal)`: do-support drops and

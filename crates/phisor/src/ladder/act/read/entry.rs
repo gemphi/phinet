@@ -22,7 +22,7 @@ pub fn read(sentence: &str) -> Option<Act> {
     let polite = (phrase.is_none() && !norm.ends_with('?'))
         .then(|| words.split_first())
         .flatten()
-        .filter(|(m, _)| lists::politeness_markers().contains(&m.as_str()))
+        .filter(|(m, _)| list::politeness_markers().contains(&m.as_str()))
         .and_then(|(_, rest)| read_imperative(rest));
     let mut act = match phrase.or(polite) {
         Some(act) => act,
@@ -30,7 +30,7 @@ pub fn read(sentence: &str) -> Option<Act> {
     };
     // "i promise ..." is an explicit commissive: the verb itself says so.
     if act.force == Force::Assert
-        && lists::role_of(&act.frame.pred) == Some(Force::Commit)
+        && list::role_of(&act.frame.pred) == Some(Force::Commit)
         && act.frame.tense == Tense::Present
         && matches!(act.frame.get(&Role::Agent), Some(Filler::Pronoun(p)) if p == "I")
     {
@@ -42,7 +42,7 @@ pub fn read(sentence: &str) -> Option<Act> {
         && act.frame.tense == Tense::Present
         && act.frame.modal.is_none()
         && act.frame.voice == Voice::Active
-        && lists::expressive_predicates().contains(&act.frame.pred)
+        && list::expressive_predicates().contains(&act.frame.pred)
         && is_first_person_agent(&act.frame)
     {
         act.force = Force::Express;
@@ -52,7 +52,7 @@ pub fn read(sentence: &str) -> Option<Act> {
         act.frame.never = true;
     }
     // `normalise` lowered the names; the raw sentence still spells them.
-    names::restore(&mut act.frame, &names::spelled(sentence));
+    name::restore(&mut act.frame, &name::spelled(sentence));
     Some(act)
 }
 

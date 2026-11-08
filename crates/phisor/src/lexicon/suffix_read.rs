@@ -2,7 +2,7 @@
 //!
 //! The reading side of `suffix`: the letter classes it tests live in
 //! `data/lex/letter.tsv`, the same file the writing rules use.
-use super::lists;
+use super::list;
 use super::suffix::{doubles_final, letter_is};
 
 /// Undo the doubling in a stem read off `-ed`/`-ing` (`stopp` -> `stop`). The
@@ -17,7 +17,7 @@ pub fn undouble(stem: &str) -> Option<String> {
         return None;
     }
     let lemma = &stem[..stem.len() - last.len_utf8()];
-    let named = lists::doubling_stressed().contains(&lemma);
+    let named = list::doubling_stressed().contains(&lemma);
     if (letter_is(last, "named_double") && !named) || lemma.len() < 3 || !doubles_final(lemma) {
         return None;
     }

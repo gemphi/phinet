@@ -26,9 +26,9 @@ pub(in crate::ladder::act) fn expand_contractions(words: &[String]) -> Vec<Strin
         // has; an -ing form, or a word that cannot be a participle, means is
         // ("it's raining", "he's a nice person"). An -ed or irregular
         // participle ("he's tired") stays ambiguous, so it is left as read.
-        match w.strip_suffix("'s").filter(|b| lists::s_hosts().contains(b)) {
+        match w.strip_suffix("'s").filter(|b| list::s_hosts().contains(b)) {
             Some(base) => match following_word(words, idx) {
-                Some(next) if lists::s_has_cues().contains(next) => {
+                Some(next) if list::s_has_cues().contains(next) => {
                     out.extend([base.to_string(), "has".to_string()])
                 }
                 Some(next) if read_ing(next).is_some() || read_participle(next).is_none() => {
@@ -44,7 +44,7 @@ pub(in crate::ladder::act) fn expand_contractions(words: &[String]) -> Vec<Strin
 /// The word after position `idx`, skipping the adverbs the reader sets aside,
 /// so a contraction can be resolved by the word that really follows it.
 pub(in crate::ladder::act) fn following_word(words: &[String], idx: usize) -> Option<&str> {
-    words[idx + 1..].iter().map(String::as_str).find(|w| !lists::set_aside_adverbs().contains(w))
+    words[idx + 1..].iter().map(String::as_str).find(|w| !list::set_aside_adverbs().contains(w))
 }
 
 /// Whether the verb of a clause read as a complement is plausibly a verb. The
@@ -52,7 +52,7 @@ pub(in crate::ladder::act) fn following_word(words: &[String], idx: usize) -> Op
 /// preposition could be read as one; when the foundation lexicon is primed it
 /// is asked, and the copula and auxiliaries are always accepted.
 pub(in crate::ladder::act) fn clause_verb_is_verbal(pred: &str) -> bool {
-    lists::aux_lemmas().contains(pred)
+    list::aux_lemmas().contains(pred)
         || !crate::lexicon::is_primed()
         || crate::lexicon::verb_capable(pred)
 }

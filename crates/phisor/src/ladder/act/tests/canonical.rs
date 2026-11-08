@@ -80,7 +80,7 @@ fn a_multi_word_adverb_does_not_strip_its_words_singly() {
 fn every_set_aside_adverb_phrase_is_more_than_one_word() {
     // The phrase table is for multi-word adverbials only; single adverbs live
     // in set_aside_adverb.txt. A one-word entry here would double-strip.
-    for phrase in crate::lexicon::lists::set_aside_adverb_phrases() {
+    for phrase in crate::lexicon::list::set_aside_adverb_phrases() {
         assert!(phrase.len() >= 2, "{phrase:?} is a single word, not a phrase");
     }
 }

@@ -57,7 +57,7 @@ fn main() {
             "--define" => {
                 let (mut m, mut env) = bare_machine();
                 match phisor::machine::add_op(&mut m, &mut env, &args[i + 1]) {
-                    Ok(name) => println!("card  {name} punched → {}", phisor::machine::ops::learned().display()),
+                    Ok(name) => println!("card  {name} punched → {}", phisor::machine::op::learned().display()),
                     Err(e) => println!("card  refused: {e}"),
                 }
                 i += 2;

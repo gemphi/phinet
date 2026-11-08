@@ -18,13 +18,13 @@
 
 use crate::guide::holdout::normalise;
 use crate::lexicon::auxiliary::{Entry, Family};
-use crate::lexicon::lists;
+use crate::lexicon::list;
 use crate::lexicon::suffix::{inflect, Suffix};
 use crate::lexicon::suffix_read::{regular_ed_candidates, undouble};
 use crate::ir::{Act, Aspect, Filler, Force, Frame, Polarity, Role, Tense, Thing, Voice, Wh};
 
 mod express;
-mod names;
+mod name;
 mod wish;
 mod canonical;
 mod contraction;

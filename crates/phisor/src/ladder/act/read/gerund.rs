@@ -29,8 +29,8 @@ pub(in crate::ladder::act) fn finish_with_gerund(mut frame: Frame, words: &[Stri
     // "enjoye", "admitted" -> "admitt"). The gerund verbs are a closed list, so
     // name the lemma whose own past re-realises the surface word.
     if let Some(surface) = from.checked_sub(1).and_then(|i| words.get(i)) {
-        if !lists::gerund_verbs().contains(&frame.pred.as_str()) {
-            if let Some(g) = lists::gerund_verbs().iter().find(|g| inflect(g, Suffix::PAST) == *surface || inflect(g, Suffix::THIRD) == *surface) {
+        if !list::gerund_verbs().contains(&frame.pred.as_str()) {
+            if let Some(g) = list::gerund_verbs().iter().find(|g| inflect(g, Suffix::PAST) == *surface || inflect(g, Suffix::THIRD) == *surface) {
                 frame.pred = (*g).to_string();
             }
         }
@@ -38,7 +38,7 @@ pub(in crate::ladder::act) fn finish_with_gerund(mut frame: Frame, words: &[Stri
     if frame.voice != Voice::Active
         || frame.aspect != Aspect::Simple
         || frame.modal.is_some()
-        || !(lists::gerund_verbs().contains(&frame.pred.as_str()) || lists::control_verbs().contains(&frame.pred.as_str()))
+        || !(list::gerund_verbs().contains(&frame.pred.as_str()) || list::control_verbs().contains(&frame.pred.as_str()))
         || frame.get(&Role::Theme).is_some()
     {
         return None;
@@ -49,7 +49,7 @@ pub(in crate::ladder::act) fn finish_with_gerund(mut frame: Frame, words: &[Stri
         return None;
     }
     // A host ending in `-ing` ("something", "nothing") is never a gerund.
-    if lists::to_modified_hosts().contains(&word.as_str()) {
+    if list::to_modified_hosts().contains(&word.as_str()) {
         return None;
     }
     let lemma = read_ing(word)?;
@@ -68,7 +68,7 @@ pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler
     let verb = words.first()?;
     // "to be a teacher": the copula infinitive takes the controlling subject
     // as its theme and the rest as its complement, as a finite copula does.
-    if crate::lexicon::lists::is_role(verb, "copula_lemma") {
+    if crate::lexicon::list::is_role(verb, "copula_lemma") {
         let rest = &words[1..];
         let mut frame = Frame::new("be", Tense::Present).with(Role::Theme, subject.clone());
         if rest.first().is_some_and(|w| is_preposition(w)) {
@@ -84,7 +84,7 @@ pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler
         }
         return Some(Act::new(Force::Assert, frame));
     }
-    if is_aux(verb) || crate::lexicon::lists::is_role(verb, "infinitive_marker") {
+    if is_aux(verb) || crate::lexicon::list::is_role(verb, "infinitive_marker") {
         return None;
     }
     // The infinitive verb is a bare lemma; read it as a present-simple clause.
@@ -93,7 +93,7 @@ pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler
     // A nested to-infinitive ("to try to pay"): the inner clause is the theme.
     // A nested "to" is another infinitive only after a control verb; after any
     // other it is a preposition ("go to london").
-    if lists::control_verbs().contains(&lemma.as_str()) && words.get(1).map(String::as_str) == Some("to") {
+    if list::control_verbs().contains(&lemma.as_str()) && words.get(1).map(String::as_str) == Some("to") {
         let inner = read_infinitive(&words[2..], subject)?;
         frame = frame.with(Role::Theme, Filler::clause(inner.frame));
         return Some(Act::new(Force::Assert, frame));
@@ -105,8 +105,8 @@ pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler
 /// Whether `tail` opens with `to` and a bare verb directly after `host`, a word
 /// from `to_modified_host.txt`: the infinitive then modifies the host.
 pub(in crate::ladder::act) fn infinitive_after_host(host: &str, tail: &[String]) -> bool {
-    lists::to_modified_hosts().contains(&host)
-        && tail.first().is_some_and(|w| crate::lexicon::lists::is_role(w, "infinitive_marker"))
+    list::to_modified_hosts().contains(&host)
+        && tail.first().is_some_and(|w| crate::lexicon::list::is_role(w, "infinitive_marker"))
         && tail.get(1).is_some_and(|w| is_purpose_verb(w))
 }
 

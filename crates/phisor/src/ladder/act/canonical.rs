@@ -17,11 +17,11 @@ pub(in crate::ladder::act) fn strip_adverbs_keeping(words: &[String], keep_never
     let kept = without_phrases
         .iter()
         .filter(|w| {
-            let is_adverb = lists::set_aside_adverbs().contains(&w.as_str());
-            if is_adverb && crate::lexicon::lists::is_role(w, "negative_adverb") {
+            let is_adverb = list::set_aside_adverbs().contains(&w.as_str());
+            if is_adverb && crate::lexicon::list::is_role(w, "negative_adverb") {
                 never = true;
             }
-            !is_adverb || (keep_never && crate::lexicon::lists::is_role(w, "negative_adverb"))
+            !is_adverb || (keep_never && crate::lexicon::list::is_role(w, "negative_adverb"))
         })
         .cloned()
         .collect();
@@ -34,7 +34,7 @@ pub(in crate::ladder::act) fn strip_adverb_phrases(words: &[String]) -> Vec<Stri
     let mut out: Vec<String> = Vec::with_capacity(words.len());
     let mut i = 0;
     while i < words.len() {
-        let matched = lists::set_aside_adverb_phrases()
+        let matched = list::set_aside_adverb_phrases()
             .iter()
             .filter(|phrase| phrase.len() <= words.len() - i)
             .find(|phrase| phrase.iter().zip(&words[i..]).all(|(p, w)| p == w));

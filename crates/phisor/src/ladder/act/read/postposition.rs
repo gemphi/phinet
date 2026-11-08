@@ -9,7 +9,7 @@ use crate::ladder::act::*;
 pub(in crate::ladder::act) fn finish_with_postposition(frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
     let last = words.len().checked_sub(1)?;
     let post = words[last].as_str();
-    if last <= from || !lists::postpositions().contains(&post) {
+    if last <= from || !list::postpositions().contains(&post) {
         return None;
     }
     for q in from..last {

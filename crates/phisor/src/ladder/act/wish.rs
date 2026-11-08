@@ -2,7 +2,7 @@
 //! not have to go". The verb group comes from `wish_form.tsv`.
 use super::{adjuncts, complements, read_inner, say_filler, subject_of};
 use crate::ir::{Act, Aspect, Frame, Modal, Polarity, Tense, Voice};
-use crate::lexicon::lists;
+use crate::lexicon::list;
 
 /// The wished-for clause when its simple past is replaced by a subjunctive
 /// form: the subject, the form, the bare verb after a modal, then the
@@ -18,10 +18,10 @@ pub(super) fn content(frame: &Frame) -> Option<Vec<String>> {
     }
     let key = match frame.modal {
         Some(modal) => modal.name(),
-        None if lists::is_role(&frame.pred, "copula_lemma") => lists::word_of("copula_lemma"),
+        None if list::is_role(&frame.pred, "copula_lemma") => list::word_of("copula_lemma"),
         None => return None,
     };
-    let form = lists::wish_form(key, frame.polarity == Polarity::Negative)?;
+    let form = list::wish_form(key, frame.polarity == Polarity::Negative)?;
     let mut words = subject_of(frame).map(say_filler).unwrap_or_default();
     words.extend(form.iter().cloned());
     if frame.modal.is_some() {
@@ -39,7 +39,7 @@ pub(super) fn content(frame: &Frame) -> Option<Vec<String>> {
 /// the past the Realiser started from. `None` when no row matches at a subject
 /// boundary, or the clause does not read.
 pub(super) fn read_clause(words: &[String]) -> Option<Act> {
-    for (key, negative, form) in lists::wish_forms() {
+    for (key, negative, form) in list::wish_forms() {
         let Some(modal) = Modal::named(key) else { continue };
         for at in 1..words.len().saturating_sub(form.len()) {
             if words[at..at + form.len()] != form[..] {

@@ -12,7 +12,7 @@
 //! | `show` | the presentation form, `ASSERT(wear(agent: girl, …), past, progressive)` |
 //! | `text` | the reversible printer, parser and 100% round-trip measure |
 
-mod features;
+mod feature;
 pub mod filler;
 mod force;
 mod frame;
@@ -23,7 +23,7 @@ mod template;
 mod tests;
 pub mod text;
 
-pub use features::{Aspect, Modal, Polarity, Tense, Voice};
+pub use feature::{Aspect, Modal, Polarity, Tense, Voice};
 pub use filler::{Attr, Det, Filler, Thing, Wh};
 pub use force::{Fit, Force, Point};
 pub use frame::Frame;

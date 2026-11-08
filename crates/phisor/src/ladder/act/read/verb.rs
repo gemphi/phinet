@@ -22,7 +22,7 @@ pub(in crate::ladder::act) fn read_participle(word: &str) -> Option<String> {
     // consonant+y rule restores `y` from `ied`. Confirmed by re-realising.
     let candidates = regular_ed_candidates(word);
     for candidate in &candidates {
-        if lists::silent_e_lemmas().contains(&candidate.as_str()) && participle(candidate) == word {
+        if list::silent_e_lemmas().contains(&candidate.as_str()) && participle(candidate) == word {
             return Some(candidate.clone());
         }
     }
@@ -51,7 +51,7 @@ pub(in crate::ladder::act) fn read_ing(word: &str) -> Option<String> {
         return Some(lemma);
     }
     let with_e = format!("{stem}e");
-    if lists::silent_e_lemmas().contains(&with_e.as_str()) && inflect(&with_e, Suffix::ING) == word {
+    if list::silent_e_lemmas().contains(&with_e.as_str()) && inflect(&with_e, Suffix::ING) == word {
         return Some(with_e);
     }
     if inflect(stem, Suffix::ING) == word {
@@ -65,7 +65,7 @@ pub(in crate::ladder::act) fn read_ing(word: &str) -> Option<String> {
 
 /// Whether a letter is a vowel, from `word_role.tsv`.
 fn is_vowel(c: char) -> bool {
-    crate::lexicon::lists::is_role(&c.to_string(), "vowel")
+    crate::lexicon::list::is_role(&c.to_string(), "vowel")
 }
 
 /// Read a surface verb into its lemma and the tense it carries, the inverse
@@ -74,8 +74,8 @@ fn is_vowel(c: char) -> bool {
 /// as the present. This lets the reader recover "boils" -> (boil, Present) and
 /// "wore" -> (wear, Past) instead of storing the surface string.
 pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
-    if crate::lexicon::lists::is_role(word, "have_3sg") {
-        return (crate::lexicon::lists::word_of("have_lemma").into(), Tense::Present);
+    if crate::lexicon::list::is_role(word, "have_3sg") {
+        return (crate::lexicon::list::word_of("have_lemma").into(), Tense::Present);
     }
     if let Some(lemma) = crate::lexicon::lemma_of_past(word) {
         // A form identical to its base ("put", "cut") is the present.
@@ -115,7 +115,7 @@ pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
         // a named silent-e verb, so "wanted" is want, never the non-word wante.
         let bare_is_verb = crate::lexicon::is_primed()
             && crate::lexicon::verb_capable(stem)
-            && !lists::silent_e_lemmas().contains(&with_e.as_str());
+            && !list::silent_e_lemmas().contains(&with_e.as_str());
         if bare_is_verb && inflect(stem, Suffix::PAST) == word {
             return (stem.to_string(), Tense::Past);
         }
@@ -238,7 +238,7 @@ pub(in crate::ladder::act) fn read_modal(word: &str) -> Option<(crate::ir::Modal
 pub(in crate::ladder::act) fn read_modal_tail(words: &[String], from: usize) -> Option<(String, Aspect, Voice, usize)> {
     let first = words.get(from)?;
     match first.as_str() {
-        w if crate::lexicon::lists::is_role(w, "have_lemma") => {
+        w if crate::lexicon::list::is_role(w, "have_lemma") => {
             let mut i = from + 1;
             if words.get(i).map(String::as_str) == Some("been") {
                 i += 1;
@@ -252,7 +252,7 @@ pub(in crate::ladder::act) fn read_modal_tail(words: &[String], from: usize) -> 
             let lemma = read_participle(words.get(i)?)?;
             Some((lemma, Aspect::Perfect, Voice::Active, i + 1 - from))
         }
-        w if crate::lexicon::lists::is_role(w, "copula_lemma") => {
+        w if crate::lexicon::list::is_role(w, "copula_lemma") => {
             let mut i = from + 1;
             if words.get(i).map(String::as_str) == Some("being") {
                 i += 1;

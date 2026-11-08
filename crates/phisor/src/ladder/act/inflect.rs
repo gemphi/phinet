@@ -18,7 +18,7 @@ pub(in crate::ladder::act) fn participle(verb: &str) -> String {
 pub(in crate::ladder::act) fn lemma_number(head: &str) -> (String, bool) {
     // Irregular plurals the realiser's `pluralise` names, inverted so the
     // reader recovers the singular lemma: "children" -> (child, plural).
-    if let Some((singular, _)) = lists::irregular_plurals().iter().find(|(_, plural)| plural == head) {
+    if let Some((singular, _)) = list::irregular_plurals().iter().find(|(_, plural)| plural == head) {
         return (singular.clone(), true);
     }
     if let Some(stem) = head.strip_suffix("ies") {
@@ -31,7 +31,7 @@ pub(in crate::ladder::act) fn lemma_number(head: &str) -> (String, bool) {
     }
     // A singular noun that happens to end in `s` is not a plural: the Guide's
     // closed set of these is kept whole ("bus", not "bu").
-    if lists::singular_s_nouns().contains(&head) {
+    if list::singular_s_nouns().contains(&head) {
         return (head.to_string(), false);
     }
     // A plain `-s`: a plural when re-pluralising the stem reproduces the

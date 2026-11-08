@@ -17,7 +17,7 @@ pub(in crate::ladder::act) fn verb_group(frame: &Frame) -> Vec<String> {
     if let Some(modal) = frame.modal {
         let word = modal_word(modal, frame.tense);
         let mut out = Vec::new();
-        if neg && lists::is_role(&word, "can_modal") && !frame.never {
+        if neg && list::is_role(&word, "can_modal") && !frame.never {
             out.push("cannot".into()); // the book writes it as one word
         } else {
             out.push(word);
@@ -86,7 +86,7 @@ pub(in crate::ladder::act) fn with_not(mut aux: Vec<String>, neg: Option<&str>, 
 pub(in crate::ladder::act) fn modal_word(modal: crate::ir::Modal, tense: Tense) -> String {
     let base = modal.name();
     if tense == Tense::Past {
-        if let Some((_, past)) = crate::lexicon::lists::modal_past().iter().find(|(m, _)| m == base) {
+        if let Some((_, past)) = crate::lexicon::list::modal_past().iter().find(|(m, _)| m == base) {
             return past.clone();
         }
     }
@@ -146,7 +146,7 @@ pub(in crate::ladder::act) fn modal_tail(frame: &Frame) -> Vec<String> {
 pub(in crate::ladder::act) fn simple_active(frame: &Frame, third: bool, neg: bool) -> Vec<String> {
     // `be` is the copula: it has its own forms (is/are/am/was/were) and takes
     // `not` directly, never do-support.
-    if lists::is_role(&frame.pred, "copula_lemma") {
+    if list::is_role(&frame.pred, "copula_lemma") {
         let be = be_form(frame.tense, third, is_first_person(frame));
         return if neg { vec![be, negation_word(frame).into()] } else { vec![be] };
     }

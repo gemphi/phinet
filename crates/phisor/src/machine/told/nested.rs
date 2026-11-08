@@ -25,7 +25,7 @@ use phiclm::lisp::Value;
 
 use crate::ground::CLAUSE;
 use crate::ir::{Act, Filler, Force, Frame, Role, Wh};
-use crate::lexicon::lists;
+use crate::lexicon::list;
 
 use super::super::ask::{call, relation, AskError, Constraint};
 
@@ -98,7 +98,7 @@ fn descend(frame: &Frame, under: Option<String>, out: &mut Vec<Level>) -> Result
 /// its agent - "to do what" - so the question asks for the clause itself.
 fn asks_for_the_clause(inner: &Frame) -> bool {
     let others: Vec<&Filler> = inner.slots.iter().filter(|(r, _)| *r != Role::Agent).map(|(_, f)| f).collect();
-    lists::pro_verbs().contains(&inner.pred.as_str()) && matches!(others.as_slice(), [Filler::Hole(Wh::What)])
+    list::pro_verbs().contains(&inner.pred.as_str()) && matches!(others.as_slice(), [Filler::Hole(Wh::What)])
 }
 
 /// The levels with the hole moved down into the clause beside it, when

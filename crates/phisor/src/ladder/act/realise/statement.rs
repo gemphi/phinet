@@ -16,7 +16,7 @@ pub fn realise(act: &Act) -> String {
         Force::Ask => question(frame),
         // A wish is announced by "i wish", then the wished-for content.
         Force::Wish => {
-            let mut said = vec!["i".to_string(), lists::verb_of(Force::Wish).unwrap_or_default().to_string()];
+            let mut said = vec!["i".to_string(), list::verb_of(Force::Wish).unwrap_or_default().to_string()];
             said.extend(wish::content(frame).unwrap_or_else(|| statement(frame)));
             said
         }
@@ -31,14 +31,14 @@ pub fn realise(act: &Act) -> String {
 /// [`realise`] with each proper name written back in its own case, as in
 /// `she lives in London.` Everything else stays lower case.
 pub fn realise_cased(act: &Act) -> String {
-    names::recase(&realise(act), &names::held(&act.frame))
+    name::recase(&realise(act), &name::held(&act.frame))
 }
 /// A plain statement: subject, verb group, objects, complement, adjuncts.
 /// Whether a frame is an existential: `be`, active, no modal, no agent and no
 /// `as`-complement, with a theme. "there is a problem" is read and written as
 /// one of these.
 pub(in crate::ladder::act) fn is_existential(frame: &Frame) -> bool {
-    crate::lexicon::lists::is_role(&frame.pred, "copula_lemma")
+    crate::lexicon::list::is_role(&frame.pred, "copula_lemma")
         && frame.voice == Voice::Active
         && frame.modal.is_none()
         && frame.aspect == Aspect::Simple
@@ -111,7 +111,7 @@ pub(in crate::ladder::act) fn weather_gerund(frame: &Frame) -> Option<&Frame> {
     let Some(Filler::Clause(inner)) = frame.get(&Role::Theme) else { return None };
     let fits = frame.get(&Role::Agent).is_none()
         && frame.voice == Voice::Active
-        && lists::gerund_verbs().contains(&frame.pred)
+        && list::gerund_verbs().contains(&frame.pred)
         && needs_expletive(inner)
         && inner.aspect == Aspect::Progressive
         && inner.tense == Tense::Present
@@ -143,6 +143,6 @@ pub(in crate::ladder::act) fn aux_is(word: &str, family: Family) -> bool {
 /// Whether the frame has no argument at all and so needs an expletive `it`
 /// subject (a weather verb: rain, snow, ...).
 pub(in crate::ladder::act) fn needs_expletive(frame: &Frame) -> bool {
-    frame.slots.is_empty() && lists::weather_verbs().contains(&frame.pred)
+    frame.slots.is_empty() && list::weather_verbs().contains(&frame.pred)
 }
 

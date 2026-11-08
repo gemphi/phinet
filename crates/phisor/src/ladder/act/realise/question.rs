@@ -25,8 +25,8 @@ pub(in crate::ladder::act) fn question(frame: &Frame) -> Vec<String> {
     // "where" for "in=?where", not "in where").
     if let Some((role, w)) = &wh {
         match role {
-            Role::Via(prep) if lists::wh_phrase(w.name(), prep).is_some() => {
-                words.extend(lists::wh_phrase(w.name(), prep).into_iter().flatten().cloned());
+            Role::Via(prep) if list::wh_phrase(w.name(), prep).is_some() => {
+                words.extend(list::wh_phrase(w.name(), prep).into_iter().flatten().cloned());
             }
             _ => words.push(wh_surface(*w)),
         }
@@ -55,7 +55,7 @@ pub(in crate::ladder::act) fn split_operator(frame: &Frame, mut group: Vec<Strin
     let simple_lexical = frame.modal.is_none()
         && frame.aspect == Aspect::Simple
         && frame.voice == Voice::Active
-        && !crate::lexicon::lists::is_role(&frame.pred, "copula_lemma");
+        && !crate::lexicon::list::is_role(&frame.pred, "copula_lemma");
     if simple_lexical {
         let third = third_singular(frame);
         let neg = frame.polarity == Polarity::Negative;

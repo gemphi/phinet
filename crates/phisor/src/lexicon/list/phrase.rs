@@ -1,5 +1,5 @@
 use super::path::{data_rows, read_file};
-use super::words::Words;
+use super::word::Words;
 use std::sync::OnceLock;
 
 /// An Express frame said as a fixed phrase (`expressive_phrase.tsv`).

@@ -165,7 +165,7 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
     if let Some((modal, m_tense)) = read_modal(verb) {
         let mut j = verb_at + 1;
         let mut m_neg = neg;
-        if crate::lexicon::lists::is_role(&verb, "negated_can") {
+        if crate::lexicon::list::is_role(&verb, "negated_can") {
             m_neg = true;
         } else if words.get(j).map(String::as_str) == Some("not") {
             m_neg = true;
@@ -195,7 +195,7 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
     }
     // A pronoun is never the verb: "she she went" has a second subject where
     // the verb should be (the list is data/lex/pronoun.tsv).
-    if lists::pronouns().contains(&verb.as_str()) {
+    if list::pronouns().contains(&verb.as_str()) {
         return None;
     }
     // A lexical verb: read its lemma and the tense it carries, so "boils"
@@ -205,7 +205,7 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
     if neg {
         // Do-support ("did not go") is read as a past the auxiliary carries,
         // not the bare lemma: "we did not go out" is past.
-        if words.get(verb_at.wrapping_sub(2)).is_some_and(|w| crate::lexicon::lists::is_role(w, "past_do")) {
+        if words.get(verb_at.wrapping_sub(2)).is_some_and(|w| crate::lexicon::list::is_role(w, "past_do")) {
             frame = Frame::new(&lemma, Tense::Past);
         }
         frame = frame.negative();
@@ -215,7 +215,7 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
     // clause, whose subject is the same as the matrix subject (control). The
     // inner clause is read by the reader itself, so it composes to any
     // depth ("promise to try to pay").
-    if lists::control_verbs().contains(&lemma.as_str()) && words.get(verb_at + 1).map(String::as_str) == Some("to") {
+    if list::control_verbs().contains(&lemma.as_str()) && words.get(verb_at + 1).map(String::as_str) == Some("to") {
         if let Some(inner) = read_infinitive(&words[verb_at + 2..], &subject) {
             frame = frame.with(Role::Agent, subject);
             frame = frame.with(Role::Theme, Filler::clause(inner.frame));
@@ -225,7 +225,7 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
 
     // An explicit performative: first-person "i wish X" is a Wish force, and
     // the frame is the wished-for content X, as the gold records it.
-    if lists::role_of(&lemma) == Some(Force::Wish) && tense == Tense::Present && !neg && matches!(&subject, Filler::Pronoun(p) if p == "I") {
+    if list::role_of(&lemma) == Some(Force::Wish) && tense == Tense::Present && !neg && matches!(&subject, Filler::Pronoun(p) if p == "I") {
         let after = &words[verb_at + 1..];
         let after = if after.first().map(String::as_str) == Some("that") { &after[1..] } else { after };
         if after.len() >= 2 {
@@ -239,11 +239,11 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
     // rest of the sentence, less an optional "that", is read as a sentence of
     // its own and becomes the theme. If it does not read as a clause the verb
     // is read as before, so a plain object ("i know the answer") is untouched.
-    if lists::complement_verbs().contains(&lemma.as_str()) {
+    if list::complement_verbs().contains(&lemma.as_str()) {
         let after = &words[verb_at + 1..];
         let after = if after.first().map(String::as_str) == Some("that") { &after[1..] } else { after };
         // A clause opens with a subject, never an object pronoun ("you in your car").
-        let opens_clean = after.first().is_some_and(|w| !is_object_pronoun(w) || crate::lexicon::lists::is_role(w, "address_pronoun"));
+        let opens_clean = after.first().is_some_and(|w| !is_object_pronoun(w) || crate::lexicon::list::is_role(w, "address_pronoun"));
         if after.len() >= 2 && opens_clean {
             if let Some(inner) = read_inner("x.", after.to_vec()).filter(|a| clause_verb_is_verbal(&a.frame.pred)) {
                 frame = frame.with(Role::Agent, subject.clone());
@@ -264,5 +264,5 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
 /// Whether the word reads as a present-tense verb that names the wish role.
 fn is_wish_present(word: &str) -> bool {
     let (lemma, tense) = read_verb(word);
-    tense == Tense::Present && lists::role_of(&lemma) == Some(Force::Wish)
+    tense == Tense::Present && list::role_of(&lemma) == Some(Force::Wish)
 }

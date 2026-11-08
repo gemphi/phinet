@@ -8,12 +8,12 @@ use super::*;
 /// this module. This is a read-only view: it does not change the Reader.
 pub fn word_lists() -> Vec<(&'static str, &'static [String])> {
     vec![
-        ("control_verbs", lists::control_verbs().as_slice()),
-        ("gerund_verbs", lists::gerund_verbs().as_slice()),
-        ("complement_verbs", lists::complement_verbs().as_slice()),
-        ("performatives", lists::performatives().as_slice()),
-        ("set_aside_adverbs", lists::set_aside_adverbs().as_slice()),
-        ("clause_conjunctions", lists::clause_conjunctions().as_slice()),
+        ("control_verbs", list::control_verbs().as_slice()),
+        ("gerund_verbs", list::gerund_verbs().as_slice()),
+        ("complement_verbs", list::complement_verbs().as_slice()),
+        ("performatives", list::performatives().as_slice()),
+        ("set_aside_adverbs", list::set_aside_adverbs().as_slice()),
+        ("clause_conjunctions", list::clause_conjunctions().as_slice()),
     ]
 }
 
@@ -84,7 +84,7 @@ pub fn read_realise_rate<'a>(sentences: impl IntoIterator<Item = &'a str>) -> (u
         let Some(act) = read(sentence) else { continue };
         covered += 1;
         if canonical(&realise(&act)) == canonical(&normalise(sentence))
-            && names::kept(&act.frame, &realise_cased(&act), sentence)
+            && name::kept(&act.frame, &realise_cased(&act), sentence)
         {
             matched += 1;
         }

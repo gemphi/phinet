@@ -6,7 +6,7 @@ use crate::ladder::act::*;
 /// gold shapes are third-person; a fuller reader would track number.
 pub(in crate::ladder::act) fn third_singular(frame: &Frame) -> bool {
     match frame.get(&Role::Agent).or_else(|| frame.get(&Role::Theme)) {
-        Some(Filler::Pronoun(p)) => lists::third_singular_pronouns().contains(p.to_lowercase()),
+        Some(Filler::Pronoun(p)) => list::third_singular_pronouns().contains(p.to_lowercase()),
         Some(Filler::Thing(t)) => !t.plural,
         _ => true,
     }
@@ -17,7 +17,7 @@ pub(in crate::ladder::act) fn third_singular(frame: &Frame) -> bool {
 pub(in crate::ladder::act) fn is_first_person(frame: &Frame) -> bool {
     match frame.get(&Role::Agent).or_else(|| frame.get(&Role::Theme)) {
         Some(Filler::Pronoun(p)) => {
-            lists::first_person_pronouns().contains(p.to_lowercase())
+            list::first_person_pronouns().contains(p.to_lowercase())
         }
         _ => false,
     }
@@ -26,7 +26,7 @@ pub(in crate::ladder::act) fn is_first_person(frame: &Frame) -> bool {
 /// Whether the frame's agent is a first-person pronoun (`I`/`we`).
 pub(in crate::ladder::act) fn is_first_person_agent(frame: &Frame) -> bool {
     matches!(frame.get(&Role::Agent),
-        Some(Filler::Pronoun(p)) if lists::first_person_pronouns().contains(p.to_lowercase()))
+        Some(Filler::Pronoun(p)) if list::first_person_pronouns().contains(p.to_lowercase()))
 }
 
 /// Say a filler as words: a name/pronoun/word as itself, a thing as its
@@ -73,7 +73,7 @@ pub(in crate::ladder::act) fn say_thing(thing: &Thing) -> Vec<String> {
                 // A host infinitive ("something to read"): `to`, the bare
                 // verb and its complements; it has no subject to say.
                 match value {
-                    Filler::Clause(inner) if crate::lexicon::lists::is_role(prep, "infinitive_marker") => {
+                    Filler::Clause(inner) if crate::lexicon::list::is_role(prep, "infinitive_marker") => {
                         post.push(inner.pred.clone());
                         post.extend(complements_skipping(inner, None, true));
                         post.extend(adjuncts(inner, None));
@@ -100,7 +100,7 @@ pub(in crate::ladder::act) fn say_thing(thing: &Thing) -> Vec<String> {
 /// `that`/`those`.
 pub(in crate::ladder::act) fn determiner_word(det: &crate::ir::Det, plural: bool) -> Option<String> {
     use crate::ir::Det;
-    use crate::lexicon::lists::determiner_spelling as spell;
+    use crate::lexicon::list::determiner_spelling as spell;
     Some(match det {
         Det::Definite => spell("definite", plural)?,
         Det::Indefinite => spell("indefinite", plural)?,

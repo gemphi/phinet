@@ -2,7 +2,7 @@
 //! `auxiliary.tsv`: each word's tense, its family (`be`, `have`, `do`, or one
 //! of the modals) and whether it can open a question. Nothing is written here
 //! but the labels the file may use (the `Tense` and `Modal` names).
-use super::lists::{data_rows, lex_dir};
+use super::list::{data_rows, lex_dir};
 use crate::ir::{Modal, Tense};
 use std::collections::HashMap;
 use std::sync::OnceLock;

@@ -7,7 +7,7 @@ use crate::ladder::act::*;
 /// - never a partial frame (R3.4).
 pub(in crate::ladder::act) fn finish_with_time_phrase(frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
     let n = words.len();
-    if n < from + 2 || !lists::time_openers().contains(&words[n - 2].as_str()) {
+    if n < from + 2 || !list::time_openers().contains(&words[n - 2].as_str()) {
         return None;
     }
     let (phrase, end) = read_noun_phrase(&words[n - 1..])?;

@@ -1,4 +1,4 @@
-use super::words::load_pairs;
+use super::word::load_pairs;
 use std::sync::OnceLock;
 
 /// The `(word, role)` rows of `word_role.tsv`, read once.

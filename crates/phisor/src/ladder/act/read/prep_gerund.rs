@@ -16,7 +16,7 @@ pub(in crate::ladder::act) fn finish_with_prep_gerund(frame: Frame, words: &[Str
     for k in from..words.len().saturating_sub(1) {
         let prep = words[k].as_str();
         let word = &words[k + 1];
-        if !lists::gerund_prepositions().contains(&prep) || is_aux(word) || lists::to_modified_hosts().contains(&word.as_str()) {
+        if !list::gerund_prepositions().contains(&prep) || is_aux(word) || list::to_modified_hosts().contains(&word.as_str()) {
             continue;
         }
         let Some(lemma) = read_ing(word) else { continue };

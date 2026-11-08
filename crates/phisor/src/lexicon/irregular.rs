@@ -6,7 +6,7 @@
 //! Appendix 1.4 (see [`super::prime_irregular`]) is the richer source and is
 //! asked first when primed; this table is the fallback when it is not, and it
 //! carries `be`, which the Guide table is parsed without.
-use super::lists::{data_rows, lex_dir, Words};
+use super::list::{data_rows, lex_dir, Words};
 use std::collections::HashMap;
 use std::sync::OnceLock;
 

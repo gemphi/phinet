@@ -14,7 +14,7 @@ pub(in crate::ladder::act) fn read_imperative(words: &[String]) -> Option<Act> {
         i = 2;
     }
     let verb = words.get(i)?;
-    if !lists::imperative_verbs().contains(&verb.as_str()) {
+    if !list::imperative_verbs().contains(&verb.as_str()) {
         return None;
     }
     let mut frame = Frame::new(verb, Tense::Present);
@@ -58,7 +58,7 @@ pub(in crate::ladder::act) fn leading_recipient(verb: &str, rest: &[String]) -> 
     if rest.first().map(|w| is_object_pronoun(w)) != Some(true) {
         return false;
     }
-    if lists::ditransitive_verbs().contains(&verb) {
+    if list::ditransitive_verbs().contains(&verb) {
         return true;
     }
     match rest.get(1) {

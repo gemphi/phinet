@@ -143,7 +143,7 @@ fn thing(id: usize, text: &str) -> Result<Thing, Flaw> {
 /// own — the realiser chooses `a` or `an`, `this` or `these` — so this table
 /// belongs to the frozen file rather than to the language.
 fn det(word: &str) -> Option<Det> {
-    crate::lexicon::lists::determiner(word)
+    crate::lexicon::list::determiner(word)
 }
 
 /// The attribute a name stands for: the three fixed ones, `~p` for one

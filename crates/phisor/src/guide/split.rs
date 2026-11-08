@@ -137,7 +137,7 @@ fn tokens(s: &str) -> Vec<&str> {
 }
 
 fn no_etc(s: &str) -> bool {
-    tokens(s).iter().any(|t| crate::lexicon::lists::is_role(t, "scaffold_abbrev"))
+    tokens(s).iter().any(|t| crate::lexicon::list::is_role(t, "scaffold_abbrev"))
 }
 
 fn no_stray_letter(s: &str) -> bool {
@@ -157,7 +157,7 @@ fn no_leading_or(s: &str) -> bool {
 fn no_label_a(s: &str) -> bool {
     let toks = tokens(s);
     match (toks.first(), toks.get(1)) {
-        (Some(&"a"), Some(second)) => crate::lexicon::lists::subject_pronouns().contains(second.split('\'').next().unwrap_or("")),
+        (Some(&"a"), Some(second)) => crate::lexicon::list::subject_pronouns().contains(second.split('\'').next().unwrap_or("")),
         _ => false,
     }
 }

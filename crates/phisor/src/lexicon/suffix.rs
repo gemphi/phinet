@@ -5,7 +5,7 @@
 //! `data/lex/letter.tsv`. The code here holds only the named predicates over
 //! those classes and the loop that applies the first rule that holds. The
 //! irregular forms stay in their own files and are consulted first.
-use super::lists::{self, data_rows, read_file};
+use super::list::{self, data_rows, read_file};
 use std::sync::OnceLock;
 
 /// Which inflection to apply; the name is the `kind` column of `suffix.tsv`.
@@ -61,7 +61,7 @@ fn rules() -> &'static [Rule] {
 /// The `(letter, class)` rows of `letter.tsv`, read once.
 fn letters() -> &'static [(String, String)] {
     static CELL: OnceLock<Vec<(String, String)>> = OnceLock::new();
-    CELL.get_or_init(|| lists::load_pairs("letter.tsv"))
+    CELL.get_or_init(|| list::load_pairs("letter.tsv"))
 }
 
 /// Whether the letter `c` is listed under `class`.
@@ -117,7 +117,7 @@ fn ends_single_e(stem: &str) -> bool {
 /// named in `doubling_stressed.txt`. A final `w`, `x` or `y` never doubles,
 /// and a `u` after `q` counts as a consonant.
 pub fn doubles_final(stem: &str) -> bool {
-    if lists::doubling_stressed().contains(stem) {
+    if list::doubling_stressed().contains(stem) {
         return true;
     }
     let chars: Vec<char> = stem.chars().collect();
@@ -154,7 +154,7 @@ fn predicate(name: &str) -> Option<Predicate> {
 /// The irregular form of `stem` for `suffix`, if a lexicon file names one.
 fn irregular(stem: &str, suffix: Suffix) -> Option<String> {
     if suffix == Suffix::THIRD {
-        return lists::is_role(stem, "have_lemma").then(|| lists::word_of("have_3sg").to_string());
+        return list::is_role(stem, "have_lemma").then(|| list::word_of("have_3sg").to_string());
     }
     if suffix == Suffix::ING {
         return super::irregular::ing(stem);
@@ -162,7 +162,7 @@ fn irregular(stem: &str, suffix: Suffix) -> Option<String> {
     if suffix == Suffix::PAST {
         return super::irregular_past(stem).or_else(|| super::irregular::past(stem));
     }
-    lists::irregular_plurals().iter().find(|(singular, _)| singular == stem).map(|(_, plural)| plural.clone())
+    list::irregular_plurals().iter().find(|(singular, _)| singular == stem).map(|(_, plural)| plural.clone())
 }
 
 /// `stem` with `suffix` applied: the irregular form when a file names one,

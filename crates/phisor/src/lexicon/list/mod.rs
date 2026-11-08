@@ -1,4 +1,4 @@
-//! `lexicon::lists` - the reader's closed word lists, read from data files.
+//! `lexicon::list` - the reader's closed word lists, read from data files.
 //!
 //! No language data is written in Rust. Every list the reader and the
 //! realiser consult lives in a plain-text file under `data/lex/` (beside
@@ -24,7 +24,7 @@ mod spelling;
 mod verb;
 mod word_class;
 mod word_role;
-mod words;
+mod word;
 
 pub use adverb::*;
 pub use conjunction::*;
@@ -37,4 +37,4 @@ pub use spelling::*;
 pub use verb::*;
 pub use word_class::*;
 pub use word_role::*;
-pub use words::*;
+pub use word::*;

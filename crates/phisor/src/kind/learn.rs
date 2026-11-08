@@ -10,7 +10,7 @@
 //!   information, so this is information-theoretic co-clustering (Dhillon,
 //!   Mallela and Modha 2003), with the same routine and the same stop.
 
-use crate::units::Units;
+use crate::unit::Units;
 
 /// What a template is grouped by.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]

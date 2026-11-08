@@ -14,7 +14,7 @@ pub(in crate::ladder::act) fn read_compound(words: &[String]) -> Option<Act> {
     // two nouns ("karen and joe played tennis") has no clause on its left, so
     // it is skipped and the sentence stays uncovered.
     for k in 2..=(words.len() - 3) {
-        if !lists::clause_conjunctions().contains(&words[k].as_str()) {
+        if !list::clause_conjunctions().contains(&words[k].as_str()) {
             continue;
         }
         let Some(head) = read_plain_clause(&words[..k]) else { continue };
@@ -51,7 +51,7 @@ pub(in crate::ladder::act) fn read_trailing_clauses(head: Frame, words: &[String
         // The next clause conjunction after this one bounds the current clause;
         // with none left, the clause runs to the end of the sentence.
         let next = (start + 1..words.len())
-            .find(|&i| lists::clause_conjunctions().contains(&words[i].as_str()));
+            .find(|&i| list::clause_conjunctions().contains(&words[i].as_str()));
         let end = next.unwrap_or(words.len());
         let clause = read_plain_clause(&words[start..end])?;
         frame = frame.with(Role::named(&words[conj]), Filler::clause(clause));
@@ -90,15 +90,15 @@ pub(in crate::ladder::act) fn finish_predicate(frame: Frame, words: &[String], f
 /// control verb, whose `to` is its own complement and is read by the control
 /// branch, so a control infinitive is never read twice.
 pub(in crate::ladder::act) fn finish_with_purpose(frame: Frame, words: &[String], from: usize, force: Force) -> Option<Act> {
-    if frame.voice != Voice::Active || lists::control_verbs().contains(&frame.pred.as_str()) {
+    if frame.voice != Voice::Active || list::control_verbs().contains(&frame.pred.as_str()) {
         return None;
     }
     let agent = frame.get(&Role::Agent)?.clone();
     for k in from..words.len().saturating_sub(1) {
-        if !crate::lexicon::lists::is_role(&words[k], "infinitive_marker") || !is_purpose_verb(&words[k + 1]) {
+        if !crate::lexicon::list::is_role(&words[k], "infinitive_marker") || !is_purpose_verb(&words[k + 1]) {
             continue;
         }
-        if k > 0 && lists::to_modified_hosts().contains(&words[k - 1].as_str()) {
+        if k > 0 && list::to_modified_hosts().contains(&words[k - 1].as_str()) {
             continue;
         }
         let Some(head) = finish_plain(frame.clone(), &words[..k], from, force) else { continue };
@@ -189,7 +189,7 @@ pub(in crate::ladder::act) fn is_by_agent(words: &[String]) -> bool {
 /// noun phrase fills the theme. Returns `None` when nothing reads cleanly.
 pub(in crate::ladder::act) fn read_theme(words: &[String]) -> Option<(Role, Filler, usize)> {
     let first = words.first()?;
-    if is_object_pronoun(first) || lists::pronouns().contains(&first.as_str()) {
+    if is_object_pronoun(first) || list::pronouns().contains(&first.as_str()) {
         return Some((Role::Theme, Filler::pronoun(&canon_pronoun(first)), 1));
     }
     if is_time_adverb(first) {

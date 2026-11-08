@@ -15,14 +15,14 @@ pub(in crate::ladder::act) fn complements(frame: &Frame, subject_suppressed: boo
 /// is said as before.
 pub(in crate::ladder::act) fn say_theme(matrix: &Frame, theme: &Filler) -> Vec<String> {
     if let Filler::Clause(inner) = theme {
-        if lists::control_verbs().contains(&matrix.pred.as_str()) && is_control_infinitive(matrix, inner) {
+        if list::control_verbs().contains(&matrix.pred.as_str()) && is_control_infinitive(matrix, inner) {
             let mut out = vec!["to".to_string(), inner.pred.clone()];
             out.extend(complements_skipping(inner, None, true));
             out.extend(adjuncts(inner, None));
             return out;
         }
         // A gerund complement: the `-ing` form, then the clause's complements.
-        if (lists::gerund_verbs().contains(&matrix.pred.as_str()) || lists::control_verbs().contains(&matrix.pred.as_str()))
+        if (list::gerund_verbs().contains(&matrix.pred.as_str()) || list::control_verbs().contains(&matrix.pred.as_str()))
             && is_gerund_complement(matrix, inner)
         {
             let mut out = vec![inflect(&inner.pred, Suffix::ING)];
@@ -115,12 +115,12 @@ pub(in crate::ladder::act) fn adjuncts(frame: &Frame, skip: Option<&Role>) -> Ve
                     // A purpose infinitive ("... to buy bread"): `to` over a
                     // clause that shares the matrix agent is said as `to` + the
                     // bare verb and its complements, not as a finite statement.
-                    if lists::gerund_prepositions().contains(&prep.as_str()) && is_gerund_complement(frame, inner) {
+                    if list::gerund_prepositions().contains(&prep.as_str()) && is_gerund_complement(frame, inner) {
                         // A preposition + gerund ("... for helping him").
                         out.push(inflect(&inner.pred, Suffix::ING));
                         out.extend(complements_skipping(inner, None, true));
                         out.extend(adjuncts(inner, None));
-                    } else if crate::lexicon::lists::is_role(prep, "infinitive_marker") && is_control_infinitive(frame, inner) {
+                    } else if crate::lexicon::list::is_role(prep, "infinitive_marker") && is_control_infinitive(frame, inner) {
                         out.push(inner.pred.clone());
                         out.extend(complements_skipping(inner, None, true));
                         out.extend(adjuncts(inner, None));
@@ -129,7 +129,7 @@ pub(in crate::ladder::act) fn adjuncts(frame: &Frame, skip: Option<&Role>) -> Ve
                     }
                     continue;
                 }
-                if lists::postpositions().contains(&prep.as_str()) {
+                if list::postpositions().contains(&prep.as_str()) {
                     out.extend(say_filler(filler));
                     out.push(prep.clone());
                 } else if is_bare_adverb(filler) {

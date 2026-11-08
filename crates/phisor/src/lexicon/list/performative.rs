@@ -1,7 +1,7 @@
-﻿//! The explicit performative verbs and the force each names, read from
+//! The explicit performative verbs and the force each names, read from
 //! `performative.txt` (verb, tab, role). The role is a force's written name
 //! (`COMMIT`, `WISH`), so a caller compares a [`Force`], never a word.
-use super::words::{load_pairs, Words};
+use super::word::{load_pairs, Words};
 use crate::ir::Force;
 use std::sync::OnceLock;
 

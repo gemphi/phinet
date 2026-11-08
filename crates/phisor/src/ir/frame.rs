@@ -2,7 +2,7 @@
 //! says about it. It is the structure of a sentence; the force is its
 //! function.
 
-use super::features::{Aspect, Modal, Polarity, Tense, Voice};
+use super::feature::{Aspect, Modal, Polarity, Tense, Voice};
 use super::{Filler, Role};
 
 /// A predicate, its slots, and its tense, aspect, modality, voice and
