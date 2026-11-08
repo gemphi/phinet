@@ -25,7 +25,7 @@ graph TB
     RelateUnder["world::World::relate_under"]
     DiskOut["dir: steps/NNN-word.md, relations.tsv,<br/>conditions.tsv, sentences.tsv, README.md"]
     RowIn["row::Row, parse_tsv"]
-    PhianoEx["phiano examples/builders"]
+    PhianoEx["phient examples/builder"]
 
     PersonaIn -->|"kinds, depth, per_seed, voice"| kindsRs
     kindsRs --> QuestT
