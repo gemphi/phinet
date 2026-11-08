@@ -11,7 +11,7 @@ pub fn lex_dir() -> PathBuf {
 }
 
 /// The text of a lexicon data file, or empty when it cannot be read.
-pub(super) fn read_file(file: &str) -> String {
+pub fn read_file(file: &str) -> String {
     std::fs::read_to_string(lex_dir().join(file)).unwrap_or_default()
 }
 

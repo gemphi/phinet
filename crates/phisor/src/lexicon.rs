@@ -26,6 +26,7 @@ pub mod auxiliary;
 pub mod contraction;
 pub mod irregular;
 pub mod lists;
+pub mod suffix;
 use std::collections::HashMap;
 use std::sync::OnceLock;
 

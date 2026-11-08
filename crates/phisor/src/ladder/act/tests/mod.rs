@@ -7,6 +7,7 @@ mod agreement;
 mod read;
 mod realise;
 mod inflect;
+mod suffix_model;
 mod contraction;
 mod canonical;
 mod measure;
