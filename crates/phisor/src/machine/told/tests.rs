@@ -1,5 +1,6 @@
 use super::*;
-use crate::ground::ground;
+use super::super::answer_usage;
+use crate::ground::{ground, unfold};
 use crate::ir::{Frame, Role, Tense, Thing, Wh};
 use crate::ladder::read;
 
@@ -63,7 +64,7 @@ fn the_hole_is_projected_over_the_events_the_fixed_roles_name() {
 /// clause filling the hole's role is said in English, not named.
 #[test]
 fn any_force_and_a_clause_said_in_english() {
-    use crate::ground::{unfold, CLAUSE};
+    use crate::ground::CLAUSE;
     // Told by hand: a wish, and a want whose theme is a clause.
     let wish = Act::new(Force::Wish, Frame::new("have", Tense::Past).with(Role::Agent, Filler::pronoun("i")).with(Role::Theme, Filler::word("money")));
     let want = Act::new(
@@ -84,4 +85,21 @@ fn any_force_and_a_clause_said_in_english() {
     let said = answer_told(&what_wants, &rows).unwrap().members;
     assert_eq!(said.len(), 1, "{said:?}");
     assert!(said[0].contains("go") && said[0].contains("home") && !said[0].contains("e2/") && !said[0].ends_with('.'), "the clause in English, not its name: {said:?}");
+}
+
+/// A question with no hole is answered yes or no: whether the events its
+/// roles name are more than none among what was told (the `told-whether`
+/// card, the operation the mill-usage count found missing).
+#[test]
+fn a_yes_no_question_is_membership_over_what_was_told() {
+    let mut rows = unfold(&read("sarah is driving to work.").unwrap(), "e1");
+    rows.extend(unfold(&read("tom was reading a book.").unwrap(), "e2"));
+    let whether = |q: &str| answer_told(&read(q).expect(q), &rows).unwrap().members;
+    assert_eq!(whether("is sarah driving to work?"), ["yes"]);
+    assert_eq!(whether("was tom reading a book?"), ["yes"]);
+    assert_eq!(whether("was tom reading a letter?"), ["no"], "not among what was told");
+    assert_eq!(whether("is tom driving to work?"), ["no"]);
+    let run = answer_usage(&read("is sarah driving to work?").unwrap(), &rows).unwrap();
+    assert!(run.usage.cards.contains_key("told-whether") && !run.usage.cards.contains_key("told-answer"), "{:?}", run.usage.cards);
+    assert!(run.usage.operators.is_empty(), "a card over primitives the mill has, not an Operator");
 }

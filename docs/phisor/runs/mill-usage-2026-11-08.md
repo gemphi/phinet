@@ -59,3 +59,17 @@ Read, straight:
 - phiclm `lisp::Machine` keeps a tally: every `Prim` applied, every lambda applied by name (`tally`, `take_tally`). One test.
 - phisor `machine::usage::Usage` (`of`, `add`, `distinct`, `Display` as a table); `machine::engine::Run` (answer, steps, usage) returned by `told::answer_told_traced_kinds`; `machine::answer_usage`. Two tests; 35 machine tests green.
 - `examples/converse`: `--guide`, `--key`, `--usage`, and the refusals counted by cause.
+
+## Then, the same hour: the card punched
+
+`told-whether`, one line in `data/ops/core.lisp`: whether the events the fixed roles name are more than none - `(if (< 0 (count (events rels))) 'yes 'no)`. `told` takes a question with no hole to it. The run again:
+
+| | before | after |
+|---|---|---|
+| questions read | 467 | 467 |
+| answered | 204 | **467** (204 by the hole · 34 yes · 229 no) |
+| primitives invoked | 11 of 40 | 13 of 40 (`<`, `count` joined) |
+| cards | 5 | 6 |
+| of the 64 Operators | 0 | **0** |
+
+The operation the count found missing was supplied without touching the mill, as the rule says: a card over primitives it had. `no` is the store's closed world - "not among what was told" - and most of the 229 are that, since the guide's questions are exercises, not questions about what the guide told. The 34 yeses are where the guide asked back what it had just said ("is it still raining?" after "it is still raining"). One test; 36 machine tests green.

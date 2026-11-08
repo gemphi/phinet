@@ -33,6 +33,12 @@
 //! `ground::unfold` is found too. An answer that is itself an event (a
 //! clause filling the hole's role) is said in English again, through
 //! `ground::unground` and the realiser, rather than given as a name.
+//!
+//! A question with no hole - "is sarah driving to work?" - asks whether
+//! the events its roles name are more than none: the `told-whether` card,
+//! answering `yes` or `no`, where `no` means not among what was told
+//! (docs/phisor/runs/mill-usage-2026-11-08, the operation the count found
+//! missing).
 
 use phical::keyboard::Arena;
 use phiclm::lisp::{Env, Host, Value};
@@ -63,9 +69,12 @@ pub fn answer_told_kinds(act: &Act, kinds: KindRows) -> Result<Answered, AskErro
 /// the shipped card for this run (`engine::arrange` tries several).
 pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&str>) -> Result<super::engine::Run, AskError> {
     let (pred, filters, hole) = events_and_hole(act)?;
-    let mut roles = vec![hole.role.clone()];
-    if hole.anywhere {
-        roles.extend(preposition_roles(&kinds).into_iter().filter(|r| *r != hole.role));
+    let mut roles = Vec::new();
+    if let Some(hole) = &hole {
+        roles.push(hole.role.clone());
+        if hole.anywhere {
+            roles.extend(preposition_roles(&kinds).into_iter().filter(|r| *r != hole.role));
+        }
     }
     // The predicate under every force the store holds, and under a clause.
     let mut forces: Vec<String> = force_kinds(&kinds);
@@ -88,7 +97,11 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
     }
     // Loading the cards is the machine's birth, not the run: the tally starts here.
     machine.take_tally();
-    machine.eval(&define_told(query_told(&pred, &forces, &filters, &roles)), &mut environment).map_err(AskError::Machine)?;
+    let query = match hole {
+        Some(_) => query_told(&pred, &forces, &filters, &roles),
+        None => query_whether(&pred, &forces, &filters),
+    };
+    machine.eval(&define_told(query), &mut environment).map_err(AskError::Machine)?;
     let value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
     let steps = machine.host.take_trace();
     let usage = super::usage::Usage::of(machine.take_tally(), &steps, machine.host.names());
@@ -99,7 +112,9 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
             let count = members.len();
             Ok(super::engine::Run { answered: Answered { members, count }, steps, usage })
         }
-        other => Err(AskError::Machine(format!("{BINDING} returned {other}, not a class"))),
+        // `told-whether` answers a word: yes, or no.
+        Value::Sym(word) => Ok(super::engine::Run { answered: Answered { members: vec![word], count: 1 }, steps, usage }),
+        other => Err(AskError::Machine(format!("{BINDING} returned {other}, not a class or a word"))),
     }
 }
 
@@ -132,8 +147,9 @@ fn force_kinds(kinds: &KindRows) -> Vec<String> {
 }
 
 /// The predicate, the fixed roles as constraints on the event - each role
-/// with its filler - and the one role the hole fills.
-fn events_and_hole(act: &Act) -> Result<(String, Vec<Constraint>, Hole), AskError> {
+/// with its filler - and the one role the hole fills; no hole for a yes/no
+/// question.
+fn events_and_hole(act: &Act) -> Result<(String, Vec<Constraint>, Option<Hole>), AskError> {
     if act.force != Force::Ask {
         return Err(AskError::NotAsk { given: act.force });
     }
@@ -152,7 +168,8 @@ fn events_and_hole(act: &Act) -> Result<(String, Vec<Constraint>, Hole), AskErro
         filters.push(Constraint { kind: role.name().to_string(), other });
     }
     match holes.len() {
-        1 => Ok((act.frame.pred.clone(), filters, holes.remove(0))),
+        0 => Ok((act.frame.pred.clone(), filters, None)),
+        1 => Ok((act.frame.pred.clone(), filters, Some(holes.remove(0)))),
         n => Err(AskError::HoleCount { given: n }),
     }
 }
@@ -179,6 +196,15 @@ fn query_told(pred: &str, forces: &[String], filters: &[Constraint], roles: &[St
     relations.extend(filters.iter().map(relation));
     let rows: Vec<Value> = roles.iter().map(|r| call("phisor-rows", vec![Value::Str(r.clone())])).collect();
     call("told-answer", vec![call("list", rows), call("list", relations)])
+}
+
+/// `(told-whether (list relations…))`: yes if the events the roles name are
+/// more than none, else no.
+fn query_whether(pred: &str, forces: &[String], filters: &[Constraint]) -> Value {
+    let under: Vec<Value> = forces.iter().map(|f| relation(&Constraint { kind: f.clone(), other: pred.to_string() })).collect();
+    let mut relations: Vec<Value> = vec![call("union-all", vec![call("list", under)])];
+    relations.extend(filters.iter().map(relation));
+    call("told-whether", vec![call("list", relations)])
 }
 
 fn define_told(body: Value) -> Value {

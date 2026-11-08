@@ -12,7 +12,7 @@ fn a_machine_is_born_knowing_the_keyboard_and_the_cards() {
     let mut env = Env::new();
     let loaded = load(&mut m, &mut env).expect("the cards load");
     assert_eq!(loaded.keyboard, 64);
-    for card in ["meet-all", "union-all", "events", "told-answer"] {
+    for card in ["meet-all", "union-all", "events", "told-answer", "told-whether"] {
         assert!(loaded.cards.iter().any(|c| c == card), "core.lisp defines {card}: {:?}", loaded.cards);
     }
     // A keyboard Operator by its card name: 0 is identity.

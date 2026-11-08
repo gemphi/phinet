@@ -12,3 +12,8 @@
 
 ; a question over what was told: the hole's role(s), read off the events the fixed roles name
 (define told-answer (lambda (roles rels) (image (union-all roles) (events rels))))
+
+; a yes/no question over what was told: whether the events the fixed roles name are more than none
+; (docs/phisor/runs/mill-usage-2026-11-08: the one operation the count found missing). `no` is
+; "not among what was told": the store is all the machine knows.
+(define told-whether (lambda (rels) (if (< 0 (count (events rels))) (quote yes) (quote no))))
