@@ -1,20 +1,29 @@
 use super::*;
 use crate::ground::ground;
-use crate::ladder::read;
+use crate::ir::{Filler, Force, Frame, Role, Tense, Wh};
 
+/// Three told sentences as acts built by hand - "sarah is driving to
+/// work", "tom was reading a book", "a girl was wearing a blue suit" - so
+/// these tests do not depend on the reader, whose lexicon other tests prime
+/// process-wide.
 fn told() -> Vec<phiecs::Row> {
-    let mut rows = Vec::new();
-    for (i, s) in ["sarah is driving to work.", "tom was reading a book.", "a girl was wearing a blue suit."].iter().enumerate() {
-        let act = read(s).unwrap_or_else(|| panic!("the reader reads {s}"));
-        rows.extend(ground(&act, &format!("e{}", i + 1)));
-    }
-    rows
+    let acts = [
+        Frame::new("drive", Tense::Present).with(Role::Agent, Filler::Name("sarah".into())).with(Role::named("to"), Filler::Word("work".into())),
+        Frame::new("read", Tense::Past).with(Role::Agent, Filler::Name("tom".into())).with(Role::Theme, Filler::Word("book".into())),
+        Frame::new("wear", Tense::Past).with(Role::Agent, Filler::Word("girl".into())).with(Role::Theme, Filler::Word("suit".into())),
+    ];
+    acts.into_iter().enumerate().flat_map(|(i, frame)| ground(&Act::new(Force::Assert, frame), &format!("e{}", i + 1))).collect()
+}
+
+/// "what was <agent> <pred>ing?" as an act.
+fn what_did(agent: &str, pred: &str) -> Act {
+    Act::new(Force::Ask, Frame::new(pred, Tense::Past).with(Role::Agent, Filler::Word(agent.into())).with(Role::Theme, Filler::Hole(Wh::What)))
 }
 
 #[test]
 fn the_trace_numbers_every_column_fetched_and_operation_performed() {
     let rows = told();
-    let act = read("what was tom reading?").expect("the reader reads the question");
+    let act = what_did("tom", "read");
     let (answered, trace) = answer_traced(&act, &rows).expect("answered");
     assert_eq!(answered.members, ["book"]);
     assert!(!trace.is_empty(), "a run leaves a trace");
@@ -30,7 +39,7 @@ fn the_trace_numbers_every_column_fetched_and_operation_performed() {
 #[test]
 fn the_engine_arranges_by_economy_among_cards_that_agree() {
     let rows = told();
-    let act = read("what was the girl wearing?").expect("the reader reads the question");
+    let act = what_did("girl", "wear");
     let shipped = "(define told-answer (lambda (roles rels) (image (union-all roles) (events rels))))";
     // The same answer, one column fetched twice: a longer trace.
     let wasteful = "(define told-answer (lambda (roles rels) (image (union (phisor-rows \"theme\") (union-all roles)) (events rels))))";

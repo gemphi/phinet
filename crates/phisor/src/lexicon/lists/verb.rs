@@ -14,6 +14,13 @@ plain_list!(
 );
 
 plain_list!(
+    /// Pro-verbs: a verb that stands for a clause ("what does she want to
+    /// do?" asks for the clause itself), `machine::told::nested`.
+    pro_verbs,
+    "pro_verb.txt"
+);
+
+plain_list!(
     /// Prepositions that take an -ing clause ("thanked me for helping").
     gerund_prepositions,
     "gerund_preposition.txt"

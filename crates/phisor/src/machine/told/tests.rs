@@ -133,6 +133,10 @@ fn a_hole_inside_a_clause_is_read_off_the_sub_event() {
     assert_eq!(answer_told(&with(Filler::Hole(Wh::Where)), &rows).unwrap().members, ["home"]);
     // And from the English itself, now the reader puts the hole in the clause.
     assert_eq!(answer_told(&read("where does sarah want to go?").expect("read"), &rows).unwrap().members, ["home"]);
+    // "to do what" asks for the clause itself, said in English.
+    let what_to_do = answer_told(&read("what does sarah want to do?").expect("read"), &rows).unwrap().members;
+    assert_eq!(what_to_do.len(), 1, "{what_to_do:?}");
+    assert!(what_to_do[0].contains("go") && what_to_do[0].contains("home") && !what_to_do[0].contains("e1/"), "the going, in English: {what_to_do:?}");
     assert_eq!(answer_told(&with(Filler::Word("home".into())), &rows).unwrap().members, ["yes"]);
     assert_eq!(answer_told(&with(Filler::Word("work".into())), &rows).unwrap().members, ["no"]);
     let run = answer_usage(&with(Filler::Hole(Wh::Where)), &rows).unwrap();

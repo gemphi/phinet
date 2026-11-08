@@ -15,11 +15,17 @@
 //! place is. So when a hole and a clause share a level and the hole finds
 //! nothing there, the hole moves down into the clause ([`deeper`]) and the
 //! question is asked again one level further in.
+//!
+//! A clause that is only a pro-verb and a hole - "what does sarah want to
+//! do?" reads as `want(theme: do(theme: ?what))` - asks for the clause
+//! itself: the hole is the parent's role, and the answer is the sub-event,
+//! said in English by `told`.
 
 use phiclm::lisp::Value;
 
 use crate::ground::CLAUSE;
 use crate::ir::{Act, Filler, Force, Frame, Role, Wh};
+use crate::lexicon::lists;
 
 use super::super::ask::{call, relation, AskError, Constraint};
 
@@ -64,7 +70,10 @@ fn descend(frame: &Frame, under: Option<String>, out: &mut Vec<Level>) -> Result
                 continue;
             }
             Filler::Clause(inner) => {
-                clause = clause.or(Some((role.name().to_string(), inner)));
+                match asks_for_the_clause(inner) {
+                    true => holes.push(Hole { role: role.name().to_string(), anywhere: false }),
+                    false => clause = clause.or(Some((role.name().to_string(), inner))),
+                }
                 continue;
             }
             Filler::Thing(thing) => thing.head.clone(),
@@ -83,6 +92,13 @@ fn descend(frame: &Frame, under: Option<String>, out: &mut Vec<Level>) -> Result
         (0, None) => Ok(None),
         (n, _) => Err(AskError::HoleCount { given: n }),
     }
+}
+
+/// Whether a clause is a pro-verb with a `what` hole and nothing else but
+/// its agent - "to do what" - so the question asks for the clause itself.
+fn asks_for_the_clause(inner: &Frame) -> bool {
+    let others: Vec<&Filler> = inner.slots.iter().filter(|(r, _)| *r != Role::Agent).map(|(_, f)| f).collect();
+    lists::pro_verbs().contains(&inner.pred.as_str()) && matches!(others.as_slice(), [Filler::Hole(Wh::What)])
 }
 
 /// The levels with the hole moved down into the clause beside it, when
