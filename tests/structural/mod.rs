@@ -29,6 +29,7 @@ mod independence;
 mod keyboard;
 mod levels;
 mod lines;
+mod literal;
 mod manifest;
 mod numbers;
 mod pairs;
