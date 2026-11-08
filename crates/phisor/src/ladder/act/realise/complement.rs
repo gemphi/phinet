@@ -36,6 +36,14 @@ pub(in crate::ladder::act) fn say_theme(matrix: &Frame, theme: &Filler) -> Vec<S
     say_filler(theme)
 }
 
+/// A clause that fills `matrix`'s theme, said as its complement: "to go
+/// home" under `want`, "going home" under `enjoy`, the finite clause
+/// otherwise. What `machine::told` says for an answer that is a sub-event
+/// of a told event, rather than a statement of its own.
+pub fn realise_complement(matrix: &Frame, inner: &Frame) -> String {
+    normalise(&say_theme(matrix, &Filler::Clause(Box::new(inner.clone()))).join(" "))
+}
+
 /// Whether `inner` is a control infinitive of `matrix`: the same agent, and no
 /// tense, modal, aspect, voice or polarity of its own to say.
 pub(in crate::ladder::act) fn is_control_infinitive(matrix: &Frame, inner: &Frame) -> bool {

@@ -7,6 +7,7 @@ mod verb_group;
 mod phrase;
 pub(in crate::ladder::act) use statement::*;
 pub use statement::{realise, realise_cased};
+pub use complement::realise_complement;
 pub(in crate::ladder::act) use imperative::*;
 pub(in crate::ladder::act) use question::*;
 pub(in crate::ladder::act) use complement::*;

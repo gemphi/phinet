@@ -83,13 +83,14 @@ The count said the mill was not the gap; the afternoon spent itself on cards and
 | does tom want to go home? | no | `told-whether` |
 | where does sarah want to go? | home | `told-under` → `told-answer-of`, the hole in the clause |
 | where does tom want to go? | work | the same |
-| what does sarah want to do? | sarah goes home | the clause itself: a pro-verb and a hole ask for the sub-event |
-| what does sarah want? | sarah goes home | `told-answer`, the event said in English |
+| what does sarah want to do? | to go home | the clause itself: a pro-verb and a hole ask for the sub-event |
+| what does sarah want? | to go home | `told-answer`, the event said as want's complement |
+| what does tom want to do? | to go to work | the same |
 
 - **A hole inside a clause** (`machine::told::nested`): the question read as levels down to the hole; `told-under` takes the events a level names to the sub-events under a role that meet the clause's own roles; `told-answer-of` and `told-whether-of` finish at the bottom. Three cards in `core.lisp`; eight cards in all now.
 - **The hole moves down.** The reader puts a `where` on the frame it reads; when it finds nothing at its level and a clause sits beside it, the question is asked again one level in, and a `where` inside a clause reads every role the question left open - "go home" keeps its place under `theme`.
 - **The loom, one gate**: `read_question`'s control-verb branch ran only for yes/no questions, so the infinitive in "where does sarah want to go?" was read as a preposition phrase. A wh on a control verb now puts its hole in the infinitive clause.
 - **A pro-verb asks for the clause** (`data/lex/pro_verb.txt`): "what does sarah want to do?" is `want(theme: do(theme: ?what))`, and the hole is the parent's role.
-- Not yet: the complement form of a clause answer ("to go home" rather than "sarah goes home") waits on the realiser.
+- **The complement form** (the same morning): a sub-event answer that fills a told event's theme is said as that event's complement - the realiser's `say_theme`, public as `ladder::realise_complement` - so "to go home", not "sarah goes home". The rows say which event the answer is a clause of; the realiser says how a clause under that verb is said. No card changed.
 
-phisor 295 tests; phinet `98776f5` · `e873daf` · `ff19ddf` · `f40da0e`.
+phisor 297 tests; phinet `98776f5` · `e873daf` · `ff19ddf` · `f40da0e` · the complement form after `7e9da45`.

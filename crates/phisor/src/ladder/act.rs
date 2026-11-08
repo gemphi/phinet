@@ -48,5 +48,5 @@ pub use measure::{word_lists, round_trip, round_trip_canonical, force_purity, re
 pub(in crate::ladder::act) use read::*;
 pub use read::{read};
 pub(in crate::ladder::act) use realise::*;
-pub use realise::{realise, realise_cased};
+pub use realise::{realise, realise_cased, realise_complement};
 pub(in crate::ladder::act) use word_class::*;

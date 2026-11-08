@@ -147,12 +147,18 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
 }
 
 /// An answer that is an event the rows describe, said in English through
-/// the realiser; any other answer is itself.
+/// the realiser; any other answer is itself. A sub-event that fills a told
+/// event's theme is said as that event's complement - "to go home" - and
+/// any other event as a statement without its stop, an answer being a phrase.
 fn said(member: &str, rows: &[phiecs::Row]) -> String {
-    match is_event(member, rows) {
-        // The realiser says a statement; an answer is a phrase, so the stop goes.
-        true => unground(member, rows).map(|act| crate::ladder::realise(&act).trim_end_matches('.').to_string()).unwrap_or_else(|| member.to_string()),
-        false => member.to_string(),
+    if !is_event(member, rows) {
+        return member.to_string();
+    }
+    let Some(act) = unground(member, rows) else { return member.to_string() };
+    let matrix = rows.iter().find(|r| r.other == member && r.kind == Role::Theme.name()).and_then(|r| unground(&r.about, rows));
+    match matrix {
+        Some(parent) => crate::ladder::realise_complement(&parent.frame, &act.frame),
+        None => crate::ladder::realise(&act).trim_end_matches('.').to_string(),
     }
 }
 
