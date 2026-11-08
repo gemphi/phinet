@@ -2,7 +2,9 @@
 
 Written before any file moves (Requirement 10.1). Sections 1 to 4 are the module
 table (R10.2); section 5 the re-export callers (R10.3); section 6 the persona
-merge (R10.4). Plural names and groups (R10.5, R10.6) are added by task 9.3.
+merge (R10.4). Plural names (R10.5) and groups (R10.6) are in section 7 and 8,
+which point to files in `docs/phiano_cleanup_map/` so that no file passes 300
+lines.
 
 Rule of the cleanup: phiano keeps only what belongs to phiano (its REPL, its
 server, its data directory, its personas, its harness). Everything else moves
