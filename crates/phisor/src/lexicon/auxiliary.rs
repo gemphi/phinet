@@ -29,7 +29,7 @@ pub struct Entry {
 pub fn parse(tsv: &str) -> HashMap<String, Entry> {
     let mut out = HashMap::new();
     for r in data_rows(tsv) {
-        let (Some(tense), Some(family)) = (r.get(1).and_then(|t| tense(t)), r.get(2).and_then(|f| family(f))) else {
+        let (Some(tense), Some(family)) = (r.get(1).and_then(|t| parse_tense(t)), r.get(2).and_then(|f| parse_family(f))) else {
             continue;
         };
         let operator = r.get(3).is_some_and(|t| t.split(',').any(|x| x.trim() == "operator"));
@@ -38,7 +38,7 @@ pub fn parse(tsv: &str) -> HashMap<String, Entry> {
     out
 }
 
-fn tense(label: &str) -> Option<Tense> {
+pub(super) fn parse_tense(label: &str) -> Option<Tense> {
     match label {
         "present" => Some(Tense::Present),
         "past" => Some(Tense::Past),
@@ -46,7 +46,7 @@ fn tense(label: &str) -> Option<Tense> {
     }
 }
 
-fn family(label: &str) -> Option<Family> {
+pub(super) fn parse_family(label: &str) -> Option<Family> {
     Some(match label {
         "be" => Family::Be,
         "have" => Family::Have,

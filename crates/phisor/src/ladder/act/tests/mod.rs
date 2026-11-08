@@ -3,6 +3,7 @@
 use super::*;
 use crate::gold;
 
+mod agreement;
 mod read;
 mod realise;
 mod inflect;
