@@ -33,7 +33,7 @@ Names are the plural-free ones from the lists in this folder.
 
 - Groups 1 to 5 are copies: each commit deletes copies and edits callers, so
   the number of definitions goes from N to 1. Groups 6 to 13 move code into one
-  module without changing results; the figures in `Records/` stay equal.
+  module without changing results; the recorded figures stay equal.
 - Groups 1, 2, 3 and 5 reach other crates (`phistd`, `phient`, `phiecs`); they
   wait for the matching move in section 1.
 - Groups 6 to 10 and 12 stay in `phiano` and `phisor` and can be done in task 15.

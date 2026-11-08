@@ -193,3 +193,24 @@ switch. Each commit builds with 0 warnings and `cargo test -p phiano` passes.
 `src/persona` stays under 300 lines per file (its largest file is 180).
 
 `personas/` (the Markdown files) is data, read by `persona::world`; it stays.
+
+## 7. Plural names (R10.5)
+
+218 plural module, type and function names in `phiano/src` and `phisor/src`,
+each with its singular replacement, in `docs/phiano_cleanup_map/`:
+
+| File | Kind | Rows |
+|---|---|---|
+| `plural_module.md` | module | 31 (phiano 19, phisor 12) |
+| `plural_type.md` | type | 30 (phiano 8, phisor 22) |
+| `plural_function_phisor.md` | function | 83 |
+| `plural_function_phiano.md` | function | 74 |
+| `plural_excluded.md` | names kept (singular words ending in `s`, verbs, acronyms, external names), the scan rule, the counts | |
+
+## 8. Groups of related calculations (R10.6)
+
+13 groups in `docs/phiano_cleanup_map/group.md`: five calculations that exist as
+several copies (seeded shuffle, held-out split, slug, personality traits, date
+from the clock) and eight that sit apart (variation counts, twin combination,
+word-list loading, irregular forms, Searle markers, sector arithmetic, quest
+measures, oscillator and wave).
