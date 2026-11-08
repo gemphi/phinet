@@ -8,6 +8,7 @@ mod read;
 mod realise;
 mod inflect;
 mod suffix_model;
+mod suffix_table;
 mod contraction;
 mod canonical;
 mod measure;
