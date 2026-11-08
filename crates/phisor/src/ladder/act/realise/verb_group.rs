@@ -1,5 +1,7 @@
 //! Moved from `ladder/act.rs` unchanged.
 use crate::ladder::act::*;
+use crate::lexicon::agreement::{aux_form, Number, Person};
+use crate::lexicon::auxiliary::Family;
 
 /// The verb group for a frame: the auxiliaries its aspect, voice, modality
 /// and polarity imply, then the predicate in the form the aspect needs. This
@@ -92,28 +94,32 @@ pub(in crate::ladder::act) fn modal_word(modal: crate::ir::Modal, tense: Tense) 
     }
 }
 
-/// The copula `be` surface form for a tense and number: is/are/am, was/were.
+/// The person and number the Realiser's `third`/`first` flags stand for;
+/// anything else is the plural/second-person cell, which agrees alike.
+fn agreement(third: bool, first: bool) -> (Person, Number) {
+    match (third, first) {
+        (true, _) => (Person::Third, Number::Singular),
+        (_, true) => (Person::First, Number::Singular),
+        _ => (Person::Second, Number::Plural),
+    }
+}
+/// One auxiliary's surface form, read from the agreement data.
+fn aux(family: Family, tense: Tense, third: bool, first: bool) -> String {
+    let (person, number) = agreement(third, first);
+    aux_form(family, tense, person, number).expect("auxiliary.tsv covers every cell").to_string()
+}
+/// The copula `be` surface form for a tense and number, from the data.
 pub(in crate::ladder::act) fn be_form(tense: Tense, third: bool, first: bool) -> String {
-    match (tense, third, first) {
-        (Tense::Present, _, true) => "am".into(),
-        (Tense::Present, true, _) => "is".into(),
-        (Tense::Present, false, _) => "are".into(),
-        (Tense::Past, _, true) => "was".into(),
-        (Tense::Past, true, _) => "was".into(),
-        (Tense::Past, false, _) => "were".into(),
-    }
+    aux(Family::Be, tense, third, first)
 }
-
-/// The `have` surface form: has/have (present), had (past).
+/// The `have` surface form, from the data.
 pub(in crate::ladder::act) fn have_form(tense: Tense, third: bool) -> String {
-    match (tense, third) {
-        (Tense::Present, true) => "has".into(),
-        (Tense::Present, false) => "have".into(),
-        (Tense::Past, _) => "had".into(),
-    }
+    aux(Family::Have, tense, third, false)
 }
-
-/// The verb forms after a modal, which are all tenseless (bare `be`, bare
+/// The `do` surface form (do-support), from the data.
+pub(in crate::ladder::act) fn do_form(tense: Tense, third: bool) -> String {
+    aux(Family::Do, tense, third, false)
+}/// The verb forms after a modal, which are all tenseless (bare `be`, bare
 /// `have`), composed from the aspect and voice: the book's modal + perfect /
 /// progressive / passive combinations.
 pub(in crate::ladder::act) fn modal_tail(frame: &Frame) -> Vec<String> {
@@ -151,10 +157,7 @@ pub(in crate::ladder::act) fn simple_active(frame: &Frame, third: bool, neg: boo
     if neg && frame.never {
         out.push("never".into());
     } else if neg {
-        out.push(match frame.tense {
-            Tense::Past => "did".into(),
-            Tense::Present => if third { "does".into() } else { "do".into() },
-        });
+        out.push(do_form(frame.tense, third));
         out.push("not".into());
         out.push(frame.pred.clone()); // after do-support the verb is bare
         return out;

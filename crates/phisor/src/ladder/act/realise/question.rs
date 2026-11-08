@@ -59,10 +59,7 @@ pub(in crate::ladder::act) fn split_operator(frame: &Frame, mut group: Vec<Strin
     if simple_lexical {
         let third = third_singular(frame);
         let neg = frame.polarity == Polarity::Negative;
-        let operator = match frame.tense {
-            Tense::Past => "did".to_string(),
-            Tense::Present => if third { "does".into() } else { "do".into() },
-        };
+        let operator = do_form(frame.tense, third);
         let mut rest = Vec::new();
         if neg {
             rest.push(negation_word(frame).into());
