@@ -37,6 +37,20 @@ pub const ALLOWED_HITS: &[(&str, &str, &str)] = &[
     ("ir/text/parse.rs", "value == \"not\"", "ir/text notation: the printed negation token"),
     ("ir/text/print.rs", "\"mod\" | \"order\"", "ir/text notation: attribute names that need `kind(..)`"),
     ("ir/text/property/generate.rs", "const TEXT", "round-trip fixtures for the ir/text notation"),
+    ("lexicon/agreement.rs", "=> Some(Number::", "data file schema: the `sg`/`pl` number tokens of the agreement file"),
+    ("lexicon/auxiliary.rs", "\"operator\"", "data file schema: the `operator` flag token of auxiliary.tsv"),
+    ("lexicon/auxiliary.rs", "=> Some(Tense::", "data file schema: the `present`/`past` tense tokens of auxiliary.tsv"),
+    ("lexicon/auxiliary.rs", "=> Family::", "data file schema: the family and modal tokens of auxiliary.tsv"),
+    ("lexicon/lists/phrase.rs", "r[", "data file schema: the row-kind and flag tokens of phrase tables"),
+    ("machine/ask/property.rs", "const VALUES", "generator fixtures for a property test, not a language list"),
+    ("machine/host.rs", "phisor-", "machine host: the `phisor-*` primitive names"),
+    ("machine/host.rs", "pub static NAMES", "machine host: the `phisor-*` primitive names"),
+    ("machine/ops.rs", "\"lisp\"", "machine op notation: the file extension of machine programs"),
+    ("machine/ops.rs", "== \"define\"", "machine op notation: the `define` special form"),
+    ("machine/ops.rs", "== \"lambda\"", "machine op notation: the `lambda` special form"),
+    ("machine/usage.rs", "\"rows\"", "machine op name: the `rows` operation"),
+    ("measure/twins.rs", "\"twins\"", "machine op name: the `twins` operation of the op table"),
+    ("truth/set/mod.rs", "=> Some(Standing::", "data file schema: the four class labels of the truth set file"),
 ];
 
 /// Whether a hit on `file` with source line `text` is on the allowlist.
