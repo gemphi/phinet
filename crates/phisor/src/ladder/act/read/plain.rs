@@ -61,7 +61,7 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
     // `wish_form.tsv` ("i wish we did not have to go"). Tried before negation is
     // looked for, because the clause's own "did not" is not the wish's negation.
     if matches!(&subject, Filler::Pronoun(p) if p == "I")
-        && words.get(after_subject).is_some_and(|w| read_verb(w) == ("wish".to_string(), Tense::Present))
+        && words.get(after_subject).is_some_and(|w| is_wish_present(w))
         && !norm.ends_with('?')
     {
         let after = &words[after_subject + 1..];
@@ -214,7 +214,7 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
 
     // An explicit performative: first-person "i wish X" is a Wish force, and
     // the frame is the wished-for content X, as the gold records it.
-    if lemma == "wish" && tense == Tense::Present && !neg && matches!(&subject, Filler::Pronoun(p) if p == "I") {
+    if lists::role_of(&lemma) == Some(Force::Wish) && tense == Tense::Present && !neg && matches!(&subject, Filler::Pronoun(p) if p == "I") {
         let after = &words[verb_at + 1..];
         let after = if after.first().map(String::as_str) == Some("that") { &after[1..] } else { after };
         if after.len() >= 2 {
@@ -249,3 +249,9 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
         .or_else(|| finish_with_gerund(frame, &words, verb_at + 1, force))
 }
 
+
+/// Whether the word reads as a present-tense verb that names the wish role.
+fn is_wish_present(word: &str) -> bool {
+    let (lemma, tense) = read_verb(word);
+    tense == Tense::Present && lists::role_of(&lemma) == Some(Force::Wish)
+}

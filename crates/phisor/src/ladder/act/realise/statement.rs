@@ -16,7 +16,7 @@ pub fn realise(act: &Act) -> String {
         Force::Ask => question(frame),
         // A wish is announced by "i wish", then the wished-for content.
         Force::Wish => {
-            let mut said = vec!["i".to_string(), "wish".to_string()];
+            let mut said = vec!["i".to_string(), lists::verb_of(Force::Wish).unwrap_or_default().to_string()];
             said.extend(wish::content(frame).unwrap_or_else(|| statement(frame)));
             said
         }

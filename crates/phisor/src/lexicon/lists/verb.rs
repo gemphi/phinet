@@ -25,11 +25,6 @@ plain_list!(
     "complement_verb.txt"
 );
 
-plain_list!(
-    /// Explicit performative verbs.
-    performatives,
-    "performative.txt"
-);
 
 plain_list!(
     /// Politeness markers that may open an imperative ("please close the door").

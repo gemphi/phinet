@@ -30,7 +30,7 @@ pub fn read(sentence: &str) -> Option<Act> {
     };
     // "i promise ..." is an explicit commissive: the verb itself says so.
     if act.force == Force::Assert
-        && act.frame.pred == "promise"
+        && lists::role_of(&act.frame.pred) == Some(Force::Commit)
         && act.frame.tense == Tense::Present
         && matches!(act.frame.get(&Role::Agent), Some(Filler::Pronoun(p)) if p == "I")
     {
