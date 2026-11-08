@@ -13,6 +13,7 @@
 //! each caller asks for the tag it needs, so no word is written twice.
 #[macro_use]
 mod declare;
+mod determiner;
 mod adverb;
 mod conjunction;
 mod path;
@@ -25,6 +26,7 @@ mod words;
 
 pub use adverb::*;
 pub use conjunction::*;
+pub use determiner::*;
 pub use path::*;
 pub use phrase::*;
 pub use pronoun::*;

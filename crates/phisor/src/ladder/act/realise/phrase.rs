@@ -100,11 +100,12 @@ pub(in crate::ladder::act) fn say_thing(thing: &Thing) -> Vec<String> {
 /// `that`/`those`.
 pub(in crate::ladder::act) fn determiner_word(det: &crate::ir::Det, plural: bool) -> Option<String> {
     use crate::ir::Det;
+    use crate::lexicon::lists::determiner_spelling as spell;
     Some(match det {
-        Det::Definite => "the".into(),
-        Det::Indefinite => "a".into(),
-        Det::Near => if plural { "these".into() } else { "this".into() },
-        Det::Far => if plural { "those".into() } else { "that".into() },
+        Det::Definite => spell("definite", plural)?,
+        Det::Indefinite => spell("indefinite", plural)?,
+        Det::Near => spell("near", plural)?,
+        Det::Far => spell("far", plural)?,
         Det::Quant(q) => q.clone(),
         Det::Owner(o) => o.clone(),
     })
