@@ -17,7 +17,7 @@
 //!
 //! `--guide murphy.txt --key murphy_key.txt` runs the guide's own sentences,
 //! in order, as the harness would: its statements told, its questions asked.
-//! `--usage` prints, at the end, what answering invoked - which of phiclm's
+//! `--show` prints the act the reader made of each line. `--usage` prints, at the end, what answering invoked - which of phiclm's
 //! primitives, which of the 64 Operators, which cards, how often
 //! (`machine::usage`); the count phisor's TODO asks for before any Operator
 //! is added to the keyboard.
@@ -45,6 +45,7 @@ fn main() {
     let mut lines: Vec<String> = Vec::new();
     let mut usage: Option<Usage> = None;
     let mut quiet = false;
+    let mut show = false;
     let mut i = 0;
     while i < args.len() {
         match args[i].as_str() {
@@ -60,6 +61,10 @@ fn main() {
                     Err(e) => println!("card  refused: {e}"),
                 }
                 i += 2;
+            }
+            "--show" => {
+                show = true;
+                i += 1;
             }
             "--usage" => {
                 usage = Some(Usage::default());
@@ -117,6 +122,9 @@ fn main() {
             unread += 1;
             continue;
         };
+        if show {
+            println!("  act {act:?}");
+        }
         match line.ends_with('?') {
             false => {
                 told += 1;

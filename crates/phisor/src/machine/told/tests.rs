@@ -137,3 +137,27 @@ fn a_hole_inside_a_clause_is_read_off_the_sub_event() {
     assert!(run.usage.cards.contains_key("told-under"), "{:?}", run.usage.cards);
     assert!(run.usage.operators.is_empty());
 }
+
+/// The reader puts "where" on the frame it reads - `want`, for "where does
+/// sarah want to go?" - beside the clause. Nothing is under `want`, so the
+/// hole moves down into the going and finds home.
+#[test]
+fn a_hole_beside_a_clause_moves_down_when_its_level_has_nothing() {
+    let want = read("sarah wants to go home.").expect("the reader reads it");
+    let rows = unfold(&want, "e1");
+    let (role, inner) = want.frame.slots.iter().find_map(|(r, f)| match f {
+        Filler::Clause(i) => Some((r.clone(), i.as_ref().clone())),
+        _ => None,
+    }).expect("a clause fills a role");
+    let mut bare = inner.clone();
+    bare.slots.retain(|(_, f)| !matches!(f, Filler::Thing(t) if t.head == "home") && !matches!(f, Filler::Word(w) | Filler::Name(w) if w == "home"));
+    let asked = Act::new(Force::Ask, Frame::new("want", Tense::Present)
+        .with(Role::Agent, Filler::Name("sarah".into()))
+        .with(role, Filler::Clause(Box::new(bare)))
+        .with(Role::named("in"), Filler::Hole(Wh::Where)));
+    let run = answer_usage(&asked, &rows).unwrap();
+    assert_eq!(run.answered.members, ["home"], "rows {rows:?}
+steps {:?}", run.steps);
+    assert_eq!(run.usage.cards.get("told-answer"), Some(&1), "tried at its own level first: {:?}", run.usage.cards);
+    assert_eq!(run.usage.cards.get("told-under"), Some(&1), "then one level down");
+}

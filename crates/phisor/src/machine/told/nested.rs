@@ -9,6 +9,12 @@
 //! (`told-under`); and at the bottom the hole's role read off, or whether
 //! there are any (`told-answer-of`, `told-whether-of`). Every step is a card
 //! in `data/ops/core.lisp`; `ground::unfold` wrote the rows it reads.
+//!
+//! The reader puts a `where` on the frame it reads, which for "where does
+//! sarah want to go?" is `want`, beside the clause; the going is where the
+//! place is. So when a hole and a clause share a level and the hole finds
+//! nothing there, the hole moves down into the clause ([`deeper`]) and the
+//! question is asked again one level further in.
 
 use phiclm::lisp::Value;
 
@@ -24,12 +30,15 @@ pub(super) struct Hole {
     pub anywhere: bool,
 }
 
-/// One frame on the way to the hole: its predicate, its fixed roles, and
-/// the role it fills in its parent (`None` at the top).
+/// One frame on the way to the hole: its predicate, its fixed roles, the
+/// role it fills in its parent (`None` at the top), and a clause left
+/// beside a hole at this level, which the hole may move down into.
+#[derive(Clone)]
 pub(super) struct Level {
     pub pred: String,
     pub filters: Vec<Constraint>,
     pub under: Option<String>,
+    pub clause: Option<(String, Frame)>,
 }
 
 /// The levels from the act down to the frame that holds the hole, and the
@@ -63,7 +72,11 @@ fn descend(frame: &Frame, under: Option<String>, out: &mut Vec<Level>) -> Result
         };
         filters.push(Constraint { kind: role.name().to_string(), other });
     }
-    out.push(Level { pred: frame.pred.clone(), filters, under });
+    let beside = match holes.len() {
+        1 => clause.as_ref().map(|(role, inner)| (role.clone(), (*inner).clone())),
+        _ => None,
+    };
+    out.push(Level { pred: frame.pred.clone(), filters, under, clause: beside });
     match (holes.len(), clause) {
         (1, _) => Ok(Some(holes.remove(0))),
         (0, Some((role, inner))) => descend(inner, Some(role), out),
@@ -72,11 +85,32 @@ fn descend(frame: &Frame, under: Option<String>, out: &mut Vec<Level>) -> Result
     }
 }
 
-/// The kinds a nested query reads, so each may be declared before the run.
-pub(super) fn kinds(levels: &[Level]) -> Vec<&str> {
-    let mut out: Vec<&str> = levels.iter().flat_map(|l| l.filters.iter().map(|f| f.kind.as_str()).chain(l.under.as_deref())).collect();
-    if levels.len() > 1 {
-        out.push(CLAUSE);
+/// The levels with the hole moved down into the clause beside it, when
+/// there is one: the clause's own fixed roles become the bottom level.
+pub(super) fn deeper(levels: &[Level]) -> Option<Vec<Level>> {
+    let (role, inner) = levels.last()?.clause.as_ref()?;
+    let filters = inner
+        .slots
+        .iter()
+        .filter_map(|(r, f)| match f {
+            Filler::Thing(thing) => Some((r, thing.head.clone())),
+            Filler::Name(s) | Filler::Pronoun(s) | Filler::Word(s) => Some((r, s.clone())),
+            Filler::Hole(_) | Filler::Clause(_) => None,
+        })
+        .map(|(r, other)| Constraint { kind: r.name().to_string(), other })
+        .collect();
+    let mut out = levels.to_vec();
+    out.push(Level { pred: inner.pred.clone(), filters, under: Some(role.clone()), clause: None });
+    Some(out)
+}
+
+/// The kinds a nested query reads - the deeper one's too - so each may be
+/// declared before the run.
+pub(super) fn kinds(levels: &[Level]) -> Vec<String> {
+    let all = deeper(levels).unwrap_or_else(|| levels.to_vec());
+    let mut out: Vec<String> = all.iter().flat_map(|l| l.filters.iter().map(|f| f.kind.clone()).chain(l.under.clone())).collect();
+    if all.len() > 1 {
+        out.push(CLAUSE.to_string());
     }
     out
 }

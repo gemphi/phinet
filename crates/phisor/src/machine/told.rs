@@ -88,7 +88,7 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
     if forces.is_empty() {
         forces.push("assert".into());
     }
-    for kind in nested::kinds(&levels).into_iter().chain(roles.iter().map(String::as_str)).chain(forces.iter().map(String::as_str)) {
+    for kind in nested::kinds(&levels).iter().map(String::as_str).chain(roles.iter().map(String::as_str)).chain(forces.iter().map(String::as_str)) {
         if kinds.rows(kind).is_err() {
             kinds = kinds.told(kind, &[]);
         }
@@ -111,7 +111,20 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
         _ => nested::query(&levels, under_forces(&top.pred, &forces), &roles),
     };
     machine.eval(&define_told(query), &mut environment).map_err(AskError::Machine)?;
-    let value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
+    let mut value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
+    // Nothing at this level, a clause beside the hole: the hole moves down. A
+    // `where` there reads every role of the sub-event the question left open
+    // - "go home" keeps its place under `theme`, not a preposition.
+    if let (Value::Class(c), Some(deeper), Some(h)) = (&value, nested::deeper(&levels), &hole) {
+        if c.is_empty() {
+            let roles = match h.anywhere {
+                true => open_roles(machine.host.kinds(), &deeper[deeper.len() - 1].filters),
+                false => roles.clone(),
+            };
+            machine.eval(&define_told(nested::query(&deeper, under_forces(&top.pred, &forces), &roles)), &mut environment).map_err(AskError::Machine)?;
+            value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
+        }
+    }
     let steps = machine.host.take_trace();
     let usage = super::usage::Usage::of(machine.take_tally(), &steps, machine.host.names());
     match value {
@@ -144,6 +157,18 @@ fn force_kinds(kinds: &KindRows) -> Vec<String> {
         .names()
         .into_iter()
         .filter(|k| *k == CLAUSE || Force::ALL.iter().any(|f| f.name().eq_ignore_ascii_case(k)))
+        .map(str::to_string)
+        .collect()
+}
+
+/// Every role kind the store holds - named or preposition - that `fixed`
+/// does not fix: what a hole moved down into a clause may read.
+fn open_roles(kinds: &KindRows, fixed: &[Constraint]) -> Vec<String> {
+    let forces: Vec<String> = Force::ALL.iter().map(|f| f.name().to_lowercase()).collect();
+    kinds
+        .names()
+        .into_iter()
+        .filter(|k| !FEATURES.contains(k) && *k != CLAUSE && !forces.iter().any(|f| f == k) && !fixed.iter().any(|f| f.kind == *k))
         .map(str::to_string)
         .collect()
 }
