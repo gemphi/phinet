@@ -47,17 +47,17 @@ pub(in crate::ladder::act) fn read_ing(word: &str) -> Option<String> {
     // Prefer the silent-e restoration for the closed set of e-dropping verbs
     // the Guide uses; otherwise the bare stem. Confirm by re-realising so a
     // mismatch abstains rather than guesses.
-    if let Some(lemma) = undouble(stem).filter(|l| ing(l) == word) {
+    if let Some(lemma) = undouble(stem).filter(|l| inflect(l, Suffix::ING) == word) {
         return Some(lemma);
     }
     let with_e = format!("{stem}e");
-    if lists::silent_e_lemmas().contains(&with_e.as_str()) && ing(&with_e) == word {
+    if lists::silent_e_lemmas().contains(&with_e.as_str()) && inflect(&with_e, Suffix::ING) == word {
         return Some(with_e);
     }
-    if ing(stem) == word {
+    if inflect(stem, Suffix::ING) == word {
         return Some(stem.to_string());
     }
-    if ing(&with_e) == word {
+    if inflect(&with_e, Suffix::ING) == word {
         return Some(with_e);
     }
     None
@@ -99,14 +99,14 @@ pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
         // that the realiser would have written with `d` only. The gold's
         // regular pasts are e-verbs (arrive, like) or plain (-ed) verbs; the
         // reader keeps the lemma that re-realises, which `past` decides.
-        if let Some(lemma) = undouble(stem).filter(|l| past(l) == word) {
+        if let Some(lemma) = undouble(stem).filter(|l| inflect(l, Suffix::PAST) == word) {
             return (lemma, Tense::Past);
         }
         // A stem ending in a doubled consonant ("add", "miss", "call") is the
         // lemma itself: "added" is add, never the non-word "adde".
         let mut tail = stem.chars().rev();
         let doubled = matches!((tail.next(), tail.next()), (Some(a), Some(b)) if a == b && !is_vowel(a));
-        if doubled && past(stem) == word {
+        if doubled && inflect(stem, Suffix::PAST) == word {
             return (stem.to_string(), Tense::Past);
         }
         let with_e = format!("{stem}e");
@@ -116,13 +116,13 @@ pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
         let bare_is_verb = crate::lexicon::is_primed()
             && crate::lexicon::verb_capable(stem)
             && !lists::silent_e_lemmas().contains(&with_e.as_str());
-        if bare_is_verb && past(stem) == word {
+        if bare_is_verb && inflect(stem, Suffix::PAST) == word {
             return (stem.to_string(), Tense::Past);
         }
-        if past(&with_e) == word {
+        if inflect(&with_e, Suffix::PAST) == word {
             return (with_e, Tense::Past);
         }
-        if past(stem) == word {
+        if inflect(stem, Suffix::PAST) == word {
             return (stem.to_string(), Tense::Past);
         }
         // Fall through: treat as past with the bare stem.
@@ -133,17 +133,17 @@ pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
     // so a genuine noun-like verb is not mangled.
     if let Some(stem) = word.strip_suffix("ies") {
         let lemma = format!("{stem}y");
-        if third_s(&lemma) == word {
+        if inflect(&lemma, Suffix::THIRD) == word {
             return (lemma, Tense::Present);
         }
     }
     if let Some(stem) = word.strip_suffix("es") {
-        if third_s(stem) == word {
+        if inflect(stem, Suffix::THIRD) == word {
             return (stem.to_string(), Tense::Present);
         }
     }
     if let Some(stem) = word.strip_suffix('s') {
-        if !stem.is_empty() && third_s(stem) == word {
+        if !stem.is_empty() && inflect(stem, Suffix::THIRD) == word {
             return (stem.to_string(), Tense::Present);
         }
     }

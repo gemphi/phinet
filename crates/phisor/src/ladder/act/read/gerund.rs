@@ -30,7 +30,7 @@ pub(in crate::ladder::act) fn finish_with_gerund(mut frame: Frame, words: &[Stri
     // name the lemma whose own past re-realises the surface word.
     if let Some(surface) = from.checked_sub(1).and_then(|i| words.get(i)) {
         if !lists::gerund_verbs().contains(&frame.pred.as_str()) {
-            if let Some(g) = lists::gerund_verbs().iter().find(|g| past(g) == *surface || third_s(g) == *surface) {
+            if let Some(g) = lists::gerund_verbs().iter().find(|g| inflect(g, Suffix::PAST) == *surface || inflect(g, Suffix::THIRD) == *surface) {
                 frame.pred = (*g).to_string();
             }
         }

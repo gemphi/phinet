@@ -1,4 +1,4 @@
-﻿//! The act height: an honest first English reader and realiser (R5.11,
+//! The act height: an honest first English reader and realiser (R5.11,
 //! R10.10, R10.11, task 13.7).
 //!
 //! This reads a training sentence into an [`Act`] and realises an Act back to
@@ -19,6 +19,8 @@
 use crate::guide::holdout::normalise;
 use crate::lexicon::auxiliary::{Entry, Family};
 use crate::lexicon::lists;
+use crate::lexicon::suffix::{inflect, Suffix};
+use crate::lexicon::suffix_read::{regular_ed_candidates, undouble};
 use crate::ir::{Act, Aspect, Filler, Force, Frame, Polarity, Role, Tense, Thing, Voice, Wh};
 
 mod express;

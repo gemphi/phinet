@@ -87,7 +87,7 @@ pub(in crate::ladder::act) fn say_thing(thing: &Thing) -> Vec<String> {
     // Never pluralise a function word that slipped into a Thing head (a
     // mis-segmented "we"/"at"): the foundation lexicon keeps it whole.
     let head = if thing.plural && crate::lexicon::inflectable(&thing.head) {
-        pluralise(&thing.head)
+        inflect(&thing.head, Suffix::PLURAL)
     } else {
         thing.head.clone()
     };

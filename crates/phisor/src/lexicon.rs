@@ -27,6 +27,7 @@ pub mod contraction;
 pub mod irregular;
 pub mod lists;
 pub mod suffix;
+pub mod suffix_read;
 use std::collections::HashMap;
 use std::sync::OnceLock;
 

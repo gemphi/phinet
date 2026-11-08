@@ -46,19 +46,19 @@ fn irregular_verbs_come_from_the_guides_own_appendix() {
 
 #[test]
 fn short_stressed_verbs_double_the_final_consonant() {
-    assert_eq!(ing("run"), "running");
-    assert_eq!(ing("sit"), "sitting");
-    assert_eq!(past("stop"), "stopped");
-    assert_eq!(past("admit"), "admitted");
-    assert_eq!(ing("quit"), "quitting");
+    assert_eq!(inflect("run", Suffix::ING), "running");
+    assert_eq!(inflect("sit", Suffix::ING), "sitting");
+    assert_eq!(inflect("stop", Suffix::PAST), "stopped");
+    assert_eq!(inflect("admit", Suffix::PAST), "admitted");
+    assert_eq!(inflect("quit", Suffix::ING), "quitting");
     // No doubling: two vowels, final w/x/y, unstressed, or a consonant pair.
-    assert_eq!(past("wait"), "waited");
-    assert_eq!(ing("rain"), "raining");
-    assert_eq!(past("show"), "showed");
-    assert_eq!(past("fix"), "fixed");
-    assert_eq!(past("visit"), "visited");
-    assert_eq!(ing("open"), "opening");
-    assert_eq!(past("add"), "added");
+    assert_eq!(inflect("wait", Suffix::PAST), "waited");
+    assert_eq!(inflect("rain", Suffix::ING), "raining");
+    assert_eq!(inflect("show", Suffix::PAST), "showed");
+    assert_eq!(inflect("fix", Suffix::PAST), "fixed");
+    assert_eq!(inflect("visit", Suffix::PAST), "visited");
+    assert_eq!(inflect("open", Suffix::ING), "opening");
+    assert_eq!(inflect("add", Suffix::PAST), "added");
 }
 
 #[test]

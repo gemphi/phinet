@@ -25,7 +25,7 @@ pub(in crate::ladder::act) fn say_theme(matrix: &Frame, theme: &Filler) -> Vec<S
         if (lists::gerund_verbs().contains(&matrix.pred.as_str()) || lists::control_verbs().contains(&matrix.pred.as_str()))
             && is_gerund_complement(matrix, inner)
         {
-            let mut out = vec![ing(&inner.pred)];
+            let mut out = vec![inflect(&inner.pred, Suffix::ING)];
             out.extend(complements_skipping(inner, None, true));
             out.extend(adjuncts(inner, None));
             return out;
@@ -109,7 +109,7 @@ pub(in crate::ladder::act) fn adjuncts(frame: &Frame, skip: Option<&Role>) -> Ve
                     // bare verb and its complements, not as a finite statement.
                     if lists::gerund_prepositions().contains(&prep.as_str()) && is_gerund_complement(frame, inner) {
                         // A preposition + gerund ("... for helping him").
-                        out.push(ing(&inner.pred));
+                        out.push(inflect(&inner.pred, Suffix::ING));
                         out.extend(complements_skipping(inner, None, true));
                         out.extend(adjuncts(inner, None));
                     } else if crate::lexicon::lists::is_role(prep, "infinitive_marker") && is_control_infinitive(frame, inner) {

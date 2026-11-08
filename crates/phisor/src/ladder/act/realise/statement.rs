@@ -87,7 +87,7 @@ pub(in crate::ladder::act) fn statement(frame: &Frame) -> Vec<String> {
     if let Some(inner) = weather_gerund(frame) {
         let mut words = vec!["it".to_string()];
         words.extend(verb_group(frame));
-        words.push(ing(&inner.pred));
+        words.push(inflect(&inner.pred, Suffix::ING));
         words.extend(adjuncts(frame, None));
         return words;
     }

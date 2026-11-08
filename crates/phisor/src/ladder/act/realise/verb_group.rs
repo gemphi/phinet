@@ -39,7 +39,7 @@ pub(in crate::ladder::act) fn verb_group(frame: &Frame) -> Vec<String> {
         (Aspect::Progressive, Voice::Active) => {
             // `be` + -ing: "a girl is wearing".
             let be = be_form(frame.tense, third, is_first_person(frame));
-            with_not(vec![be], neg_w, ing(&frame.pred))
+            with_not(vec![be], neg_w, inflect(&frame.pred, Suffix::ING))
         }
         (Aspect::Progressive, Voice::Passive) => {
             // `be being` + past participle: "the car is being repaired".
@@ -59,7 +59,7 @@ pub(in crate::ladder::act) fn verb_group(frame: &Frame) -> Vec<String> {
         (Aspect::PerfectProgressive, _) => {
             // `have been` + -ing: "she has been wearing".
             let have = have_form(frame.tense, third);
-            with_not(vec![have, "been".into()], neg_w, ing(&frame.pred))
+            with_not(vec![have, "been".into()], neg_w, inflect(&frame.pred, Suffix::ING))
         }
     }
 }
@@ -125,7 +125,7 @@ pub(in crate::ladder::act) fn modal_tail(frame: &Frame) -> Vec<String> {
     match (frame.aspect, frame.voice) {
         (Aspect::Simple, Voice::Active) => vec![frame.pred.clone()],
         (Aspect::Simple, Voice::Passive) => vec!["be".into(), participle(&frame.pred)],
-        (Aspect::Progressive, Voice::Active) => vec!["be".into(), ing(&frame.pred)],
+        (Aspect::Progressive, Voice::Active) => vec!["be".into(), inflect(&frame.pred, Suffix::ING)],
         (Aspect::Progressive, Voice::Passive) => {
             vec!["be".into(), "being".into(), participle(&frame.pred)]
         }
@@ -136,7 +136,7 @@ pub(in crate::ladder::act) fn modal_tail(frame: &Frame) -> Vec<String> {
             vec!["have".into(), "been".into(), participle(&frame.pred)]
         }
         (Aspect::PerfectProgressive, _) => {
-            vec!["have".into(), "been".into(), ing(&frame.pred)]
+            vec!["have".into(), "been".into(), inflect(&frame.pred, Suffix::ING)]
         }
     }
 }
@@ -162,8 +162,8 @@ pub(in crate::ladder::act) fn simple_active(frame: &Frame, third: bool, neg: boo
         return out;
     }
     out.push(match frame.tense {
-        Tense::Past => past(&frame.pred),
-        Tense::Present => if third { third_s(&frame.pred) } else { frame.pred.clone() },
+        Tense::Past => inflect(&frame.pred, Suffix::PAST),
+        Tense::Present => if third { inflect(&frame.pred, Suffix::THIRD) } else { frame.pred.clone() },
     });
     out
 }
