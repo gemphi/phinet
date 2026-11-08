@@ -22,14 +22,17 @@
 //! | `classes/table` | the pairs, sparse per unit; the class table over dense class ids |
 //! | `classes/halve` | `halve`, `Halving`, `Grow`: the depths, the passes, Babbage's stop |
 //! | `classes/pay` | a split kept only if its gain exceeds `split_cost` |
+//! | `classes/context` | `shuffle_classes`, `collapse_small`, `predictive_gain`: the context experiments' statistics |
 
 mod compare;
+mod context;
 mod halve;
 #[cfg(test)]
 mod halving_tests;
 mod pay;
 mod table;
 
+pub use context::{collapse_small, predictive_gain, shuffle_classes, MIN_CLASS};
 pub use halve::{halve, halve_with, Grow, Halving, Settings, MAX_DEPTH, MAX_PASSES, STOP};
 
 /// `x ln x`, 0 at 0 (and for the negative zero a subtraction can leave).
