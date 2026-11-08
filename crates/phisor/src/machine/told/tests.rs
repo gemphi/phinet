@@ -131,6 +131,8 @@ fn a_hole_inside_a_clause_is_read_off_the_sub_event() {
         Act::new(Force::Ask, Frame::new("want", Tense::Present).with(Role::Agent, Filler::Name("sarah".into())).with(role.clone(), Filler::Clause(Box::new(q))))
     };
     assert_eq!(answer_told(&with(Filler::Hole(Wh::Where)), &rows).unwrap().members, ["home"]);
+    // And from the English itself, now the reader puts the hole in the clause.
+    assert_eq!(answer_told(&read("where does sarah want to go?").expect("read"), &rows).unwrap().members, ["home"]);
     assert_eq!(answer_told(&with(Filler::Word("home".into())), &rows).unwrap().members, ["yes"]);
     assert_eq!(answer_told(&with(Filler::Word("work".into())), &rows).unwrap().members, ["no"]);
     let run = answer_usage(&with(Filler::Hole(Wh::Where)), &rows).unwrap();

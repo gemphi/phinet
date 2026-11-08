@@ -79,8 +79,14 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
     let mut roles = Vec::new();
     if let Some(hole) = &hole {
         roles.push(hole.role.clone());
+        // A `where` reads every preposition role; inside a clause, every role
+        // the question left open ("go home" keeps its place under `theme`).
         if hole.anywhere {
-            roles.extend(preposition_roles(&kinds).into_iter().filter(|r| *r != hole.role));
+            let more = match levels.len() > 1 {
+                true => open_roles(&kinds, &levels[levels.len() - 1].filters),
+                false => preposition_roles(&kinds),
+            };
+            roles.extend(more.into_iter().filter(|r| *r != hole.role));
         }
     }
     // The predicate under every force the store holds, and under a clause.

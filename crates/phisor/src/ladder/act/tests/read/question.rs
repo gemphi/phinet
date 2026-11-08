@@ -86,3 +86,19 @@ fn a_going_to_question_reads() {
     assert_eq!(act.frame.pred, "eat");
     assert_eq!(act.frame.modal, Some(Modal::Will));
 }
+
+#[test]
+fn a_wh_question_on_a_control_verb_puts_the_hole_in_the_infinitive() {
+    use crate::ir::{Filler, Role, Wh};
+    // "where does sarah want to go?" asks about the going, not the wanting:
+    // the infinitive is the theme clause and the hole sits inside it.
+    let act = read("where does sarah want to go?").expect("read");
+    assert_eq!(act.frame.pred, "want");
+    let Some(Filler::Clause(inner)) = act.frame.get(&Role::Theme) else { panic!("the infinitive is the theme: {act:?}") };
+    assert_eq!(inner.pred, "go");
+    assert!(inner.slots.iter().any(|(_, f)| matches!(f, Filler::Hole(Wh::Where))), "the hole is in the clause: {inner:?}");
+    assert!(!act.frame.slots.iter().any(|(_, f)| matches!(f, Filler::Hole(_))), "and not on want: {act:?}");
+    // The yes/no shape is unchanged.
+    let yes_no = read("does sarah want to go home?").expect("read");
+    assert!(matches!(yes_no.frame.get(&Role::Theme), Some(Filler::Clause(c)) if c.pred == "go"));
+}

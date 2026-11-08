@@ -113,10 +113,16 @@ pub(in crate::ladder::act) fn read_question(words: &[String]) -> Option<Act> {
     }
 
     // A control verb with its own-subject infinitive ("do you want to eat
-    // now?"): the inner clause is the theme, as in the declarative.
-    if wh.is_none() && lists::control_verbs().contains(&lemma.as_str()) && words.get(i).map(String::as_str) == Some("to") {
-        if let Some(inner) = read_infinitive(&words[i + 1..], frame.get(&Role::Agent)?) {
-            return Some(Act::new(Force::Ask, frame.with(Role::Theme, Filler::clause(inner.frame))));
+    // now?"): the inner clause is the theme, as in the declarative. A wh
+    // ("where does sarah want to go?") asks about the inner clause, so its
+    // hole is placed there, not on the control verb.
+    if lists::control_verbs().contains(&lemma.as_str()) && words.get(i).map(String::as_str) == Some("to") {
+        if let Some(inner) = frame.get(&Role::Agent).and_then(|agent| read_infinitive(&words[i + 1..], agent)) {
+            let inner = match wh {
+                Some(wh) => place_wh(inner.frame, wh, true),
+                None => inner.frame,
+            };
+            return Some(Act::new(Force::Ask, frame.with(Role::Theme, Filler::clause(inner))));
         }
     }
 
