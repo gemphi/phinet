@@ -13,7 +13,7 @@ graph TB
         english["english (planned)<br/>closed · chunk · clause · realise · morph"]
         learn["learn (planned)<br/>the one loop · position · moves"]
         ground["ground (planned)<br/>rows · flatten"]
-        machine["machine<br/>host · phisor-apply: the 64 Operators from the Lisp by index<br/>ops: operation cards - data/ops/*.lisp read at birth, punched at run time<br/>engine: Note G's trace per run · arrange by economy (paper 28)<br/>usage: what a run invoked - primitives, host calls, Operators, cards (runs/mill-usage)<br/>ask (a thing by its descriptors) · told (what was told, over events; docs/211)<br/>lower · word · agree · a lambda per operation"]
+        machine["machine<br/>host · phisor-apply: the 64 Operators from the Lisp by index<br/>ops: operation cards - data/ops/*.lisp read at birth, punched at run time<br/>engine: Note G's trace per run · arrange by economy (paper 28)<br/>usage: what a run invoked - primitives, host calls, Operators, cards (runs/mill-usage)<br/>ask (a thing by its descriptors) · told (what was told, over events; docs/211) · told::nested: a hole inside a clause<br/>lower · word · agree · a lambda per operation"]
         measure["measure (planned)<br/>records · the thinkers"]
     end
     code --> units

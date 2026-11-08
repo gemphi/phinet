@@ -39,15 +39,22 @@
 //! answering `yes` or `no`, where `no` means not among what was told
 //! (docs/phisor/runs/mill-usage-2026-11-08, the operation the count found
 //! missing).
+//!
+//! A hole inside a clause - "where does sarah want to go?" - descends:
+//! the events the top level names, the sub-events under its role that meet
+//! the clause's own roles, and the hole read off the bottom (`nested`,
+//! the `told-under` card).
 
 use phical::keyboard::Arena;
 use phiclm::lisp::{Env, Host, Value};
 
 use crate::ground::{is_event, unground, CLAUSE, FEATURES};
-use crate::ir::{Act, Filler, Force, Role, Wh};
+use crate::ir::{Act, Force, Role};
 
 use super::ask::{call, relation, Answered, AskError, Constraint};
 use super::{checked, KindRows, PhisorHost};
+
+mod nested;
 
 const BINDING: &str = "phisor-answer-told";
 const ARENA_SEED: u64 = 0x544f_4c44;
@@ -68,7 +75,7 @@ pub fn answer_told_kinds(act: &Act, kinds: KindRows) -> Result<Answered, AskErro
 /// optionally a `card` — a `(define told-answer (lambda …))` — that replaces
 /// the shipped card for this run (`engine::arrange` tries several).
 pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&str>) -> Result<super::engine::Run, AskError> {
-    let (pred, filters, hole) = events_and_hole(act)?;
+    let (levels, hole) = nested::levels(act)?;
     let mut roles = Vec::new();
     if let Some(hole) = &hole {
         roles.push(hole.role.clone());
@@ -81,7 +88,7 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
     if forces.is_empty() {
         forces.push("assert".into());
     }
-    for kind in filters.iter().map(|f| f.kind.as_str()).chain(roles.iter().map(String::as_str)).chain(forces.iter().map(String::as_str)) {
+    for kind in nested::kinds(&levels).into_iter().chain(roles.iter().map(String::as_str)).chain(forces.iter().map(String::as_str)) {
         if kinds.rows(kind).is_err() {
             kinds = kinds.told(kind, &[]);
         }
@@ -97,9 +104,11 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
     }
     // Loading the cards is the machine's birth, not the run: the tally starts here.
     machine.take_tally();
-    let query = match hole {
-        Some(_) => query_told(&pred, &forces, &filters, &roles),
-        None => query_whether(&pred, &forces, &filters),
+    let top = &levels[0];
+    let query = match (levels.len(), &hole) {
+        (1, Some(_)) => query_told(&top.pred, &forces, &top.filters, &roles),
+        (1, None) => query_whether(&top.pred, &forces, &top.filters),
+        _ => nested::query(&levels, under_forces(&top.pred, &forces), &roles),
     };
     machine.eval(&define_told(query), &mut environment).map_err(AskError::Machine)?;
     let value = machine.eval(&call(BINDING, Vec::new()), &mut environment).map_err(AskError::Machine)?;
@@ -116,13 +125,6 @@ pub fn answer_told_traced_kinds(act: &Act, mut kinds: KindRows, card: Option<&st
         Value::Sym(word) => Ok(super::engine::Run { answered: Answered { members: vec![word], count: 1 }, steps, usage }),
         other => Err(AskError::Machine(format!("{BINDING} returned {other}, not a class or a word"))),
     }
-}
-
-/// The role a question's hole fills, and whether it is a `where` under a
-/// preposition, which any preposition role may answer.
-struct Hole {
-    role: String,
-    anywhere: bool,
 }
 
 /// An answer that is an event the rows describe, said in English through
@@ -146,34 +148,6 @@ fn force_kinds(kinds: &KindRows) -> Vec<String> {
         .collect()
 }
 
-/// The predicate, the fixed roles as constraints on the event - each role
-/// with its filler - and the one role the hole fills; no hole for a yes/no
-/// question.
-fn events_and_hole(act: &Act) -> Result<(String, Vec<Constraint>, Option<Hole>), AskError> {
-    if act.force != Force::Ask {
-        return Err(AskError::NotAsk { given: act.force });
-    }
-    let mut filters = Vec::new();
-    let mut holes = Vec::new();
-    for (role, filler) in &act.frame.slots {
-        let other = match filler {
-            Filler::Hole(wh) => {
-                holes.push(Hole { role: role.name().to_string(), anywhere: matches!(wh, Wh::Where) && matches!(role, Role::Via(_)) });
-                continue;
-            }
-            Filler::Thing(thing) => thing.head.clone(),
-            Filler::Name(s) | Filler::Pronoun(s) | Filler::Word(s) => s.clone(),
-            Filler::Clause(_) => continue,
-        };
-        filters.push(Constraint { kind: role.name().to_string(), other });
-    }
-    match holes.len() {
-        0 => Ok((act.frame.pred.clone(), filters, None)),
-        1 => Ok((act.frame.pred.clone(), filters, Some(holes.remove(0)))),
-        n => Err(AskError::HoleCount { given: n }),
-    }
-}
-
 /// The kinds that are preposition roles: not a named role, a feature or a
 /// force. Structural, so no list of prepositions lives here.
 fn preposition_roles(kinds: &KindRows) -> Vec<String> {
@@ -191,8 +165,7 @@ fn preposition_roles(kinds: &KindRows) -> Vec<String> {
 /// the card in `data/ops/core.lisp`, which is
 /// `image(union-all(roles), domain(meet-all(relations)))`.
 fn query_told(pred: &str, forces: &[String], filters: &[Constraint], roles: &[String]) -> Value {
-    let under: Vec<Value> = forces.iter().map(|f| relation(&Constraint { kind: f.clone(), other: pred.to_string() })).collect();
-    let mut relations: Vec<Value> = vec![call("union-all", vec![call("list", under)])];
+    let mut relations: Vec<Value> = vec![under_forces(pred, forces)];
     relations.extend(filters.iter().map(relation));
     let rows: Vec<Value> = roles.iter().map(|r| call("phisor-rows", vec![Value::Str(r.clone())])).collect();
     call("told-answer", vec![call("list", rows), call("list", relations)])
@@ -201,10 +174,16 @@ fn query_told(pred: &str, forces: &[String], filters: &[Constraint], roles: &[St
 /// `(told-whether (list relations…))`: yes if the events the roles name are
 /// more than none, else no.
 fn query_whether(pred: &str, forces: &[String], filters: &[Constraint]) -> Value {
-    let under: Vec<Value> = forces.iter().map(|f| relation(&Constraint { kind: f.clone(), other: pred.to_string() })).collect();
-    let mut relations: Vec<Value> = vec![call("union-all", vec![call("list", under)])];
+    let mut relations: Vec<Value> = vec![under_forces(pred, forces)];
     relations.extend(filters.iter().map(relation));
     call("told-whether", vec![call("list", relations)])
+}
+
+/// `(union-all (list (identity (referents (phisor-rows force) pred))…))`: the
+/// predicate's events under every force the store holds.
+fn under_forces(pred: &str, forces: &[String]) -> Value {
+    let under: Vec<Value> = forces.iter().map(|f| relation(&Constraint { kind: f.clone(), other: pred.to_string() })).collect();
+    call("union-all", vec![call("list", under)])
 }
 
 fn define_told(body: Value) -> Value {

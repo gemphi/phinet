@@ -1,7 +1,7 @@
 use super::*;
 use super::super::answer_usage;
 use crate::ground::{ground, unfold};
-use crate::ir::{Frame, Role, Tense, Thing, Wh};
+use crate::ir::{Filler, Frame, Role, Tense, Thing, Wh};
 use crate::ladder::read;
 
 /// Told two of the guide's own sentences in English, it answers questions
@@ -102,4 +102,38 @@ fn a_yes_no_question_is_membership_over_what_was_told() {
     let run = answer_usage(&read("is sarah driving to work?").unwrap(), &rows).unwrap();
     assert!(run.usage.cards.contains_key("told-whether") && !run.usage.cards.contains_key("told-answer"), "{:?}", run.usage.cards);
     assert!(run.usage.operators.is_empty(), "a card over primitives the mill has, not an Operator");
+}
+
+/// A hole inside a clause: told "sarah wants to go home", asked the same
+/// with "home" a hole, it answers off the sub-event; and whether she wants
+/// to go there is yes, elsewhere no. (The reader does not yet read "where
+/// does sarah want to go?", so the question is the told act with its hole.)
+#[test]
+fn a_hole_inside_a_clause_is_read_off_the_sub_event() {
+    let want = read("sarah wants to go home.").expect("the reader reads it");
+    let mut rows = unfold(&want, "e1");
+    if let Some(other) = read("tom wants to go to work.") {
+        rows.extend(unfold(&other, "e2"));
+    }
+    let (role, inner) = want.frame.slots.iter().find_map(|(r, f)| match f {
+        Filler::Clause(i) => Some((r.clone(), i.as_ref().clone())),
+        _ => None,
+    }).expect("a clause fills a role");
+    let is_home = |f: &Filler| matches!(f, Filler::Thing(t) if t.head == "home") || matches!(f, Filler::Word(w) | Filler::Name(w) if w == "home");
+    assert!(inner.slots.iter().any(|(_, f)| is_home(f)), "home is in the clause: {inner:?}");
+    let with = |home: Filler| {
+        let mut q = inner.clone();
+        for (_, f) in q.slots.iter_mut() {
+            if is_home(f) {
+                *f = home.clone();
+            }
+        }
+        Act::new(Force::Ask, Frame::new("want", Tense::Present).with(Role::Agent, Filler::Name("sarah".into())).with(role.clone(), Filler::Clause(Box::new(q))))
+    };
+    assert_eq!(answer_told(&with(Filler::Hole(Wh::Where)), &rows).unwrap().members, ["home"]);
+    assert_eq!(answer_told(&with(Filler::Word("home".into())), &rows).unwrap().members, ["yes"]);
+    assert_eq!(answer_told(&with(Filler::Word("work".into())), &rows).unwrap().members, ["no"]);
+    let run = answer_usage(&with(Filler::Hole(Wh::Where)), &rows).unwrap();
+    assert!(run.usage.cards.contains_key("told-under"), "{:?}", run.usage.cards);
+    assert!(run.usage.operators.is_empty());
 }

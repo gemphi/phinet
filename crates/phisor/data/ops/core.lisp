@@ -17,3 +17,10 @@
 ; (docs/phisor/runs/mill-usage-2026-11-08: the one operation the count found missing). `no` is
 ; "not among what was told": the store is all the machine knows.
 (define told-whether (lambda (rels) (if (< 0 (count (events rels))) (quote yes) (quote no))))
+
+; a hole inside a clause (told::nested): of the events `evs`, the sub-events their `role-rows` name
+; that meet `inner-rels` (the clause's predicate and its own fixed roles); then the hole's roles
+; read off the bottom, or whether the bottom holds any event
+(define told-under (lambda (evs role-rows inner-rels) (events (cons (identity (range (restrict-domain (union-all role-rows) evs))) inner-rels))))
+(define told-answer-of (lambda (roles evs) (image (union-all roles) evs)))
+(define told-whether-of (lambda (evs) (if (< 0 (count evs)) (quote yes) (quote no))))
