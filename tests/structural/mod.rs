@@ -33,6 +33,7 @@ mod literal;
 mod manifest;
 mod numbers;
 mod pairs;
+mod persona_once;
 
 /// The ten phinet crates, in dependency order: the order a level's tests
 /// compile in, and the order the tables below are written in. The order is
