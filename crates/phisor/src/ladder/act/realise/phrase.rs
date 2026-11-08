@@ -73,7 +73,7 @@ pub(in crate::ladder::act) fn say_thing(thing: &Thing) -> Vec<String> {
                 // A host infinitive ("something to read"): `to`, the bare
                 // verb and its complements; it has no subject to say.
                 match value {
-                    Filler::Clause(inner) if prep == "to" => {
+                    Filler::Clause(inner) if crate::lexicon::lists::is_role(prep, "infinitive_marker") => {
                         post.push(inner.pred.clone());
                         post.extend(complements_skipping(inner, None, true));
                         post.extend(adjuncts(inner, None));

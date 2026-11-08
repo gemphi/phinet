@@ -68,7 +68,7 @@ pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler
     let verb = words.first()?;
     // "to be a teacher": the copula infinitive takes the controlling subject
     // as its theme and the rest as its complement, as a finite copula does.
-    if verb == "be" {
+    if crate::lexicon::lists::is_role(verb, "copula_lemma") {
         let rest = &words[1..];
         let mut frame = Frame::new("be", Tense::Present).with(Role::Theme, subject.clone());
         if rest.first().is_some_and(|w| is_preposition(w)) {
@@ -84,7 +84,7 @@ pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler
         }
         return Some(Act::new(Force::Assert, frame));
     }
-    if is_aux(verb) || verb == "to" {
+    if is_aux(verb) || crate::lexicon::lists::is_role(verb, "infinitive_marker") {
         return None;
     }
     // The infinitive verb is a bare lemma; read it as a present-simple clause.
@@ -106,7 +106,7 @@ pub(in crate::ladder::act) fn read_infinitive(words: &[String], subject: &Filler
 /// from `to_modified_host.txt`: the infinitive then modifies the host.
 pub(in crate::ladder::act) fn infinitive_after_host(host: &str, tail: &[String]) -> bool {
     lists::to_modified_hosts().contains(&host)
-        && tail.first().is_some_and(|w| w == "to")
+        && tail.first().is_some_and(|w| crate::lexicon::lists::is_role(w, "infinitive_marker"))
         && tail.get(1).is_some_and(|w| is_purpose_verb(w))
 }
 

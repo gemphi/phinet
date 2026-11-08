@@ -100,6 +100,7 @@
 //! one_join bucket (274) and `not`/`there` the simple bucket (305).
 
 /// The ranking above, as data: (trigger, abstained sentences it marks).
+#[cfg(test)]
 const RANKED: [(&str, usize); 10] = [
     ("but", 54),
     ("or", 42),

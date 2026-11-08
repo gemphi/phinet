@@ -55,7 +55,7 @@ pub(in crate::ladder::act) fn split_operator(frame: &Frame, mut group: Vec<Strin
     let simple_lexical = frame.modal.is_none()
         && frame.aspect == Aspect::Simple
         && frame.voice == Voice::Active
-        && frame.pred != "be";
+        && !crate::lexicon::lists::is_role(&frame.pred, "copula_lemma");
     if simple_lexical {
         let third = third_singular(frame);
         let neg = frame.polarity == Polarity::Negative;

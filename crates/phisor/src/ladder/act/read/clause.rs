@@ -95,7 +95,7 @@ pub(in crate::ladder::act) fn finish_with_purpose(frame: Frame, words: &[String]
     }
     let agent = frame.get(&Role::Agent)?.clone();
     for k in from..words.len().saturating_sub(1) {
-        if words[k] != "to" || !is_purpose_verb(&words[k + 1]) {
+        if !crate::lexicon::lists::is_role(&words[k], "infinitive_marker") || !is_purpose_verb(&words[k + 1]) {
             continue;
         }
         if k > 0 && lists::to_modified_hosts().contains(&words[k - 1].as_str()) {

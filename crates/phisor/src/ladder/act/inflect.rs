@@ -4,8 +4,8 @@ use super::*;
 /// The present third-person `-s` form: `boil` -> `boils`, `go` -> `goes`,
 /// `fly` -> `flies`. The closed rule Murphy Unit 2 teaches.
 pub(in crate::ladder::act) fn third_s(verb: &str) -> String {
-    if verb == "have" {
-        return "has".into();
+    if crate::lexicon::lists::is_role(verb, "have_lemma") {
+        return crate::lexicon::lists::word_of("have_3sg").into();
     }
     if verb.ends_with('s') || verb.ends_with('x') || verb.ends_with("ch") || verb.ends_with("sh") || verb.ends_with('o') {
         format!("{verb}es")

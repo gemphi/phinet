@@ -38,7 +38,7 @@ pub fn realise_cased(act: &Act) -> String {
 /// `as`-complement, with a theme. "there is a problem" is read and written as
 /// one of these.
 pub(in crate::ladder::act) fn is_existential(frame: &Frame) -> bool {
-    frame.pred == "be"
+    crate::lexicon::lists::is_role(&frame.pred, "copula_lemma")
         && frame.voice == Voice::Active
         && frame.modal.is_none()
         && frame.aspect == Aspect::Simple

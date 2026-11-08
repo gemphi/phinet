@@ -137,7 +137,7 @@ fn tokens(s: &str) -> Vec<&str> {
 }
 
 fn no_etc(s: &str) -> bool {
-    tokens(s).iter().any(|t| *t == "etc")
+    tokens(s).iter().any(|t| crate::lexicon::lists::is_role(t, "scaffold_abbrev"))
 }
 
 fn no_stray_letter(s: &str) -> bool {

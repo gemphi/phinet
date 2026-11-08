@@ -18,10 +18,10 @@ pub(in crate::ladder::act) fn strip_adverbs_keeping(words: &[String], keep_never
         .iter()
         .filter(|w| {
             let is_adverb = lists::set_aside_adverbs().contains(&w.as_str());
-            if is_adverb && w.as_str() == "never" {
+            if is_adverb && crate::lexicon::lists::is_role(w, "negative_adverb") {
                 never = true;
             }
-            !is_adverb || (keep_never && w.as_str() == "never")
+            !is_adverb || (keep_never && crate::lexicon::lists::is_role(w, "negative_adverb"))
         })
         .cloned()
         .collect();

@@ -23,6 +23,7 @@ mod pronoun;
 mod spelling;
 mod verb;
 mod word_class;
+mod word_role;
 mod words;
 
 pub use adverb::*;
@@ -35,4 +36,5 @@ pub use pronoun::*;
 pub use spelling::*;
 pub use verb::*;
 pub use word_class::*;
+pub use word_role::*;
 pub use words::*;

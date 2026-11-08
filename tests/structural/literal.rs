@@ -28,6 +28,22 @@ pub const ALLOWED: &[(&str, &str)] = &[
     ("OCODE_NAMES", "mnemonics of the machine's operation codes"),
 ];
 
+/// Match and eq hits (and arrays by line text) that are not language, by
+/// file and a fragment of the hit text, each with its reason (R8.4).
+pub const ALLOWED_HITS: &[(&str, &str, &str)] = &[
+    ("gold/read.rs", "Attr::", "gold attribute names, the gold file's own vocabulary"),
+    ("ground/unfold.rs", "frame.", "gold attribute names that select a frame feature"),
+    ("ir/text/parse.rs", "Attr::", "ir/text notation: the printed names of attributes"),
+    ("ir/text/parse.rs", "value == \"not\"", "ir/text notation: the printed negation token"),
+    ("ir/text/print.rs", "\"mod\" | \"order\"", "ir/text notation: attribute names that need `kind(..)`"),
+    ("ir/text/property/generate.rs", "const TEXT", "round-trip fixtures for the ir/text notation"),
+];
+
+/// Whether a hit on `file` with source line `text` is on the allowlist.
+fn is_allowed_hit(file: &str, text: &str) -> bool {
+    ALLOWED_HITS.iter().any(|(f, frag, _)| file.ends_with(f) && text.contains(frag))
+}
+
 /// One finding: where, which rule, and the source line.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Hit {
@@ -142,7 +158,9 @@ pub fn scan_source(file: &str, source: &str) -> Vec<Hit> {
     let lines = live_lines(source);
     let mut hits = Vec::new();
     let mut hit = |n: usize, kind: &'static str, l: &str| {
-        hits.push(Hit { file: file.into(), line: n, kind, text: l.trim().into() })
+        if !is_allowed_hit(file, l) {
+            hits.push(Hit { file: file.into(), line: n, kind, text: l.trim().into() })
+        }
     };
     let mut i = 0;
     while i < lines.len() {

@@ -112,7 +112,7 @@ pub(in crate::ladder::act) fn adjuncts(frame: &Frame, skip: Option<&Role>) -> Ve
                         out.push(ing(&inner.pred));
                         out.extend(complements_skipping(inner, None, true));
                         out.extend(adjuncts(inner, None));
-                    } else if prep == "to" && is_control_infinitive(frame, inner) {
+                    } else if crate::lexicon::lists::is_role(prep, "infinitive_marker") && is_control_infinitive(frame, inner) {
                         out.push(inner.pred.clone());
                         out.extend(complements_skipping(inner, None, true));
                         out.extend(adjuncts(inner, None));

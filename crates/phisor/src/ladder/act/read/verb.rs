@@ -63,14 +63,19 @@ pub(in crate::ladder::act) fn read_ing(word: &str) -> Option<String> {
     None
 }
 
+/// Whether a letter is a vowel, from `word_role.tsv`.
+fn is_vowel(c: char) -> bool {
+    crate::lexicon::lists::is_role(&c.to_string(), "vowel")
+}
+
 /// Read a surface verb into its lemma and the tense it carries, the inverse
 /// of the realiser's morphology. Irregular pasts the gold set uses are named;
 /// a regular `-ed` or third-person `-s` is undone by rule. A bare lemma reads
 /// as the present. This lets the reader recover "boils" -> (boil, Present) and
 /// "wore" -> (wear, Past) instead of storing the surface string.
 pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
-    if word == "has" {
-        return ("have".into(), Tense::Present);
+    if crate::lexicon::lists::is_role(word, "have_3sg") {
+        return (crate::lexicon::lists::word_of("have_lemma").into(), Tense::Present);
     }
     if let Some(lemma) = crate::lexicon::lemma_of_past(word) {
         // A form identical to its base ("put", "cut") is the present.
@@ -100,7 +105,7 @@ pub(in crate::ladder::act) fn read_verb(word: &str) -> (String, Tense) {
         // A stem ending in a doubled consonant ("add", "miss", "call") is the
         // lemma itself: "added" is add, never the non-word "adde".
         let mut tail = stem.chars().rev();
-        let doubled = matches!((tail.next(), tail.next()), (Some(a), Some(b)) if a == b && !"aeiou".contains(a));
+        let doubled = matches!((tail.next(), tail.next()), (Some(a), Some(b)) if a == b && !is_vowel(a));
         if doubled && past(stem) == word {
             return (stem.to_string(), Tense::Past);
         }
@@ -233,7 +238,7 @@ pub(in crate::ladder::act) fn read_modal(word: &str) -> Option<(crate::ir::Modal
 pub(in crate::ladder::act) fn read_modal_tail(words: &[String], from: usize) -> Option<(String, Aspect, Voice, usize)> {
     let first = words.get(from)?;
     match first.as_str() {
-        "have" => {
+        w if crate::lexicon::lists::is_role(w, "have_lemma") => {
             let mut i = from + 1;
             if words.get(i).map(String::as_str) == Some("been") {
                 i += 1;
@@ -247,7 +252,7 @@ pub(in crate::ladder::act) fn read_modal_tail(words: &[String], from: usize) -> 
             let lemma = read_participle(words.get(i)?)?;
             Some((lemma, Aspect::Perfect, Voice::Active, i + 1 - from))
         }
-        "be" => {
+        w if crate::lexicon::lists::is_role(w, "copula_lemma") => {
             let mut i = from + 1;
             if words.get(i).map(String::as_str) == Some("being") {
                 i += 1;

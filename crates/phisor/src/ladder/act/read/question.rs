@@ -164,7 +164,7 @@ pub(in crate::ladder::act) fn read_question(words: &[String]) -> Option<Act> {
 /// so a subject-less wh-question ("what isn't working?") is untouched.
 pub(in crate::ladder::act) fn lift_operator_negation(words: &[String], op_at: usize) -> Vec<String> {
     let Some(op) = words.get(op_at) else { return words.to_vec() };
-    let (operator, after) = if op == "cannot" {
+    let (operator, after) = if crate::lexicon::lists::is_role(op, "negated_can") {
         ("can".to_string(), op_at + 1)
     } else if words.get(op_at + 1).map(String::as_str) == Some("not") {
         (op.clone(), op_at + 2)

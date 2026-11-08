@@ -5,7 +5,7 @@ use crate::ladder::act::*;
 /// the reader drops it: "it has been raining" has no argument, matching the
 /// realiser's `needs_expletive`.
 pub(in crate::ladder::act) fn is_expletive_subject(lemma: &str, subject: &Filler) -> bool {
-    matches!(subject, Filler::Pronoun(p) if p.eq_ignore_ascii_case("it"))
+    matches!(subject, Filler::Pronoun(p) if crate::lexicon::lists::is_role(&p.to_ascii_lowercase(), "expletive_pronoun"))
         && lists::weather_verbs().contains(lemma)
 }
 /// Read the subject noun phrase from the front of the sentence, returning
