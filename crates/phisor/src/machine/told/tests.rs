@@ -4,16 +4,15 @@ use crate::ground::{ground, unfold};
 use crate::ir::{Filler, Frame, Role, Tense, Thing, Wh};
 use crate::ladder::read;
 
-/// Told two of the guide's own sentences in English, it answers questions
-/// about them in English: the reader makes each an act, `ground` makes the
-/// told ones rows about an event, and the question is answered over those
-/// events. (The reader as it stands does not cover "a boy was wearing a
-/// white cap": "boy" is outside its unprimed words, and primed it refuses
-/// "wearing" as noun-and-verb. That gap is the reader's, recorded in
-/// docs/211, not hidden here.)
+/// Told the guide's own sentences in English, it answers questions about
+/// them in English: the reader makes each an act, `ground` makes the told
+/// ones rows about an event, and the question is answered over those
+/// events. ("a boy was wearing a white cap" was outside the reader when
+/// docs/211 was written: "white" was not in its unprimed adjectives, and
+/// primed, a word that is also a noun was refused as a modifier.)
 #[test]
 fn told_english_it_answers_english_about_what_it_was_told() {
-    let story = ["sarah is driving to work.", "tom was reading a book.", "sarah lives in london."];
+    let story = ["sarah is driving to work.", "tom was reading a book.", "sarah lives in london.", "a boy was wearing a white cap."];
     let mut rows = Vec::new();
     for (i, s) in story.iter().enumerate() {
         let act = read(s).unwrap_or_else(|| panic!("the reader covers {s:?}"));
@@ -28,6 +27,12 @@ fn told_english_it_answers_english_about_what_it_was_told() {
     assert_eq!(answers("where is sarah driving?"), ["work"]);
     assert_eq!(answers("what was tom reading?"), ["book"]);
     assert_eq!(answers("where does sarah live?"), ["london"]);
+    // A subject wh: the hole is the agent, the rest a statement's predicate.
+    assert_eq!(answers("who was reading a book?"), ["tom"]);
+    assert_eq!(answers("who lives in london?"), ["sarah"]);
+    assert_eq!(answers("who is driving to work?"), ["sarah"]);
+    assert_eq!(answers("who was wearing a white cap?"), ["boy"]);
+    assert_eq!(answers("what was the boy wearing?"), ["cap"]);
 }
 
 /// Built by hand, so the algebra is tested apart from the reader: three

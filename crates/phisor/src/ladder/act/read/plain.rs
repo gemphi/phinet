@@ -18,8 +18,16 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
     // A question (ends in ?): a wh-word and/or an inverted operator. Parsed
     // by the mirror of the question realiser; abstains on aspects, passives
     // and proper-name objects it cannot read soundly.
+    // A question the operator reader does not read may be a subject
+    // wh-question ("who lives in london?", "who was reading a book?"): the
+    // wh is the subject and nothing is inverted, so it reads below as a
+    // statement whose subject is the hole.
+    let subject_wh = norm.ends_with('?').then(|| words.first().and_then(|w| subject_wh(w))).flatten();
     if norm.ends_with('?') {
-        return read_question(&words);
+        if let Some(act) = read_question(&words) {
+            return Some(act);
+        }
+        subject_wh?;
     }
 
     if !norm.ends_with('?') {
@@ -56,7 +64,10 @@ pub(in crate::ladder::act) fn read_plain(norm: &str, words: Vec<String>) -> Opti
         }
     }
 
-    let (subject, after_subject) = read_subject(&words)?;
+    let (subject, after_subject) = match subject_wh {
+        Some(wh) => (Filler::Hole(wh), 1),
+        None => read_subject(&words)?,
+    };
     // "i wish <clause>" where the clause is a past-subjunctive modal group from
     // `wish_form.tsv` ("i wish we did not have to go"). Tried before negation is
     // looked for, because the clause's own "did not" is not the wish's negation.

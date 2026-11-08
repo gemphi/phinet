@@ -86,11 +86,32 @@ The count said the mill was not the gap; the afternoon spent itself on cards and
 | what does sarah want to do? | to go home | the clause itself: a pro-verb and a hole ask for the sub-event |
 | what does sarah want? | to go home | `told-answer`, the event said as want's complement |
 | what does tom want to do? | to go to work | the same |
+| who was reading a book? | tom | a subject wh: no operator, the hole is the subject |
+| who lives in london? | sarah | the same |
+| who was wearing a white cap? | boy | the same; "white cap" now reads, primed or not |
+| what was the boy wearing? | cap | `told-answer` |
 
 - **A hole inside a clause** (`machine::told::nested`): the question read as levels down to the hole; `told-under` takes the events a level names to the sub-events under a role that meet the clause's own roles; `told-answer-of` and `told-whether-of` finish at the bottom. Three cards in `core.lisp`; eight cards in all now.
 - **The hole moves down.** The reader puts a `where` on the frame it reads; when it finds nothing at its level and a clause sits beside it, the question is asked again one level in, and a `where` inside a clause reads every role the question left open - "go home" keeps its place under `theme`.
 - **The loom, one gate**: `read_question`'s control-verb branch ran only for yes/no questions, so the infinitive in "where does sarah want to go?" was read as a preposition phrase. A wh on a control verb now puts its hole in the infinitive clause.
 - **A pro-verb asks for the clause** (`data/lex/pro_verb.txt`): "what does sarah want to do?" is `want(theme: do(theme: ?what))`, and the hole is the parent's role.
+- **The reader, two gates** (the same morning): a subject wh-question had no path - the operator reader wants an inverted operator - so `read_plain` now takes a who/what/which as the subject when that reader abstains, and reads the rest as a statement's predicate. And "a white cap" failed twice over: unprimed, "white" was not a fallback adjective (it is now, in `word_class.tsv`); primed, a word tagged adjective-and-noun was refused as a modifier, so "a blue suit" read unprimed and not primed. The position decides now: an adjective-capable word before a word that can head the phrase is its modifier. docs/211's "boy" was never the problem.
 - **The complement form** (the same morning): a sub-event answer that fills a told event's theme is said as that event's complement - the realiser's `say_theme`, public as `ladder::realise_complement` - so "to go home", not "sarah goes home". The rows say which event the answer is a clause of; the realiser says how a clause under that verb is said. No card changed.
 
-phisor 297 tests; phinet `98776f5` · `e873daf` · `ff19ddf` · `f40da0e` · the complement form after `7e9da45`.
+## The guide again, after the reader widened
+
+The same run as the count above, after the two reader gates:
+
+| | the count (05:00) | after the cards and the reader (10:30) |
+|---|---|---|
+| read as statements and told (rows) | 4,031 (19,180) | **4,515** (21,092) |
+| read as questions and asked | 467 | **524** |
+| answered | 204, then 467 with `told-whether` | **524** |
+| not read | 12,887 | **12,346** |
+| primitives invoked | 11 of 40, then 13 | 16 of 40 |
+| cards | 5, then 6 | 9 (`told-under`, `told-whether-of`, `told-answer-of` among them) |
+| Operators | 0 of 64 | **0 of 64** |
+
+The 57 more questions are subject wh-questions the guide asks ("who ...?", "what happened ...?" with an object), and the statements with a colour or another noun-capable adjective before the head. The mill is unchanged by any of it.
+
+phisor 299 tests; phinet `98776f5` · `e873daf` · `ff19ddf` · `f40da0e` · the complement form `04ee606` · the reader's two gates after it.

@@ -56,14 +56,16 @@ pub(in crate::ladder::act) fn determiner_of(word: &str) -> Option<crate::ir::Det
     lists::determiner(word)
 }
 
-/// Whether a word reads as an adjective modifying the head that follows it.
-/// The foundation lexicon decides when primed - adjective-capable and not a
-/// noun - so the reader does not need an adjective list; unprimed, only a
-/// small set the gold uses is treated as one, to stay sound.
+/// Whether a word can be an adjective modifying a head after it. The
+/// foundation lexicon decides when primed - adjective-capable and not a
+/// function word - so the reader needs no adjective list; a word that is
+/// also a noun or a verb ("white", "blue", "light") still qualifies, since
+/// the noun-phrase reader takes a modifier only when a head follows it, and
+/// the position, not the tag, says which it is. Unprimed, only a small set
+/// the gold uses is treated as one, to stay sound.
 pub(in crate::ladder::act) fn is_adjective_word(word: &str) -> bool {
     if crate::lexicon::is_primed() {
-        return matches!(crate::lexicon::tag(word), Some(t) if t.contains('a') && !t.contains('n') && !t.contains('v'))
-            && !crate::lexicon::function_word(word);
+        return matches!(crate::lexicon::tag(word), Some(t) if t.contains('a')) && !crate::lexicon::function_word(word);
     }
     lists::fallback_adjectives().contains(word)
 }

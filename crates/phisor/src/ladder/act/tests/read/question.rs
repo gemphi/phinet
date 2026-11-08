@@ -102,3 +102,24 @@ fn a_wh_question_on_a_control_verb_puts_the_hole_in_the_infinitive() {
     let yes_no = read("does sarah want to go home?").expect("read");
     assert!(matches!(yes_no.frame.get(&Role::Theme), Some(Filler::Clause(c)) if c.pred == "go"));
 }
+
+#[test]
+fn a_subject_wh_question_reads_in_statement_order_with_the_hole_as_subject() {
+    // "who lives in london?" has no operator to invert: the wh is the
+    // subject, the rest a statement's predicate, and it says itself back.
+    let act = read("who lives in london?").expect("read");
+    assert_eq!(act.force, crate::ir::Force::Ask);
+    assert_eq!(act.frame.pred, "live");
+    assert_eq!(act.frame.get(&Role::Agent), Some(&Filler::Hole(Wh::Who)));
+    assert_eq!(realise(&act), "who lives in london?");
+    // With an auxiliary group and an object left over, which the aspect
+    // reader's whole-chain subject wh does not take.
+    let act = read("who was reading a book?").expect("read");
+    assert_eq!(act.frame.pred, "read");
+    assert_eq!(act.frame.aspect, crate::ir::Aspect::Progressive);
+    assert_eq!(act.frame.get(&Role::Agent), Some(&Filler::Hole(Wh::Who)));
+    assert!(matches!(act.frame.get(&Role::Theme), Some(Filler::Thing(t)) if t.head == "book"), "{act:?}");
+    assert_eq!(realise(&act), "who was reading a book?");
+    // A where is never a subject, and a statement is untouched.
+    assert!(read("where in london?").is_none());
+}

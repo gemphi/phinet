@@ -26,6 +26,15 @@ pub(in crate::ladder::act) fn read_subject(words: &[String]) -> Option<(Filler, 
     Some((thing, end))
 }
 
+/// The wh that can stand as a subject - who, what, which - as the hole it
+/// asks for; where, when, why and how never are a subject. A subject
+/// wh-question ("who lives in london?") has no operator to invert: the
+/// rest reads as a statement's predicate, and the realiser says it back in
+/// statement order.
+pub(in crate::ladder::act) fn subject_wh(word: &str) -> Option<Wh> {
+    Wh::named(word).filter(|wh| matches!(wh, Wh::Who | Wh::What | Wh::Which))
+}
+
 /// A subject word as a filler: a pronoun kept nominative, else a bare word.
 pub(in crate::ladder::act) fn subject_filler(word: &str) -> Filler {
     if lists::pronouns().contains(&word) {
