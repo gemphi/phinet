@@ -36,3 +36,6 @@ Requirement 10.5, kind: module. Each row is a `mod` (a file or a folder) whose n
 | phisor | `names` | `ladder/act.rs` | `name` |
 | phiano | `markers` | `core/searle/mod.rs` | `marker` |
 
+
+## Status (task 15.1)
+All rows renamed except two that no longer exist. Renames: `types` became `shape` (not `type`, a keyword) in `config/constant`, `core/searle` and `server`; `traits` became `personality` as the table says. `frames` (`lib.rs`) and `extracts` (`wiki.rs`) are gone: neither module is in the tree. `lists` is now the folder `lexicon/list/` and `words` is `lexicon/list/word.rs`. The phiano and phisor module names in the table are the old names.
