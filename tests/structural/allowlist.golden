@@ -12,6 +12,10 @@
 #
 # One line per crate: `<crate> = <dep>, <dep>, ...`, deps sorted, an empty
 # right-hand side meaning the crate declares no outside dependency at all.
+# Re-recorded in task 14.2 of the phinet-system-completion spec: phient was
+# bincode, proc-macro2, rayon, reqwest, serde, serde_json, syn and is now the same
+# plus tokio (feature time only). Reason: the wiki source moved from phiano to
+# phient::train::wiki and sleeps between requests (tokio::time::sleep).
 # A novel outside dependency fails the Structure_Check until it is recorded
 # here, and a re-recording writes the previous list, the new list and the
 # stated reason (R11.10).
@@ -22,7 +26,7 @@ phiton = bincode, serde, serde_json
 phical = num-complex, serde, serde_json
 phiecs = bincode, rayon, serde, serde_json
 phiclm =
-phient = bincode, proc-macro2, rayon, reqwest, serde, serde_json, syn
+phient = bincode, proc-macro2, rayon, reqwest, serde, serde_json, syn, tokio
 philog = serde
 phisor =
 phiano = axum, bincode, num-complex, proc-macro2, rayon, reqwest, rustyline, serde, serde_json, syn, tokio, tokio-stream, tower-http
