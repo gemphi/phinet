@@ -57,6 +57,10 @@ see section 6). `analysis/`, `specs/`, `tasks/`, `refs/`, `scripts/`, `web/`,
 not moved by this cleanup. `jobs/` holds CV and job-spec files that are not
 phiano's: flagged for the maintainer, not decided here.
 
+No module in this table has `phisor` as its target, so task 14.1 moves
+nothing. The only `phisor` mention in sections 1 to 4 is the `ladder` example
+(section 4), which is an example file, not a `phiano/src` module.
+
 ## 2. `src/bin`
 
 Every `[[bin]]` name stays the same when a binary moves; its `Cargo.toml` entry
