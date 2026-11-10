@@ -1,0 +1,13 @@
+﻿[package]
+name = "phiada"
+version = "0.1.0"
+edition = "2021"
+description = "phiada - the Lovelace Analytical Engine: the store, the mill, the cards and Note G. Today it names phisor's lovelace correspondence; nothing has moved out of phisor."
+license = "MIT"
+
+[lib]
+name = "phiada"
+path = "src/lib.rs"
+
+[dependencies]
+phisor = { path = "../phisor" }

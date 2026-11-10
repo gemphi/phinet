@@ -33,7 +33,7 @@
 # phistd ← phifno ← phical ← {phiecs, phient, phiclm} ← philog ← phiano; phistd ← phiton ← {phiecs, phiano}.
 [workspace]
 resolver = "2"
-members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phient", "crates/phiclm", "crates/phiton", "crates/philog", "crates/phisor", "crates/phiano"]
+members = ["crates/phistd", "crates/phifno", "crates/phical", "crates/phiecs", "crates/phient", "crates/phiclm", "crates/phiton", "crates/philog", "crates/phisor", "crates/phiano", "crates/phiora", "crates/phiada", "crates/phipal"]
 
 # The Structure_Check (tests/structural/) is the workspace root's one target:
 # integration tests, not a crate. It carries no library and no dependency of
