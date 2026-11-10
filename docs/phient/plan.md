@@ -34,8 +34,8 @@ session, events and files in phient.
 | `crates/phifno/src/operator/infer.rs` | `infer` off the tape, over the same `graph::forward` | ~120 | 6 |
 | `crates/phient/src/generate/guide_state.rs` | decode state apart from the guide | ~160 | 6 |
 | `crates/phient/src/lineup/learner/cost.rs` | positions and seconds a run, an estimate before the next | ~120 | 7 |
-| `crates/phient/src/study/lines.rs` | `Lines`: count, indexed read, a split by content hash | ~150 | 8 |
-| `crates/phient/src/lineup/learner/tokens.rs` | token ids cached in the session folder | ~100 | 9 |
+| `crates/phient/src/study/line.rs` | `LineSet`: count, indexed read, a split by content hash | ~150 | 8 |
+| `crates/phient/src/lineup/learner/token.rs` | token ids cached in the session folder | ~100 | 9 |
 
 Data, not code: the session's defaults (checkpoint interval, patience,
 rate schedule) go in a file under `crates/phient/data/`, read through
@@ -47,7 +47,7 @@ rate schedule) go in a file under `crates/phient/data/`, read through
 |---|---|---|
 | `header` | lineage (the checkpoint resumed from), config, corpus hash, epoch, metrics | with every checkpoint |
 | `checkpoint-<epoch>` | planes, accumulators, told lines, rng: bit-exact | every N epochs, temp name then rename |
-| `tokens` | the corpus as token ids | once a corpus |
+| `token` | the corpus as token ids | once a corpus |
 | `asset` | planes only, f32 or Q64 | on request |
 | `record` | positions and seconds, a run a line | at the end of a run |
 
@@ -64,7 +64,7 @@ graph LR
     w5["5 compiled asset"]
     w6["6 infer off the tape · GuideState"]
     w7["7 cost plan"]
-    w8["8 indexed Lines"]
+    w8["8 indexed LineSet"]
     w9["9 cached token ids"]
     w10["10 persona delta over a frozen base"]
     w1 --> w2 --> w3

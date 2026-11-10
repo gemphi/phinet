@@ -47,7 +47,7 @@ graph LR
     f_head["header<br/>lineage: the checkpoint it resumed from<br/>config · corpus hash · epoch · metrics"]
     f_ckpt["checkpoints<br/>planes · accumulators · told lines · rng"]
     f_ids["token ids<br/>the corpus tokenised once"]
-    f_lines["Lines<br/>count + indexed read, split by content hash"]
+    f_lines["LineSet<br/>count + indexed read, split by content hash"]
     f_asset["compiled asset<br/>planes only, f32 or Q64, header readable alone"]
     f_rec["record<br/>positions and seconds a run"]
     f_head --- f_ckpt
@@ -97,6 +97,6 @@ graph LR
     a6["MLCTrainingGraph · MLCInferenceGraph<br/>ML Compute"] --> p6["infer off the tape"]
     a7["MLState<br/>Core ML"] --> p7["GuideState"]
     a8["MLComputePlan<br/>Core ML"] --> p8["cost plan"]
-    a9["MLBatchProvider<br/>Core ML"] --> p9["indexed Lines"]
+    a9["MLBatchProvider<br/>Core ML"] --> p9["indexed LineSet"]
     no["not taken: an open operator vocabulary, the layer zoo,<br/>ML Compute's API, lazy tensors, an async runtime, compute units"]
 ```
