@@ -23,6 +23,9 @@ pub mod config;
 pub mod iching;
 pub mod lexicon;
 pub mod searle;
+pub mod searle_felicity;
+pub mod searle_lexical;
+pub mod searle_marker;
 pub mod syntax;
 pub mod topology;
 pub mod variants;
@@ -36,6 +39,10 @@ pub use iching::{Hexagram, Trigram};
 pub use lexicon::{Lexicon, WordClass};
 #[allow(unused_imports)]
 pub use searle::{SearleClassifier, SpeechAct};
+#[allow(unused_imports)]
+pub use searle_felicity::{DirectionOfFit, FelicityCondition};
+#[allow(unused_imports)]
+pub use searle_marker::SearleMarker;
 #[allow(unused_imports)]
 pub use syntax::{PartOfSpeech, PosDictionary, SyntaxKey, SyntaxParser};
 #[allow(unused_imports)]

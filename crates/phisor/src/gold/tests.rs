@@ -242,3 +242,34 @@ fn the_fingerprint_reads_the_same_under_either_line_ending() {
     // it.
     assert_ne!(fingerprint("ab"), fingerprint("ba"));
 }
+
+/// Feature: phinet-english-reader-coverage, Property 3: Gold untouched.
+///
+/// **Validates: Requirements 1.5, 2.3**
+///
+/// Also phinet-system-completion, Property 2: Gold untouched.
+///
+/// **Validates: Requirements 1.5, 2.5**
+///
+/// The Unrealisable_Frame list is checked the same way: every index is in
+/// range and none is listed twice.
+///
+/// The pinned values are written out as literals so a change to the
+/// constants cannot hide a change to the file. Every unreachable index
+/// names a frame that exists, and no index is listed twice.
+#[test]
+fn property_3_gold_untouched() {
+    assert_eq!(COUNT, 150);
+    assert_eq!(FINGERPRINT, 0xba68_8be5_a28b_730c);
+    let text = include_str!("../../tests/gold/frames.tsv");
+    assert_eq!(fingerprint(text), 0xba68_8be5_a28b_730c);
+    assert_eq!(read().unwrap_or_else(|f| panic!("{f}")).len(), 150);
+    assert!(UNREACHABLE.iter().all(|u| u.index < COUNT), "an unreachable index is out of range");
+    let indices: BTreeSet<usize> = UNREACHABLE.iter().map(|u| u.index).collect();
+    assert_eq!(indices.len(), UNREACHABLE.len(), "an index is listed twice");
+    assert!((0..COUNT + 50).all(|i| unreachable(i).is_none() || i < COUNT));
+    assert!(UNREALISABLE.iter().all(|u| u.index < COUNT), "an unrealisable index is out of range");
+    let missing: BTreeSet<usize> = UNREALISABLE.iter().map(|u| u.index).collect();
+    assert_eq!(missing.len(), UNREALISABLE.len(), "an unrealisable index is listed twice");
+    assert!((0..COUNT + 50).all(|i| unrealisable(i).is_none() || i < COUNT));
+}

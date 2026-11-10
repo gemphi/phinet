@@ -48,8 +48,10 @@
 //! `g = ∂L/∂Re + i·∂L/∂Im`; see [`tensor`].
 
 pub mod codon;
+pub mod constant;
 pub mod gen;
 pub mod hexagram;
+pub mod lexfile;
 pub mod optim;
 #[path = "phasor/mod.rs"]
 pub mod phasor;

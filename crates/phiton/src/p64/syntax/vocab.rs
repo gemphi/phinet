@@ -1,68 +1,44 @@
-//! Vocabulary constant keys organized by grammatical part-of-speech.
+//! The given dictionary: each part of speech's words, read from a file
+//! under `data/lex/` (the ruling of 2026-11-07: no data in code). The words
+//! were constants here until then; they are the same words, one per line,
+//! and a run that learns a word appends it to the file so the next run
+//! knows it ([`PosDictionary::learn`]).
+//!
+//! | file | what |
+//! |---|---|
+//! | `pronoun.txt` | 31 words |
+//! | `determiner.txt` | 12 words |
+//! | `auxiliary.txt` | 24 words |
+//! | `preposition.txt` | 35 words |
+//! | `conjunction.txt` | 15 words |
+//! | `interjection.txt` | 12 words |
+//! | `adverb.txt` | 28 words |
+//! | `adjective.txt` | 28 words |
+//! | `verb.txt` | 53 words |
 
-pub const PRONOUN_KEYS: &[&str] = &[
-    "i", "you", "he", "she", "it", "we", "they",
-    "me", "him", "her", "us", "them",
-    "my", "your", "his", "its", "our", "their",
-    "mine", "yours", "hers", "ours", "theirs",
-    "this", "that", "these", "those",
-    "who", "whom", "which", "what",
-];
+use std::path::PathBuf;
+use std::sync::OnceLock;
 
-pub const DETERMINER_KEYS: &[&str] = &[
-    "a", "an", "the", "some", "any", "each", "every",
-    "all", "both", "either", "neither", "no",
-];
+/// Where the files live: the crate's own `data/lex/`, or `$PHITON_LEX`.
+pub fn lex_dir() -> PathBuf {
+    match std::env::var_os("PHITON_LEX") {
+        Some(dir) => PathBuf::from(dir),
+        None => PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/data/lex")),
+    }
+}
 
-pub const AUXILIARY_KEYS: &[&str] = &[
-    "is", "are", "was", "were", "be", "been", "being",
-    "am", "do", "does", "did", "have", "has", "had",
-    "can", "could", "will", "would", "shall", "should",
-    "may", "might", "must", "ought",
-];
+/// The file a part of speech's words are read from and appended to.
+pub fn lex_file(name: &str) -> PathBuf {
+    lex_dir().join(format!("{name}.txt"))
+}
 
-pub const PREPOSITION_KEYS: &[&str] = &[
-    "to", "of", "in", "on", "at", "for", "with", "from",
-    "as", "by", "about", "into", "through", "during",
-    "before", "after", "above", "below", "between",
-    "under", "over", "against", "among", "behind",
-    "beyond", "within", "without", "upon", "toward",
-    "towards", "until", "off", "out", "up", "down",
-];
+/// The words of a part of speech, read once from its file.
+pub fn keys(name: &'static str) -> &'static [String] {
+    static LISTS: OnceLock<std::sync::Mutex<std::collections::HashMap<&'static str, &'static [String]>>> = OnceLock::new();
+    let lists = LISTS.get_or_init(Default::default);
+    let mut lists = lists.lock().unwrap_or_else(|e| e.into_inner());
+    lists.entry(name).or_insert_with(|| Box::leak(phistd::lexfile::read(lex_file(name)).into_boxed_slice()))
+}
 
-pub const CONJUNCTION_KEYS: &[&str] = &[
-    "and", "or", "but", "if", "so", "than",
-    "because", "while", "although", "though", "unless",
-    "since", "where", "when", "whether",
-];
-
-pub const INTERJECTION_KEYS: &[&str] = &[
-    "oh", "ah", "wow", "hey", "hi", "hello", "bye",
-    "yes", "okay", "ok", "please", "thanks",
-];
-
-pub const ADVERB_KEYS: &[&str] = &[
-    "not", "very", "really", "just", "also", "too",
-    "always", "never", "often", "sometimes", "usually",
-    "now", "then", "here", "there", "today", "tomorrow",
-    "yesterday", "soon", "late", "early", "quickly",
-    "slowly", "well", "badly", "only", "even", "still",
-];
-
-pub const ADJECTIVE_KEYS: &[&str] = &[
-    "good", "bad", "great", "small", "large", "big",
-    "new", "old", "young", "first", "last", "next",
-    "same", "different", "own", "other", "such",
-    "more", "most", "less", "least", "many", "much",
-    "few", "little", "enough", "whole", "half",
-];
-
-pub const VERB_KEYS: &[&str] = &[
-    "want", "hug", "like", "love", "need", "wish", "hope",
-    "see", "look", "hear", "listen", "say", "tell", "speak", "ask",
-    "know", "think", "believe", "understand", "remember", "forget",
-    "go", "come", "make", "take", "give", "get", "find", "use",
-    "help", "try", "feel", "run", "walk", "hold", "touch", "embrace",
-    "write", "read", "learn", "teach", "play", "live", "stay", "leave",
-    "open", "close", "start", "stop", "call", "send", "show", "bring",
-];
+/// The nine given classes, in the order they are registered.
+pub const CLASSES: &[&str] = &["pronoun", "determiner", "auxiliary", "preposition", "conjunction", "interjection", "adverb", "adjective", "verb"];

@@ -143,19 +143,7 @@ fn thing(id: usize, text: &str) -> Result<Thing, Flaw> {
 /// own — the realiser chooses `a` or `an`, `this` or `these` — so this table
 /// belongs to the frozen file rather than to the language.
 fn det(word: &str) -> Option<Det> {
-    match word {
-        "the" => Some(Det::Definite),
-        "a" | "an" => Some(Det::Indefinite),
-        "this" | "these" => Some(Det::Near),
-        "that" | "those" => Some(Det::Far),
-        "some" | "any" | "no" | "every" | "each" | "all" | "many" | "both" => {
-            Some(Det::Quant(word.to_string()))
-        }
-        "my" | "your" | "his" | "her" | "its" | "our" | "their" => {
-            Some(Det::Owner(word.to_string()))
-        }
-        _ => None,
-    }
+    crate::lexicon::list::determiner(word)
 }
 
 /// The attribute a name stands for: the three fixed ones, `~p` for one

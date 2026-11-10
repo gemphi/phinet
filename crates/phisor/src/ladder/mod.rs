@@ -9,7 +9,7 @@
 //! | `mode` | the Mode gate and the write: [`mode`], [`named`], [`write`], [`show`] |
 //! | `account` | the sentence accounting of R5.15: [`SHAPED`], [`shaped`], [`Account`] |
 //! | `grow` | the code's growth and the Mode nesting: [`grow_code`], [`nesting`] |
-//! | `kinds` | the Variation and Kind heights: `variation`, `kinds` (task 13.4) |
+//! | `kind` | the Variation and Kind heights: `variation`, `kinds` (task 13.4) |
 //! | `measure` | the height measures and their Bars (task 13.5) |
 //! | `property` | Properties 21 through 25 and 52, at their respective heights |
 //! | `tests` | the word height's examples, and the corpus the properties draw over |
@@ -27,20 +27,22 @@
 //! Learned arm. [`Ladder`] is the design's `Ladder_Runner` under the
 //! workspace's naming rule, which wants a type name singular.
 
+mod abstain;
 mod account;
 mod act;
 mod grow;
-mod kinds;
+mod kind;
 mod measure;
 mod mode;
 #[cfg(test)]
 mod property;
 #[cfg(test)]
 mod tests;
+pub use abstain::{abstention_kind, KINDS as ABSTENTION_KINDS};
 pub use account::{shaped, Account, SHAPED};
-pub use act::{force_purity, read, read_realise_rate, realise, round_trip};
+pub use act::{force_purity, read, read_realise_rate, realise, realise_cased, realise_complement, round_trip, round_trip_canonical, word_lists};
 pub use grow::{grow_code, nesting, CodeReport, DepthReport, Nesting};
-pub use kinds::{kinds, river, variation, KindGroup, KindReport, Variation};
+pub use kind::{kinds, river, variation, KindGroup, KindReport, Variation};
 pub use measure::*;
 pub use mode::{holds, mode, named, show, write, FEWEST, MODES, MOST};
 

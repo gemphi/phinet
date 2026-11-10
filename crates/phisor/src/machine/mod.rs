@@ -24,14 +24,22 @@
 
 pub mod agree;
 pub mod ask;
+pub mod engine;
 pub mod host;
 pub mod lower;
+pub mod op;
+pub mod told;
+pub mod usage;
 pub mod word;
 
 pub use agree::{agree, Agreement, Mismatch, STEP_CAP};
 pub use ask::{answer, answer_kinds, answer_with_oracle, Answered, AskError};
 
 pub use host::{checked, HostError, KindRows, PhisorHost};
+pub use engine::{answer_traced, answer_usage, arrange, Arrangement, Run, Step, Tried};
+pub use usage::Usage;
+pub use op::{add as add_op, add_to as add_op_to, load as load_ops, load_from as load_ops_from, Loaded};
+pub use told::{answer_told, answer_told_kinds};
 pub use lower::{
     is_declared_ocode, Bar, Judged, Lowered, Lowering, LoweringReport, Operation, Sense, Unlowered,
     DISPATCH_SLOT, MAX_OCODE, MIN_OCODE, OCODE_NAMES,

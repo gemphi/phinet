@@ -17,7 +17,9 @@
 //!
 //! `phisor-rows` is answered here (Requirement 7 criterion 2): the rows of a
 //! named Kind, an empty row sequence for a Kind holding none, and an error
-//! naming the Kind when the set holds no Kind of that name. The four other
+//! naming the Kind when the set holds no Kind of that name. `phisor-apply`
+//! is answered by [`apply`]: the 64 keyboard Operators, called by index with
+//! their operands as Lisp values, against the host's Arena. The three other
 //! names are bound here and answered by this module's siblings as they land.
 
 use std::collections::BTreeMap;
@@ -26,10 +28,12 @@ use std::fmt;
 use phical::keyboard::Arena;
 use phiclm::lisp::{as_text, Host, Machine, Value};
 
-/// phiclm's 39 reserved core names, held as a static so the count is checked
+mod apply;
+
+/// phiclm's 40 reserved core names, held as a static so the count is checked
 /// where it is written and [`PhisorHost::core_names`] can hand out a
 /// `'static` reference to it.
-static CORE: [&str; 39] = phiclm::lisp::NAMES;
+static CORE: [&str; 40] = phiclm::lisp::NAMES;
 
 /// The primitives phisor adds. Every one is prefixed, and the five are
 /// declared together here so the disjointness check sees the whole set at
@@ -82,6 +86,8 @@ pub fn checked<H: Host>(host: H) -> Result<Machine<H>, HostError> {
 pub struct PhisorHost {
     arena: Arena,
     kinds: KindRows,
+    /// Note G's table: every store read and mill operation, numbered.
+    trace: Vec<super::engine::Step>,
 }
 
 impl PhisorHost {
@@ -90,11 +96,11 @@ impl PhisorHost {
     /// built for its own sake is held to it too.
     pub fn new(arena: Arena, kinds: KindRows) -> Result<Self, HostError> {
         Self::check_names(&NAMES)?;
-        Ok(PhisorHost { arena, kinds })
+        Ok(PhisorHost { arena, kinds, trace: Vec::new() })
     }
 
-    /// The 39 reserved core names, for the disjointness check.
-    pub fn core_names() -> &'static [&'static str; 39] {
+    /// The 40 reserved core names, for the disjointness check.
+    pub fn core_names() -> &'static [&'static str; 40] {
         &CORE
     }
 
@@ -124,6 +130,16 @@ impl PhisorHost {
         &mut self.arena
     }
 
+    /// The trace so far: every column fetched and operation performed.
+    pub fn trace(&self) -> &[super::engine::Step] {
+        &self.trace
+    }
+
+    /// The trace, taken; the host starts a new one.
+    pub fn take_trace(&mut self) -> Vec<super::engine::Step> {
+        std::mem::take(&mut self.trace)
+    }
+
     /// The rows `phisor-rows` reads.
     pub fn kinds(&self) -> &KindRows {
         &self.kinds
@@ -136,11 +152,24 @@ impl Host for PhisorHost {
     }
 
     fn call(&mut self, name: &'static str, args: Vec<Value>) -> Result<Value, String> {
+        let n = self.trace.len() + 1;
         match name {
-            "phisor-rows" => self.kinds.value(&as_text(&args, 0, name)?),
-            "phisor-apply" => Err(format!(
-                "{name}: the lowering is not built yet (machine::lower)"
-            )),
+            "phisor-rows" => {
+                let kind = as_text(&args, 0, name)?;
+                let value = self.kinds.value(&kind)?;
+                let count = match &value {
+                    Value::List(rows) => rows.len(),
+                    _ => 0,
+                };
+                self.trace.push(super::engine::Step::store(n, &kind, count));
+                Ok(value)
+            }
+            "phisor-apply" => {
+                let result = apply::call(&mut self.arena, &args);
+                let operation = args.first().map(|v| v.to_string()).unwrap_or_default();
+                self.trace.push(super::engine::Step::mill(n, &operation, &args[args.len().min(1)..], &result));
+                result
+            }
             "phisor-encode" | "phisor-decode" => Err(format!(
                 "{name}: the machine-word carriage is not built yet (machine::word)"
             )),
@@ -192,6 +221,11 @@ impl KindRows {
             Some(rows) => Ok(rows),
             None => Err(format!("phisor-rows: no Kind named {name}")),
         }
+    }
+
+    /// Every row held, whatever its Kind, in Kind order.
+    pub fn all(&self) -> Vec<phiecs::Row> {
+        self.0.values().flatten().cloned().collect()
     }
 
     /// The Kind names held, in order.

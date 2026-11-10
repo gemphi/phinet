@@ -1,0 +1,117 @@
+# what the guide's questions invoke on the mill — 2026-11-08
+
+The count phisor's TODO asked for before any Operator is added to the keyboard: run the guide's own sentences through the engine, in their order, the statements told and the questions asked, and tally what answering invoked - which of phiclm's 40 primitives, which of the keyboard's 64 Operators, which cards, how often. The machine keeps the tally (`phiclm::lisp::Machine::tally`: every primitive and every named lambda it applies); `phisor::machine::usage` sorts it by what each name is; `examples/converse --guide murphy.txt --key murphy_key.txt --prime --usage` is the run.
+
+```text
+converse --prime --usage --guide crates/phiano/data/person/murphy.txt --key crates/phiano/data/person/murphy_key.txt
+```
+
+## The run
+
+| | count |
+|---|---|
+| the guide's sentences (units; the Key never told) | 17,385 |
+| read as statements and told (rows) | 4,031 (19,180) |
+| read as questions and asked | 467 |
+| answered over what was told | 204 |
+| read as a question, no hole (yes/no), not answered | 263 |
+| not read | 12,887 |
+
+Two minutes and a half at low priority, most of it the reader.
+
+## What answering invoked
+
+| invoked | kind | times | per question |
+|---|---|---|---|
+| `=` · `car` · `length` | primitive | 2,153 each | 10.6 |
+| `cdr` | primitive | 1,541 | 7.6 |
+| `identity` · `referents` | primitive | 1,308 each | 6.4 |
+| `union` | primitive | 1,179 | 5.8 |
+| `list` | primitive | 612 | 3.0 |
+| `meet` | primitive | 362 | 1.8 |
+| `domain` · `image` | primitive | 204 each | 1.0 |
+| `phisor-rows` | host | 1,949 | 9.6 |
+| `union-all` | card | 1,587 | 7.8 |
+| `meet-all` | card | 566 | 2.8 |
+| `events` · `told-answer` · the question's own lambda | card | 204 each | 1.0 |
+
+**204 questions · 11 of 40 primitives · 1 host call · 0 of 64 Operators · 5 cards.**
+
+```mermaid
+flowchart LR
+    Q["467 questions read"] --> H{"a hole?"}
+    H -->|"204"| A["told-answer card<br/>11 primitives · 1 host call · 4 cards<br/>0 of the 64 Operators"]
+    H -->|"263 yes/no"| N["not answered:<br/>no card for membership yet"]
+    style A fill:#dfd
+    style N fill:#fdd
+```
+
+Read, straight:
+
+- **None of the 64.** Every question the engine answered was answered by the store (`phisor-rows`, ten columns a question) and eleven set and list primitives composed by four cards. The keyboard's Operators - phasor arithmetic over the planes - are not what answering English is made of; they are what the learner is made of. The 64 stays 64. No Operator is missing; the TODO's rule holds and is now measured, not argued.
+- **Eleven primitives, and eight of them are the cards' plumbing.** `=`, `car`, `cdr`, `length`, `list` and `union` are `union-all` and `meet-all` walking their argument lists; the answer itself is `identity`, `referents`, `meet`, `domain`, `image` - the five that docs/211 said, one fewer than the TODO's "six". A `fold` primitive would cut the per-question count by a third and is not worth a primitive: it is a card.
+- **What is missing is a card, not an Operator.** 263 of the 467 questions read were yes/no questions - "do you know where she is?", "have you seen tom?" - an ASK with no hole. `told` has nothing to read off, and refuses. The operation is membership: whether the events the fixed roles name are more than none. That is `(> (count (events …)) 0)` - a one-line card over primitives the mill already has - plus the realiser saying *yes* or *no*. It is the next card to punch, and the first one the harness, rather than the writer, asked for.
+- **The answers are not the point here**, and most are wrong in the way docs/211 expects: the guide's questions are exercises, not questions about what the guide told, so "where are you going?" is answered with every destination the guide ever mentioned. The count of what answering *used* is the point, and it is independent of whether the answer is right.
+- **Three in four sentences are not read.** 12,887 of 17,385: the loom is the bottleneck, as paper 28 placed it. Every shape the reader gains is more store and more questions for the same five primitives.
+
+## What changed to get this
+
+- phiclm `lisp::Machine` keeps a tally: every `Prim` applied, every lambda applied by name (`tally`, `take_tally`). One test.
+- phisor `machine::usage::Usage` (`of`, `add`, `distinct`, `Display` as a table); `machine::engine::Run` (answer, steps, usage) returned by `told::answer_told_traced_kinds`; `machine::answer_usage`. Two tests; 35 machine tests green.
+- `examples/converse`: `--guide`, `--key`, `--usage`, and the refusals counted by cause.
+
+## Then, the same hour: the card punched
+
+`told-whether`, one line in `data/ops/core.lisp`: whether the events the fixed roles name are more than none - `(if (< 0 (count (events rels))) 'yes 'no)`. `told` takes a question with no hole to it. The run again:
+
+| | before | after |
+|---|---|---|
+| questions read | 467 | 467 |
+| answered | 204 | **467** (204 by the hole · 34 yes · 229 no) |
+| primitives invoked | 11 of 40 | 13 of 40 (`<`, `count` joined) |
+| cards | 5 | 6 |
+| of the 64 Operators | 0 | **0** |
+
+The operation the count found missing was supplied without touching the mill, as the rule says: a card over primitives it had. `no` is the store's closed world - "not among what was told" - and most of the 229 are that, since the guide's questions are exercises, not questions about what the guide told. The 34 yeses are where the guide asked back what it had just said ("is it still raining?" after "it is still raining"). One test; 36 machine tests green.
+
+## The cards since, the same day
+
+The count said the mill was not the gap; the afternoon spent itself on cards and the loom, still without touching the 64.
+
+| asked, in English (told "sarah wants to go home", "tom wants to go to work") | answered | by |
+|---|---|---|
+| does tom want to go home? | no | `told-whether` |
+| where does sarah want to go? | home | `told-under` → `told-answer-of`, the hole in the clause |
+| where does tom want to go? | work | the same |
+| what does sarah want to do? | to go home | the clause itself: a pro-verb and a hole ask for the sub-event |
+| what does sarah want? | to go home | `told-answer`, the event said as want's complement |
+| what does tom want to do? | to go to work | the same |
+| who was reading a book? | tom | a subject wh: no operator, the hole is the subject |
+| who lives in london? | sarah | the same |
+| who was wearing a white cap? | boy | the same; "white cap" now reads, primed or not |
+| what was the boy wearing? | cap | `told-answer` |
+
+- **A hole inside a clause** (`machine::told::nested`): the question read as levels down to the hole; `told-under` takes the events a level names to the sub-events under a role that meet the clause's own roles; `told-answer-of` and `told-whether-of` finish at the bottom. Three cards in `core.lisp`; eight cards in all now.
+- **The hole moves down.** The reader puts a `where` on the frame it reads; when it finds nothing at its level and a clause sits beside it, the question is asked again one level in, and a `where` inside a clause reads every role the question left open - "go home" keeps its place under `theme`.
+- **The loom, one gate**: `read_question`'s control-verb branch ran only for yes/no questions, so the infinitive in "where does sarah want to go?" was read as a preposition phrase. A wh on a control verb now puts its hole in the infinitive clause.
+- **A pro-verb asks for the clause** (`data/lex/pro_verb.txt`): "what does sarah want to do?" is `want(theme: do(theme: ?what))`, and the hole is the parent's role.
+- **The reader, two gates** (the same morning): a subject wh-question had no path - the operator reader wants an inverted operator - so `read_plain` now takes a who/what/which as the subject when that reader abstains, and reads the rest as a statement's predicate. And "a white cap" failed twice over: unprimed, "white" was not a fallback adjective (it is now, in `word_class.tsv`); primed, a word tagged adjective-and-noun was refused as a modifier, so "a blue suit" read unprimed and not primed. The position decides now: an adjective-capable word before a word that can head the phrase is its modifier. docs/211's "boy" was never the problem.
+- **The complement form** (the same morning): a sub-event answer that fills a told event's theme is said as that event's complement - the realiser's `say_theme`, public as `ladder::realise_complement` - so "to go home", not "sarah goes home". The rows say which event the answer is a clause of; the realiser says how a clause under that verb is said. No card changed.
+
+## The guide again, after the reader widened
+
+The same run as the count above, after the two reader gates:
+
+| | the count (05:00) | after the cards and the reader (10:30) |
+|---|---|---|
+| read as statements and told (rows) | 4,031 (19,180) | **4,515** (21,092) |
+| read as questions and asked | 467 | **524** |
+| answered | 204, then 467 with `told-whether` | **524** |
+| not read | 12,887 | **12,346** |
+| primitives invoked | 11 of 40, then 13 | 16 of 40 |
+| cards | 5, then 6 | 9 (`told-under`, `told-whether-of`, `told-answer-of` among them) |
+| Operators | 0 of 64 | **0 of 64** |
+
+The 57 more questions are subject wh-questions the guide asks ("who ...?", "what happened ...?" with an object), and the statements with a colour or another noun-capable adjective before the head. The mill is unchanged by any of it.
+
+phisor 299 tests; phinet `98776f5` · `e873daf` · `ff19ddf` · `f40da0e` · the complement form `04ee606` · the reader's two gates after it.

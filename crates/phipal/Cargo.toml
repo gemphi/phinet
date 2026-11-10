@@ -1,0 +1,13 @@
+﻿[package]
+name = "phipal"
+version = "0.1.0"
+edition = "2021"
+description = "phipal - the social model: Searle's speech acts, Russell and Whitehead's logic, and process over turns. Today it names phisor's force; nothing has moved out of phisor."
+license = "MIT"
+
+[lib]
+name = "phipal"
+path = "src/lib.rs"
+
+[dependencies]
+phisor = { path = "../phisor" }

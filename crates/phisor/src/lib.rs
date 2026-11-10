@@ -59,6 +59,7 @@
 //!
 //! The plan, the order and the measures: `phinet/docs/phisor/plan.md`.
 
+pub mod abstraction;
 pub mod code;
 pub mod gold;
 pub mod ground;
@@ -66,11 +67,12 @@ pub mod guide;
 pub mod ir;
 pub mod kind;
 pub mod ladder;
+pub mod lexicon;
 pub mod lovelace;
 pub mod machine;
 pub mod measure;
 pub mod truth;
-pub mod units;
+pub mod unit;
 
 pub use ir::{Act, Filler, Force, Frame, Role, Template};
 pub use lovelace::{dedication, Correspondence, QUOTATIONS};

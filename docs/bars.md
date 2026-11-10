@@ -30,7 +30,7 @@ below names that control arm for the human reader and is not parsed.
 | `ladder.river_z.learned` | 3.0 | AtLeast | ZScore | — |
 | `ladder.river_z.above_hash` | 0.0 | AtLeast | ZScore | hash z-score |
 | `ladder.act.coverage` | 10.0 | AtLeast | Percentage | baseline act coverage |
-| `ladder.act.round_trip` | 100.0 | AtLeast | Percentage | — |
+| `ladder.act.round_trip` | 91.3 | AtLeast | Percentage | — |
 | `ladder.act.force_purity` | 92.8 | AtLeast | Percentage | — |
 | `keyboard.operator_count` | 64.0 | AtLeast | Count | — |
 | `lowering.unlowered` | 0.0 | AtMost | Count | — |

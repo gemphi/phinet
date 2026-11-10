@@ -19,6 +19,7 @@
 //! fingerprint, pinned in the same golden record.
 
 mod arithmetic;
+mod cleanup;
 mod dev_edges;
 mod edges;
 mod edges_named;
@@ -28,9 +29,11 @@ mod independence;
 mod keyboard;
 mod levels;
 mod lines;
+mod literal;
 mod manifest;
 mod numbers;
 mod pairs;
+mod persona_once;
 
 /// The ten phinet crates, in dependency order: the order a level's tests
 /// compile in, and the order the tables below are written in. The order is

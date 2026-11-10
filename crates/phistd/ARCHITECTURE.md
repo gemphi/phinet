@@ -16,6 +16,7 @@ graph TD
     subgraph numerics["the numerics (from phient, 2026-10-28)"]
         random["random.rs<br/>unit_interval · lcg · xorshift64(*) · draw_by_weight"]
         stats["stats.rs<br/>mean · population_sd · precision · recall · f1 · log_share<br/>purity · mutual_information · z_score"]
+        lexfile["lexfile.rs<br/>read · parse · append<br/>a word list in a file, one per line (no data in code, 2026-11-07)"]
         prob["prob.rs<br/>perplexity · softmax_z/p · log_softmax_at<br/>softmax_minus_onehot · sample_softmax"]
         real["real.rs<br/>normalise_f32 · dot_f32 · norm · re_dot_interleaved"]
         optim["optim.rs<br/>adam_step on slices"]
@@ -71,6 +72,7 @@ graph LR
 | the sixty-four gates | [docs/phistd/hexagram.md](../../docs/phistd/hexagram.md) |
 | the sixty-four as three bases | [docs/phistd/codon.md](../../docs/phistd/codon.md) |
 | the numerics phient used to write inline | [docs/phistd/numerics.md](../../docs/phistd/numerics.md) |
+| a word list in a file: what every crate reads instead of holding words in code, and appends to | [docs/phistd/lexfile.md](../../docs/phistd/lexfile.md) |
 
 ## Status
 

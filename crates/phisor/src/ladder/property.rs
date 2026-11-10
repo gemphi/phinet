@@ -19,7 +19,7 @@ use crate::code::Coder;
 use phistd::gen::{for_all, Gen, Seeded, CASES};
 
 mod independence;
-mod kinds;
+mod kind;
 mod measure;
 mod nesting;
 

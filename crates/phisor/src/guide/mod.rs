@@ -12,11 +12,11 @@
 pub mod holdout;
 mod key;
 mod split;
-mod units;
+mod unit;
 #[cfg(test)]
 mod tests;
 
-pub use split::{Part, Split};
+pub use split::{Operator, Part, Split, OPERATORS};
 
 /// What the layout says a sentence is for (docs/201).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -53,7 +53,7 @@ pub struct Sentence {
 
 /// The guide's sentences in their order: the units' text, then the Key.
 pub fn read(text: &str, key: &str) -> Vec<Sentence> {
-    let mut out = units::read(text);
+    let mut out = unit::read(text);
     out.extend(key::read(key));
     out
 }

@@ -4,6 +4,8 @@
 > of numbers could weave the patterns of thought - in this project's reckoning
 > the most brilliant mind who ever turned mathematics into music.*
 
+> *2026-11-08: this reading has grown into paper 27, [The Cards and the Mill](../crates/phiano/docs/papers/27_LOVELACE_THE_CARDS_AND_THE_MILL.md) — all twelve of her ideas against the code, with a ledger of what is done, measured, partial and not there. The fifth correspondence it adds is below. Paper 28, [Note G Runs on the Mill](../crates/phiano/docs/papers/28_NOTE_G_RUNS_ON_THE_MILL.md), runs her Bernoulli program on the mill, keeps her trace for every run, and lets the engine arrange by economy.*
+
 ## Why her Notes, and not someone else's
 
 In 1843 Ada Lovelace translated L. F. Menabrea's short sketch of Charles
@@ -53,6 +55,7 @@ set of keys - and the music is which keys the data actually pays to press.
 | the mill | *the mill* | `machine` | the 64 operators lowered and operated, checked against the reader |
 | the weave | *the weave* | `ladder` | structure woven from text, carrying no word of the text |
 | her objection | *Lady Lovelace's objection* | `truth` | the machine originates nothing; it classifies what it is given |
+| the cards | *operation cards* | `machine::ops` | operators as lambdas in files, read at birth, punched at run time; the mill untouched |
 
 ### The store: `ground`
 
@@ -101,6 +104,21 @@ from it, and classifies it: unreadable, degenerate, contradicting, unsupported,
 or consistent. It originates nothing. A claim that the world does not support is
 not quietly written in; it is marked for what it is. The machine does only what
 it is ordered to do, and `truth` is where phisor orders it to say so.
+
+### The cards: `machine::ops`
+
+The mill's operations were fixed — so many wheels — and a new operation was
+never cut into the mill. It was punched on an operation card and fed in from
+outside, and a variable card said which columns of the store it was to work
+on. phisor keeps the same division. The mill is the keyboard's 64 Operators
+and phiclm's 39 primitives, frozen and law-checked; every other operator is a
+card — a `define` of a lambda in `data/ops/*.lisp`, read into every machine
+at its birth and punched at run time by `ops::add`, which appends it to
+`learned.lisp` and defines it in the running machine in one move. `told`
+answers through the `told-answer` card, and the Kind names it is applied to
+are its variable cards. Asked whether the mill needed 1024 Operators, the
+Notes answered as the code now does: a new operation is a card, never a
+wheel.
 
 ## What the analogy is allowed to claim
 

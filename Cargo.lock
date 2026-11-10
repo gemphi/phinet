@@ -911,6 +911,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 
 [[package]]
+name = "phiada"
+version = "0.1.0"
+dependencies = [
+ "phisor",
+]
+
+[[package]]
 name = "phiano"
 version = "0.2.0"
 dependencies = [
@@ -923,6 +930,7 @@ dependencies = [
  "phient",
  "phifno",
  "philog",
+ "phisor",
  "phistd",
  "phiton",
  "proc-macro2",
@@ -987,6 +995,7 @@ dependencies = [
  "serde",
  "serde_json",
  "syn 2.0.119",
+ "tokio",
 ]
 
 [[package]]
@@ -1011,6 +1020,21 @@ dependencies = [
 [[package]]
 name = "phinet-structure"
 version = "0.1.0"
+
+[[package]]
+name = "phiora"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "phipal"
+version = "0.1.0"
+dependencies = [
+ "phisor",
+]
 
 [[package]]
 name = "phisor"

@@ -45,7 +45,7 @@ impl SpeechAct {
             Self::Directive => "directive",
             Self::Commissive => "commissive",
             Self::Expressive => "expressive",
-            Self::Declaration => "declaration",
+            Self::Declaration => "declarative",
         }
     }
 

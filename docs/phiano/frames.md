@@ -1,5 +1,7 @@
 # frames
 
+`discover_classes` moved to `phient::study::class` (task 14.2); the diagram still draws it inside the box because the examples call it in the same flow.
+
 ```mermaid
 graph LR
     Examples["examples/frames, examples/riley<br/>context experiments"]
