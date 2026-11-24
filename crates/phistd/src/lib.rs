@@ -42,6 +42,7 @@
 //! | [`codon`] | the sixty-four as three bases: `codon`, `codon_index`, `hexagram_glyph`. |
 //! | [`gen`] | the seeded property generator: `Seeded`, `Gen`, `for_all`, `replay`, per-case seeding so a failing case replays from `(seed, case)` alone. |
 //! | [`hexagram`] | the sixty-four operations: I Ching hexagrams as spectral gates (`apply`, `gate`, `changing_lines`), the hexagram a function is (`hexagram_of`, `lines`), `novelty`. |
+//! | [`tree`] | the files under a directory: `under(dir, ext)`, the whole tree in path order, build folders never entered. |
 //! | [`phasor`] | the phasor ranges: `Resolution` P16–P128 × `Quantum` Q16–Q64 (`Range::ALL`), `resample`, `quantise`, `sector_of`; `Fno::at_resolution` moves an operator between them. |
 //!
 //! Gradients of a real loss with respect to complex values use the convention
@@ -61,6 +62,7 @@ pub mod real;
 pub mod stats;
 #[path = "tensor/mod.rs"]
 pub mod tensor;
+pub mod tree;
 
 pub use num_complex::Complex64 as c64;
 

@@ -24,6 +24,7 @@ graph LR
 
 ## lib
 - nothing open found in the code
+- [x] `tree::under(dir, ext)` (2026-11-24): every file of one kind under a directory, the whole tree in path order, `target` and `.git` never entered. phient had four copies of this walk - one for `.rs`, one for `.b`, two for `.txt` - and each copy also did the reading it walked for; the walk is here now and finds files only. One test: nested, sorted, and the build folder skipped.
 
 ## tensor/
 - [x] `Tape::mul` and `Tape::tie` are finite-difference checked (`tests/mul_tie.rs`, with `tie`'s copy-forward, sum-backward); lib.rs's "every gradient is checked" holds.
