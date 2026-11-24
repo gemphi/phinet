@@ -27,8 +27,15 @@ pub fn pretokenize(text: &str) -> Vec<&str> {
         // ` ?\p{L}+`, ` ?\p{N}+`, ` ?[^\s\p{L}\p{N}]+`
         let (lead, j0) = if c == ' ' && i + 1 < n && !chars[i + 1].1.is_whitespace() { (true, i + 1) } else { (false, i) };
         let c0 = chars[j0].1;
+        // The three classes the pattern runs on, and 0 for the whitespace
+        // the chunk stops at.
         let class = |ch: char| -> u8 {
-            if ch.is_alphabetic() { 1 } else if ch.is_numeric() { 2 } else if ch.is_whitespace() { 0 } else { 3 }
+            match ch {
+                _ if ch.is_alphabetic() => 1,
+                _ if ch.is_numeric() => 2,
+                _ if ch.is_whitespace() => 0,
+                _ => 3,
+            }
         };
         let k = class(c0);
         if k != 0 && (lead || j0 == i) {

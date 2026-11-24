@@ -42,6 +42,7 @@ graph LR
 
 ## p64
 - [x] `SpeechAct::classify`, `ParagraphType`'s and `SentenceType`'s base types were `else if` ladders; they are `match` now, same order, same answers (an empty paragraph is still mixed).
+- [x] The pre-tokeniser's character class was the last `else if` ladder in p64 (`bpe/pretokenize.rs`, the row phiano's TODO carried); a `match` with the same four answers, the three bpe tests unmoved (2026-11-24).
 - [x] `SearleClassifier::classify_full` parsed the sentence four times; it parses once.
 - [ ] phiano `cognitive/speech.rs` keeps a second Searle classifier (`SpeechActType`, marker lists read from file) beside `p64::SpeechAct` (read from the syntax key). One Searle: decide whether the markers join p64 or the two stay as two readings.
 
