@@ -1,0 +1,9 @@
+# Blocks of six code lines or more that stand in more than one place
+# (tests/structural/block.rs, the ruling of 2026-11-24: duplication is a
+# defect, and a part does one job and nothing else). One group per run,
+# however long the run: a group that is another group sliding is not
+# counted. The sweep of 2026-11-24 took phiano, phient, phiton and phistd
+# from 101 groups to 81 by its own narrower scan; this is all ten crates.
+# A copy made raises the count and a copy removed lowers it: both fail the
+# run, so this file says what is left to do.
+85

@@ -19,6 +19,7 @@
 //! fingerprint, pinned in the same golden record.
 
 mod arithmetic;
+mod block;
 mod cleanup;
 mod dev_edges;
 mod edges;
