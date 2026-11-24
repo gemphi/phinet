@@ -2,7 +2,7 @@
 
 | State | Open | Done |
 |---|---|---|
-| 🟢 the first slice measured, then uncapped (docs/phisor/kinds.md) | 20 | 21 |
+| 🟢 the first slice measured, uncapped, read inside, Feynman's run, learned phases, c12 parted on two channels (docs/phisor/kinds.md) | 17 | 26 |
 
 ## Done — the plan and the IR
 
@@ -33,9 +33,11 @@
 - [x] Babbage: the passes at both heights; Wittgenstein: resemblance per kind against shuffled kinds; Bentov: the counts per mode
 - [x] `docs/phisor/kinds.md`: every number straight, what works and what does not
 - [x] No cap (the user: "built dynamically, we can't limit the templates"): grown templates with a back-off along their trie; classes and kinds split only while they pay (`phical::classes::split_cost`, added by the parent). The data asks for 53 word classes, ~4,500 templates and 6–20 river kinds, which carry almost no label (runs/kinds-2026-10-29-paid.md)
-- [ ] Kinds from inside the sentence: group the templates by their own class pairs, with the same routine and MDL stop
-- [ ] Part the learned class that joins `do`/`did`/`have` with `use`/`complete`/`take` (one more bit, or the `after <word>` channels)
-- [ ] Feynman, the second run: the twins' kinds as probabilities added against amplitudes added
+- [x] Kinds from inside the sentence (2026-11-23): the templates grouped by their own class pairs (`kind::Reading::Inside`), the same routine and MDL stop. The data pays for 29–58 kinds; function purity 58.0% (learned opening, mode 16) against 52.8% by the river and a 51.7% majority, so I1 is met with paid kinds and I2 is still not; instructions sensed for the first time (F1 33.9%). runs/kinds-2026-11-23-inside.md
+- [x] Parting c12 (2026-11-24): `Code::learn_opening` gives a sentence-opening word a sense of its own (`^do`), coded by what follows it (no `<s>` before a sense). Questions F1 56.1% at mode 16 (from 34.4%; the hand dictionary 53.2%); instructions lost at 16, 31.1% at 32 (runs/kinds-opening-2026-11-24.md, runs/class-tree-2026-11-24.md)
+- [x] One mode senses both (2026-11-24): the opener on two channels; mode 64: questions 61.4%, instructions 55.7%, function 59.3%, mark 72.2% (runs/kinds-two-channel-2026-11-24.md)
+- [x] Feynman's run (2026-11-23): `measure::mode_input` feeds the ladder spec's twins measure (R9.6–R9.10) from the guide; `phistd::stats::share` and `phical::circle::amplitude` added. Amplitudes ≥ probabilities for the learned code at every mode (+0.9 at 16), the hash misses at two of three; both ends never beat the better end + 2; the phases align by construction (runs/feynman-2026-11-23.md)
+- [x] Learned phases (2026-11-23): `measure::phase`, a phase per kind for the closing's arrow, sixteen to choose from, kept by `liskov::staged::better` when more training sentences peak at their own both-ends kind (no label); `phical::circle::intensity` added. +0.7 to +1.2 points over probabilities for the learned code, about as much for the hash; only 1–2 kinds turn a quarter turn or more (runs/feynman-phases-2026-11-23.md)
 - [ ] Bentov's rank-frequency slopes (a least-squares slope, asked of the parent)
 
 ## Todo — the act from English and the second family (step 5)

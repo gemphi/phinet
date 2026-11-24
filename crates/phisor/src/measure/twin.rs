@@ -241,6 +241,13 @@ fn one_decimal(value: f64) -> f64 {
     (value * 10.0).round() / 10.0
 }
 
+#[path = "twin/reading.rs"]
+mod reading;
+pub use reading::{mode_input, readings};
+
+#[path = "twin/phase.rs"]
+pub mod phase;
+
 #[cfg(test)]
 #[path = "twin/tests.rs"]
 mod tests;

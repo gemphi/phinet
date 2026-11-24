@@ -44,7 +44,11 @@ fn main() {
     println!("\nthe word code, grown as far as it pays: {} words coded, {} classes at depth {}, learned in {:.1}s", code.len(), code.halving.classes, code.halving.depth, started.elapsed().as_secs_f64());
     report::passes("words", &code.halving);
     report::classes(&code);
-    let coders = [Coder::Hash, Coder::Given, Coder::Learned(code)];
+    // The same routine with opening senses: a word that opens sentences is a
+    // unit of its own there (`^do`), the channel after `<s>`.
+    let opening = Code::learn_opening(&told, Grow::Paid);
+    println!("\nwith opening senses: {} units coded, {} classes at depth {}", opening.len(), opening.halving.classes, opening.halving.depth);
+    let coders = [Coder::Hash, Coder::Given, Coder::Learned(code), Coder::Learned(opening)];
     report::story(&split, &train, &coders);
 
     println!("\n## every arm, mode and template, kinds grown as far as they pay, on the held-out sentences\n");
@@ -61,8 +65,12 @@ fn main() {
                     let kinds = Kinds::learn(&split, coder, level, twin, reading, Grow::Paid);
                     let arm = format!("{} · {}", coder.name(), reading.name());
                     println!("{}", report::row(&arm, &kinds, &split, shuffles));
-                    match (level, twin, reading) {
-                        (Level::P16, Twin::Grown, Reading::River) => kept.push((coder.name(), kinds)),
+                    // The inside kinds are read closely: the river's are on record
+                    // (docs/phisor/runs/kinds-2026-10-29-paid.md).
+                    // Every arm at mode 16; the learned codes at modes 32 and 64 too.
+                    match (level, twin, reading, coder) {
+                        (Level::P16, Twin::Open, Reading::Inside, _) => kept.push((coder.name(), kinds)),
+                        (Level::P32 | Level::P64, Twin::Open, Reading::Inside, Coder::Learned(_)) => kept.push((coder.name(), kinds)),
                         _ => {}
                     }
                 }
@@ -83,15 +91,15 @@ fn main() {
     }
 
     for (name, kinds) in &kept {
-        println!("\n## {name}, mode 16, grown templates: what each label is sensed by\n");
+        println!("\n## {name}, mode {}, the opening, read inside: what each label is sensed by\n", kinds.level.count());
         detail::sensing(kinds, &split);
         println!();
         detail::resemblance_null(kinds, 200);
         detail::passes(kinds);
     }
-    match kept.iter().find(|(n, _)| *n == "learned") {
+    match kept.iter().find(|(n, k)| *n == "learned" && k.level == Level::P16) {
         Some((_, kinds)) => {
-            println!("\n## learned, mode 16, grown templates: the kinds\n");
+            println!("\n## learned, mode 16, the opening, read inside: the kinds\n");
             detail::kinds(kinds, &split);
         }
         None => {}

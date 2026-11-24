@@ -4,11 +4,13 @@ The plain numerics phient used to write inline (batch 2 of docs/phient/calculati
 
 Added 2026-10-29 for phisor's checks, new rather than moved: `precision` and `recall` (`f1` now reads them, with the same arithmetic), and a contingency table's `purity`, `mutual_information` in bits, and a `z_score` against a null.
 
+Added 2026-11-23 for Feynman's run (phisor): `share`, counts as their shares of the total, a distribution summing to 1 (a negative or non-finite count read as 0; no mass read as every share equal).
+
 ```mermaid
 graph LR
     subgraph phistd["phistd"]
         Random["random.rs<br/>unit_interval · unit_interval_f32<br/>lcg · xorshift64 · xorshift64_star<br/>draw_by_weight"]
-        Stats["stats.rs<br/>mean · population_sd · precision · recall · f1 · log_share<br/>purity · mutual_information · z_score"]
+        Stats["stats.rs<br/>mean · population_sd · precision · recall · f1 · log_share<br/>purity · mutual_information · z_score · share"]
         Prob["prob.rs<br/>perplexity · perplexity_of_nll<br/>softmax_z · softmax_p · log_softmax_at<br/>softmax_minus_onehot · sample_softmax"]
         Real["real.rs<br/>normalise_f32 · dot_f32<br/>norm · re_dot_interleaved"]
         Optim["optim.rs<br/>adam_step on slices"]

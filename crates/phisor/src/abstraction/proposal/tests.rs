@@ -78,25 +78,12 @@ fn proposals(s: &mut u64) -> Vec<Proposal> {
         .collect()
 }
 
-/// Prime the process-global lexicon from the same data the other tests use
-/// (first write wins), so a concurrent prime cannot change `read` between
-/// the two readings compared below.
-fn prime() {
-    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) {
-        crate::lexicon::prime(&p);
-    }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) {
-        crate::lexicon::prime_function(&f);
-    }
-    if let Ok(g) = std::fs::read_to_string(format!("{base}/person/murphy.txt")) {
-        crate::lexicon::prime_irregular(&g);
-    }
-}
+// The lexicon is the canonical one under test whatever primes first
+// (`lexicon::prime`), so no prime can change `read` between the two readings
+// compared below.
 
 #[test]
 fn proposal_discipline_holds_over_generated_sentences() {
-    prime();
     let mut s = 0x5eed_u64;
     let mut accepted_seen = 0;
     for _ in 0..400 {

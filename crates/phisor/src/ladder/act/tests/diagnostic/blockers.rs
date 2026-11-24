@@ -5,15 +5,13 @@ use super::*;
 /// Diagnostic: which spans stop the reader reading a clean held-out sentence?
 /// For every abstained sentence, find the shortest leading, trailing or single
 /// word span whose removal makes it readable, and rank those spans. Run alone:
-/// `cargo test -p phisor blocker_spans -- --ignored --nocapture`. It primes the
-/// real lexicon, so it must not share a process with other priming tests.
+/// `cargo test -p phisor blocker_spans -- --ignored --nocapture`. It reads the
+/// real lexicon, which every test reads (`lexicon::prime`).
 #[test]
 #[ignore = "diagnostic: ranks the spans that block the reader on clean held-out text"]
 fn blocker_spans() {
     use std::collections::HashMap;
     let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) { crate::lexicon::prime(&p); }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) { crate::lexicon::prime_function(&f); }
     let (text, key) = (
         std::fs::read_to_string(format!("{base}/person/murphy.txt")),
         std::fs::read_to_string(format!("{base}/person/murphy_key.txt")),
@@ -59,14 +57,11 @@ fn blocker_spans() {
 #[ignore = "diagnostic: copula sentences one removal from reading"]
 fn copula_blockers() {
     let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) { crate::lexicon::prime(&p); }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) { crate::lexicon::prime_function(&f); }
     let (text, key) = (
         std::fs::read_to_string(format!("{base}/person/murphy.txt")),
         std::fs::read_to_string(format!("{base}/person/murphy_key.txt")),
     );
     let (Ok(text), Ok(key)) = (text, key) else { println!("no guide"); return; };
-    crate::lexicon::prime_irregular(&text);
     let split = crate::guide::Split::new(crate::guide::read(&text, &key));
     let clean = split.clean_strings(crate::guide::Part::Test);
     let mut shown = 0;
@@ -90,9 +85,6 @@ fn copula_blockers() {
 #[test]
 #[ignore = "diagnostic: probe specific copula shapes"]
 fn copula_probe() {
-    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) { crate::lexicon::prime(&p); }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) { crate::lexicon::prime_function(&f); }
     for s in [
         "the office is empty.",
         "both restaurants are good.",

@@ -137,3 +137,28 @@ fn the_field_votes_without_the_word() {
     let up = vote_target(avg, avg, c64::new(0.0, 0.0), 1.0, 1.0, false, 0.1).unwrap();
     assert!((up - PI / 2.0).abs() < 1e-12);
 }
+
+#[test]
+fn an_amplitude_squared_gives_its_share_back() {
+    let shares = [0.25, 0.75, 0.0];
+    let a = amplitude(&shares, &[PI, 1.0]);
+    for (x, p) in a.iter().zip(shares) {
+        assert!((x.norm_sqr() - p).abs() < 1e-15);
+    }
+    assert!((a[0].arg() - PI).abs() < 1e-15);
+    assert!((a[1].arg() - 1.0).abs() < 1e-15);
+    // A missing phase is 0, a negative share is 0.
+    assert_eq!(amplitude(&[-1.0, 1.0], &[]), [c64::new(0.0, 0.0), c64::new(1.0, 0.0)]);
+}
+
+#[test]
+fn arrows_in_phase_reinforce_and_half_a_turn_apart_cancel() {
+    let a = amplitude(&[0.25, 0.25], &[0.0, 0.0]);
+    let b = amplitude(&[0.25, 0.25], &[0.0, PI]);
+    let i = intensity(&a, &b);
+    // (0.5 + 0.5)² in phase; (0.5 − 0.5)² half a turn apart.
+    assert!((i[0] - 1.0).abs() < 1e-15);
+    assert!(i[1].abs() < 1e-15);
+    // A missing arrow is 0: the other's own square.
+    assert_eq!(intensity(&a, &[]), [0.25, 0.25]);
+}

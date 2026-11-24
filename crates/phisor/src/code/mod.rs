@@ -6,11 +6,13 @@
 //! |---|---|
 //! | `Hash` | phiton's `classify_str`: the spelling's hash, modulo the level. Random buckets: the null |
 //! | `Given` | phiton's `PosDictionary`: eleven parts of speech by hand, with a suffix fallback; one alphabet at every mode |
-//! | `Learned` | a code per word, grown by halving with the exchange routine as deep as the data pays for; cut at 4, 5 or 6 bits. Nested: mode 16 is mode 64 coarsened |
+//! | `Learned` | a code per word, grown by halving with the exchange routine as deep as the data pays for; cut at 4, 5 or 6 bits. Nested: mode 16 is mode 64 coarsened. With the opening sense (`Code::learn_opening`), a sentence's first word is coded in its own sense there (`^do`) |
 
 mod learned;
+#[cfg(test)]
+mod tests;
 
-pub use learned::{Code, BITS};
+pub use learned::{Code, BITS, OPENING};
 
 use phiton::p64::variants::{Engine, Level, P16, P32, P64};
 use phiton::p64::PartOfSpeech;
@@ -30,7 +32,10 @@ impl Coder {
         match self {
             Coder::Hash => "hash",
             Coder::Given => "given",
-            Coder::Learned(_) => "learned",
+            Coder::Learned(code) => match code.opening {
+                true => "learned·opening",
+                false => "learned",
+            },
         }
     }
 
@@ -51,9 +56,13 @@ impl Coder {
         }
     }
 
-    /// A sentence in a mode: each word its class.
+    /// A sentence in a mode: each word its class, the first in its opening
+    /// sense when the learned code has one.
     pub fn write(&self, words: &[String], level: Level) -> Vec<u16> {
-        words.iter().map(|w| self.class(w, level)).collect()
+        match self {
+            Coder::Learned(code) => code.write(words, level.bits()),
+            _ => words.iter().map(|w| self.class(w, level)).collect(),
+        }
     }
 }
 

@@ -23,8 +23,10 @@
 //! | [`kmeans`] | `kmeans` on the torus with farthest-point seeds, `Cluster` |
 //! | [`centre`] | offsets with a mean taken out: `reduce`, `centred`, `double_centred` |
 //! | [`field`] | the descent's votes: `add_scaled`, `leave_one_out`, `is_silent`, `add_directions`, `rayleigh_floor`, `scattered`, `vote_target` |
+//! | [`amplitude`] | a distribution as arrows: √share at a phase, so the square gives the share back; two sets of arrows added and squared, `intensity`, where half a turn cancels (Feynman) |
 
 pub mod agreement;
+pub mod amplitude;
 pub mod angle;
 pub mod centre;
 pub mod field;
@@ -34,6 +36,7 @@ pub mod resultant;
 mod tests;
 
 pub use agreement::{agreement, centroid, mean_agreement, mean_nearest, nearest, shape_similarity};
+pub use amplitude::{amplitude, intensity};
 pub use angle::{analogy, delta, delta_euclid, distance, step_toward};
 pub use centre::{centred, double_centred, reduce};
 pub use field::{add_directions, add_scaled, is_silent, leave_one_out, rayleigh_floor, scattered, vote_target};

@@ -35,6 +35,10 @@ graph LR
             Votes["add_scaled · leave_one_out<br/>is_silent · add_directions"]
             Settle["rayleigh_floor: max(c₀, C / √n)<br/>scattered: |unit| / n under the floor<br/>vote_target: d, or d − m under contrast"]
         end
+        subgraph amplitude_["amplitude.rs"]
+            Amp["amplitude(shares, phases)<br/>√share at the phase: |a|² gives the share back<br/>(Feynman; phisor's Feynman run, 2026-11-23)"]
+            Int["intensity(a, b)<br/>|a + b|² arrow by arrow, no phase moved:<br/>half a turn cancels (phisor's learned phases)"]
+        end
     end
 
     Wrap["phistd::wrap<br/>rem_euclid: the same angle,<br/>not the same bits for d &lt; 0"]

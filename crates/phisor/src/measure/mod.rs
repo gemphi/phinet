@@ -21,7 +21,7 @@ pub use seed::{
 };
 pub use twin::{
     combine_amplitudes, combine_probabilities, disagreements, disagreements_at, judge_twins,
-    measure_mode, measure_modes, CombinationReport, Disagreement, KindDisagreement, ModeInput,
+    measure_mode, measure_modes, mode_input, phase, readings, CombinationReport, Disagreement, KindDisagreement, ModeInput,
     ModeReport, TestReading, TwinPurity, BOTH_MARGIN, MAX_LISTED, TWIN_MODES,
 };
 

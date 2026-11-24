@@ -26,11 +26,10 @@ fn read_ing_inverts_the_realiser_table() {
 
 #[test]
 fn irregular_verbs_come_from_the_guides_own_appendix() {
-    // Prime from the real Guide when it is present (the pure crate names no
-    // path of its own; the test locates the data beside the workspace).
+    // Read the real Guide when it is present; under test the lexicon is
+    // primed from the same Guide (`lexicon::prime`).
     let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data/person/murphy.txt");
     let Ok(text) = std::fs::read_to_string(path) else { return };
-    crate::lexicon::prime_irregular(&text);
     let table = crate::lexicon::parse_irregulars(&text);
     // 58 lines of two verbs is 116 rows; `be` is skipped, leaving 115.
     assert_eq!(table.len(), 115, "the appendix table should read whole");

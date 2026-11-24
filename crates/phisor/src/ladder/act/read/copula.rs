@@ -21,45 +21,63 @@ pub(in crate::ladder::act) fn read_copula_question(words: &[String], op_at: usiz
     let op = words.get(op_at)?;
     let tense = if aux_entry(op).is_some_and(|e| e.family == Family::Be && e.tense == Tense::Past) { Tense::Past } else { Tense::Present };
     let rest = &words[op_at + 1..];
-    let (subject, end) = read_subject(rest)?;
-    let mut tail = &rest[end..];
-    let mut frame = Frame::new("be", tense).with(Role::Theme, subject);
-    // "is she not here?" - `not` after the subject negates the copula.
-    if wh.is_none() && tail.first().map(String::as_str) == Some("not") {
-        frame = frame.negative();
-        tail = &tail[1..];
-    }
     match wh {
         Some(wh) => {
-            if !tail.is_empty() {
-                return None; // trailing words beyond the subject: abstain
-            }
-            frame = match wh {
+            // The subject is all the rest: trailing words beyond it abstain.
+            let frame = Frame::new("be", tense).with(Role::Theme, spanning_subject(rest)?);
+            let frame = match wh {
                 // "what is your name?" - the wh is the predicate complement.
                 Wh::What | Wh::Who | Wh::Which => frame.with(Role::As, Filler::Hole(wh)),
                 // "where were the keys?" - the wh is a place, stored under its prep.
                 _ => frame.with(wh_role(wh), Filler::Hole(wh)),
             };
+            Some(Act::new(Force::Ask, frame))
         }
-        // A yes/no question: "was the weather good?", "is he at home?". What
-        // follows the subject is the complement - a prepositional phrase, or a
-        // word or noun phrase in the `as` role.
-        None => {
-            if tail.is_empty() {
-                return None;
-            }
-            if is_preposition(&tail[0]) {
-                let (preps, used) = read_prepositions(tail);
-                if preps.is_empty() || used != tail.len() {
-                    return None;
+        // A yes/no question: "was the weather good?", "is he at home?". The
+        // subject is the longest noun phrase that still leaves a complement:
+        // with the mined lexicon primed, "weather" may be an adjective and
+        // "good" a noun, and the greedy phrase "the weather good" would leave
+        // the copula nothing to assign.
+        None => (1..rest.len()).rev().find_map(|cut| yes_no(Frame::new("be", tense).with(Role::Theme, spanning_subject(&rest[..cut])?), &rest[cut..])),
+    }
+}
+
+/// A copula question's subject spanning exactly `words`: a pronoun, or a
+/// noun phrase that ends where they end. Not [`read_subject`], which keeps a
+/// word back for a statement's verb, so a subject could never reach the end
+/// of what it is given ("where were the keys?").
+fn spanning_subject(words: &[String]) -> Option<Filler> {
+    match (words, words.first().is_some_and(|w| list::pronouns().contains(&w.as_str()))) {
+        ([one], true) => Some(subject_filler(one)),
+        _ => read_noun_phrase(words).filter(|&(_, end)| end == words.len()).map(|(thing, _)| thing),
+    }
+}
+
+/// A yes/no copula question's tail after its subject: `not` negates the
+/// copula ("is she not here?"); what follows is the complement, a
+/// prepositional phrase or a word or noun phrase in the `as` role.
+fn yes_no(mut frame: Frame, mut tail: &[String]) -> Option<Act> {
+    match tail.first().map(String::as_str) {
+        Some("not") => {
+            frame = frame.negative();
+            tail = &tail[1..];
+        }
+        _ => {}
+    }
+    let first = tail.first()?;
+    match is_preposition(first) {
+        true => {
+            let (preps, used) = read_prepositions(tail);
+            match (preps.is_empty(), used == tail.len()) {
+                (false, true) => {
+                    for (role, filler) in preps {
+                        frame = frame.with(role, filler);
+                    }
                 }
-                for (role, filler) in preps {
-                    frame = frame.with(role, filler);
-                }
-            } else {
-                frame = frame.with(Role::As, complement_filler(tail)?);
+                _ => return None,
             }
         }
+        false => frame = frame.with(Role::As, complement_filler(tail)?),
     }
     Some(Act::new(Force::Ask, frame))
 }

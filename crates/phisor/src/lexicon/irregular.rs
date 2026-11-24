@@ -77,3 +77,107 @@ pub fn ing(lemma: &str) -> Option<String> {
 pub fn lemma_of_past(word: &str) -> Option<String> {
     table().past_to_lemma.get(word).cloned()
 }
+
+// The Guide's own table of irregular verbs (its Appendix 1.4), read out of
+// its text: the richer source, asked first once primed (`super::prime_irregular`).
+
+/// An irregular verb's forms, as the Guide's Appendix 1.4 lists them. A form
+/// may have alternatives ("got/gotten", "shown/showed"); the first is the
+/// one the realiser writes, and every one is recognised on reading.
+#[derive(Clone, Debug, PartialEq)]
+pub struct IrregularForms {
+    pub past: Vec<String>,
+    pub participle: Vec<String>,
+}
+
+/// The irregular verbs, with the reverse maps the reader needs.
+#[derive(Clone, Debug, Default)]
+pub struct Irregulars {
+    by_lemma: HashMap<String, IrregularForms>,
+    past_to_lemma: HashMap<String, String>,
+    participle_to_lemma: HashMap<String, String>,
+}
+
+impl Irregulars {
+    /// How many irregular verbs were read.
+    pub fn len(&self) -> usize {
+        self.by_lemma.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.by_lemma.is_empty()
+    }
+
+    pub fn forms(&self, lemma: &str) -> Option<&IrregularForms> {
+        self.by_lemma.get(lemma)
+    }
+
+    pub fn lemma_of_past(&self, word: &str) -> Option<&str> {
+        self.past_to_lemma.get(word).map(String::as_str)
+    }
+
+    pub fn lemma_of_participle(&self, word: &str) -> Option<&str> {
+        self.participle_to_lemma.get(word).map(String::as_str)
+    }
+}
+
+/// Read the Guide's table of irregular verbs (Appendix 1.4) out of its text.
+/// The table is two blocks of `infinitive  past simple  past participle` side
+/// by side, so a line carries one or two verbs; a pronunciation note in
+/// brackets or starred is dropped, and the table ends at the `*` footnote.
+/// `be` is skipped: the reader and realiser have `be` forms of their own.
+/// Pure, so it can be tested on a snippet without priming anything.
+pub fn parse_irregulars(text: &str) -> Irregulars {
+    let mut out = Irregulars::default();
+    let mut lines = text.lines();
+    // The table sits after its own heading; find the column header after it.
+    let mut in_table = false;
+    let mut seen_heading = false;
+    let mut rows: Vec<(String, Vec<String>, Vec<String>)> = Vec::new();
+    for line in lines.by_ref() {
+        let trimmed = line.trim();
+        if !seen_heading {
+            seen_heading = trimmed.contains("List of irregular verbs");
+            continue;
+        }
+        if !in_table {
+            in_table = trimmed.starts_with("infinitive") && trimmed.contains("past participle");
+            continue;
+        }
+        if trimmed.starts_with('*') {
+            break;
+        }
+        let tokens: Vec<&str> = trimmed
+            .split_whitespace()
+            .filter(|t| !t.starts_with('[') && !t.contains('*'))
+            .collect();
+        if tokens.is_empty() || tokens.len() % 3 != 0 || tokens.len() > 6 {
+            continue;
+        }
+        for chunk in tokens.chunks(3) {
+            let split = |s: &str| -> Vec<String> {
+                s.split('/').map(|a| a.trim().to_lowercase()).filter(|a| !a.is_empty()).collect()
+            };
+            rows.push((chunk[0].to_lowercase(), split(chunk[1]), split(chunk[2])));
+        }
+    }
+    rows.retain(|(lemma, _, _)| lemma != super::list::word_of("copula_lemma"));
+    let lemmas: std::collections::HashSet<String> = rows.iter().map(|(l, _, _)| l.clone()).collect();
+    for (lemma, past, participle) in rows {
+        for form in &past {
+            // A form that is itself another verb's base ("lay", past of "lie")
+            // reads as that base, not as the past.
+            if !lemmas.contains(form) || *form == lemma {
+                out.past_to_lemma.entry(form.clone()).or_insert_with(|| lemma.clone());
+            }
+        }
+        for form in &participle {
+            if !lemmas.contains(form) || *form == lemma {
+                out.participle_to_lemma.entry(form.clone()).or_insert_with(|| lemma.clone());
+            }
+        }
+        out.by_lemma.insert(lemma, IrregularForms { past, participle });
+    }
+    out
+}
+

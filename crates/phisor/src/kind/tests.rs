@@ -6,6 +6,35 @@ fn s(words: &str, mark: Mark, unit: usize) -> Sentence {
 }
 
 #[test]
+fn a_sentence_holds_its_class_pairs_and_its_edges() {
+    assert_eq!(features(&[6, 8, 1]), ["f:<s>c6", "f:c6c8", "f:c8c1", "f:c1</s>"]);
+}
+
+#[test]
+fn the_inside_reading_parts_templates_by_what_their_sentences_hold() {
+    // Questions open auxiliary-then-pronoun, statements pronoun-then-auxiliary.
+    // The order of the sentences says nothing; only what they hold parts them.
+    let mut sentences = Vec::new();
+    for u in 0..60 {
+        let (a, b) = match u % 3 {
+            0 => (("were you waiting in the rain", Mark::Question), ("i was waiting there", Mark::Stop)),
+            1 => (("she did not see it", Mark::Stop), ("did she see the film", Mark::Question)),
+            _ => (("i was waiting there", Mark::Stop), ("she did not see it", Mark::Stop)),
+        };
+        sentences.push(s(a.0, a.1, u));
+        sentences.push(s(b.0, b.1, u));
+    }
+    let split = Split::new(sentences);
+    let kinds = Kinds::learn(&split, &Coder::Given, Level::P16, Twin::Open, Reading::Inside, Grow::Paid);
+    let t = Tables::read(&kinds, &split, Part::Test);
+    assert!(t.mark.iter().all(|row| row.iter().filter(|&&n| n > 0.0).count() <= 1), "{:?}", t.mark);
+    // The question's template and the statement's fall in different kinds.
+    let question = (0..split.sentences.len()).find(|&i| split.sentences[i].mark == Mark::Question).unwrap();
+    let statement = (0..split.sentences.len()).find(|&i| split.sentences[i].mark == Mark::Stop).unwrap();
+    assert_ne!(kinds.of(question), kinds.of(statement));
+}
+
+#[test]
 fn a_variation_is_how_a_sentence_opens_and_closes() {
     let c = [9u16, 2, 14, 5, 1, 11];
     assert_eq!(shape(&c, Twin::Open), "c9 c2 …");

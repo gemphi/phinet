@@ -11,14 +11,11 @@ use super::*;
 fn abstention_words() {
     use std::collections::{HashMap, HashSet};
     let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) { crate::lexicon::prime(&p); }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) { crate::lexicon::prime_function(&f); }
     let (text, key) = (
         std::fs::read_to_string(format!("{base}/person/murphy.txt")),
         std::fs::read_to_string(format!("{base}/person/murphy_key.txt")),
     );
     let (Ok(text), Ok(key)) = (text, key) else { println!("no guide"); return; };
-    crate::lexicon::prime_irregular(&text);
     let split = crate::guide::Split::new(crate::guide::read(&text, &key));
     let clean = split.clean_strings(crate::guide::Part::Test);
     let (mut abst, mut read_n) = (0usize, 0usize);
@@ -51,14 +48,11 @@ fn abstention_words() {
 fn distance_to_readable() {
     use std::collections::HashMap;
     let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) { crate::lexicon::prime(&p); }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) { crate::lexicon::prime_function(&f); }
     let (text, key) = (
         std::fs::read_to_string(format!("{base}/person/murphy.txt")),
         std::fs::read_to_string(format!("{base}/person/murphy_key.txt")),
     );
     let (Ok(text), Ok(key)) = (text, key) else { println!("no guide"); return; };
-    crate::lexicon::prime_irregular(&text);
     let split = crate::guide::Split::new(crate::guide::read(&text, &key));
     let clean = split.clean_strings(crate::guide::Part::Test);
 
@@ -126,14 +120,11 @@ fn distance_to_readable() {
 fn abstention_kinds() {
     use std::collections::HashMap;
     let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) { crate::lexicon::prime(&p); }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) { crate::lexicon::prime_function(&f); }
     let (text, key) = (
         std::fs::read_to_string(format!("{base}/person/murphy.txt")),
         std::fs::read_to_string(format!("{base}/person/murphy_key.txt")),
     );
     let (Ok(text), Ok(key)) = (text, key) else { println!("no guide"); return; };
-    crate::lexicon::prime_irregular(&text);
     let split = crate::guide::Split::new(crate::guide::read(&text, &key));
     let clean = split.clean_strings(crate::guide::Part::Test);
 

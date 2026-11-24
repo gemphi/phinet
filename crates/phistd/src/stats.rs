@@ -124,6 +124,21 @@ pub fn slope(xs: &[f64], ys: &[f64]) -> Option<(f64, usize)> {
     }
 }
 
+/// Each count's share of their total, a distribution summing to 1. A count
+/// that is negative or not finite counts as 0; a set with no mass is read as
+/// no evidence, every share equal.
+pub fn share(counts: &[f64]) -> Vec<f64> {
+    let kept = |c: f64| match c.is_finite() && c > 0.0 {
+        true => c,
+        false => 0.0,
+    };
+    let total: f64 = counts.iter().map(|&c| kept(c)).sum();
+    match total > 0.0 && total.is_finite() {
+        true => counts.iter().map(|&c| kept(c) / total).collect(),
+        false => vec![1.0 / counts.len().max(1) as f64; counts.len()],
+    }
+}
+
 /// How far `x` stands from a null's draws, in the null's population
 /// standard deviations; 0 when the null does not spread.
 pub fn z_score(x: f64, null: &[f64]) -> f64 {
@@ -152,6 +167,15 @@ mod tests {
         assert_eq!((precision(1.0, 4), recall(1.0, 2)), (0.25, 0.5));
         assert_eq!(z_score(3.0, &[1.0, 1.0]), 0.0);
         assert_eq!(z_score(3.0, &[0.0, 2.0]), 2.0);
+    }
+
+    #[test]
+    fn counts_read_as_shares_of_their_total() {
+        assert_eq!(share(&[1.0, 3.0]), [0.25, 0.75]);
+        assert_eq!(share(&[2.0, -1.0, f64::NAN, 2.0]), [0.5, 0.0, 0.0, 0.5]);
+        // No mass: no evidence, every share equal.
+        assert_eq!(share(&[0.0, 0.0]), [0.5, 0.5]);
+        assert!(share(&[]).is_empty());
     }
 
     #[test]

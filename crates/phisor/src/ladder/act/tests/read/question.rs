@@ -79,6 +79,18 @@ fn a_yes_no_copula_question_reads_and_round_trips() {
 }
 
 #[test]
+fn a_copula_question_s_subject_spans_to_its_complement() {
+    // A statement's subject keeps a word back for its verb; a copula
+    // question's subject may run to the end ("where were the keys?") or stop
+    // short of a complement the primed lexicon could also read as a noun
+    // ("were the shops open?").
+    let said = |s: &str| read(s).map(|a| a.to_string());
+    assert_eq!(said("where were the keys?").as_deref(), Some("ASK(be(theme: key·pl, in: ?where), past)"));
+    assert_eq!(said("were the shops open?").as_deref(), Some("ASK(be(theme: shop·pl, as: open), past)"));
+    assert_eq!(said("is she not here?").as_deref(), Some("ASK(be(theme: she, as: here), present, not)"));
+}
+
+#[test]
 fn a_going_to_question_reads() {
     use crate::ir::{Force, Modal};
     let act = read("are you going to eat anything?").expect("a going-to question is covered");

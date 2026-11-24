@@ -143,15 +143,7 @@ fn operator_verdicts_do_not_depend_on_the_lexicon() {
         OPERATORS.iter().map(|o| probes.iter().map(|s| (o.rejects)(s)).collect()).collect()
     };
     let before = verdicts();
-    let base = concat!(env!("CARGO_MANIFEST_DIR"), "/../phiano/data");
-    if let Ok(p) = std::fs::read_to_string(format!("{base}/lex/pos.tsv")) {
-        crate::lexicon::prime(&p);
-    } else {
-        crate::lexicon::prime("she\tn\nleft\tv\n");
-    }
-    if let Ok(f) = std::fs::read_to_string(format!("{base}/lex/function.txt")) {
-        crate::lexicon::prime_function(&f);
-    }
+    crate::lexicon::prime_canonical();
     assert_eq!(before, verdicts(), "a primed Lexicon changed an operator verdict");
 }
 

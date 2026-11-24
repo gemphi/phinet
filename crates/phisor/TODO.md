@@ -10,11 +10,14 @@ Paths are under `src/`. The plan and the full checklist: [docs/phisor/plan.md](.
 
 - [x] `guide`, `code`, `kind`, `units`, `examples/kinds`; `docs/phisor/kinds.md`
 - [x] No cap: grown templates with a trie back-off, classes and kinds that split only while they pay (now `phical::classes::halve`)
-- [ ] `kind`: kinds from inside the sentence (the templates' own class pairs), not only the river
+- [x] `kind`: kinds from inside the sentence (the templates' own class pairs), beside the river (`Reading::Inside`, 2026-11-23; docs/phisor/kinds.md, "Inside")
 - [x] The exchange routine moved to `phical::classes::{halve, Grow, Halving}` (the parent session, under the ruling "any calculations must go to phical"); phisor keeps `Units` (`src/units.rs`); the old module parked in `_temp/phinet-root/phisor-exchange-before-phical` with an INVENTORY row; the kinds run is identical before and after (53 word classes at depth 7)
-- [ ] `code`: part `do`/`did`/`have` from `use`/`complete`/`take` (c12 at mode 16)
-- [ ] Feynman's second run: the twins' kinds as probabilities added against amplitudes added (`phical`, asked first)
+- [x] `code`: part `do`/`did`/`have` from `use`/`complete`/`take` (2026-11-24): `Code::learn_opening`, a sentence-opening sense (`^do`) with no `<s>` before it; questions F1 34.4% → 56.1% at mode 16 (above the hand dictionary's 53.2%), instructions lost at 16 and back at 32 (31.1%); docs/phisor/kinds.md, "Parting c12"
+- [x] `code`: one mode senses both (2026-11-24): the opener read on two channels, its opening sense then itself (`Code::write`); mode 64 senses questions 61.4% and instructions 55.7% F1, function purity 59.3%, mark 72.2%, above the hand dictionary on every measure; docs/phisor/kinds.md, "The opener on two channels"
+- [x] Feynman's run (2026-11-23): `measure::mode_input` and `examples/feynman.rs`; docs/phisor/kinds.md, "Feynman's run"
+- [x] Learned phases (2026-11-23): `measure::phase` and `phical::circle::intensity`; docs/phisor/kinds.md, "Learned phases"
 - [ ] Bentov's rank-frequency slopes (a least-squares slope, asked of the parent)
+- [x] The order-dependent tests (2026-11-24): the lexicon primes the canonical files once under test before any query or prime (`lexicon::prime`, `prime_canonical`), the five copied priming blocks are gone, and the copula question reads a spanning subject (`spanning_subject`), which the primed reader exposed; 308 tests pass in parallel and serial runs
 
 ## After it
 
