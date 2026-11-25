@@ -30,7 +30,6 @@
 //! The rows, in index order: 22 codon_of, 23 codon, 24 hexagram, 25 degree,
 //! 26 order, 27 position.
 
-use crate::c64;
 use crate::helix::Codon;
 use phistd::codon::CODONS;
 
@@ -114,10 +113,7 @@ fn named(a: &Operand) -> Handle {
     }
 }
 
-/// Repack a scalar field (the degree, the order) on the real axis.
-fn scalar(v: f64) -> Operand {
-    Operand::Phasor(c64::new(v, 0.0))
-}
+use super::scalar;
 
 /// The three coordinates read back off a position's canonical bytes, so a
 /// reader of the handle `position` returns is not left to guess the layout.

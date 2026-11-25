@@ -124,10 +124,7 @@ fn at_angle(theta: f64) -> Operand {
     Operand::Phasor(c64::from_polar(1.0, theta))
 }
 
-/// Repack a scalar (a distance, an agreement) on the real axis.
-fn scalar(v: f64) -> Operand {
-    Operand::Phasor(c64::new(v, 0.0))
-}
+use super::scalar;
 
 // --- the thirteen lifted Operators: each calls the existing circle (or
 // liskov) function and repacks, inventing no arithmetic. ---

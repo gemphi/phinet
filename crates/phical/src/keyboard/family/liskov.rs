@@ -27,7 +27,6 @@
 //! The rows, in index order: 40 better, 41 worse, 42 loss, 43 forcing_choice,
 //! 44 staged_better, 45 staged_worse, 46 stage, 47 measure.
 
-use crate::c64;
 use crate::{liskov, Function};
 
 use super::super::arena::{Arena, Fault};
@@ -102,15 +101,9 @@ fn staged(a: &Operand) -> liskov::staged::Staged {
     }
 }
 
-/// Repack a scalar (a margin, a loss, a chosen index) on the real axis.
-fn scalar(v: f64) -> Operand {
-    Operand::Phasor(c64::new(v, 0.0))
-}
+use super::scalar;
 
-/// A yes-or-no answer on that same real axis: 1.0 for yes, 0.0 for no.
-fn truth(held: bool) -> Operand {
-    scalar(if held { 1.0 } else { 0.0 })
-}
+use super::truth;
 
 // --- the six lifts: each calls the existing `phical::liskov` function over
 // the one-channel Functions (or the Staged pair) its operands name. ---

@@ -134,10 +134,7 @@ fn word(a: &Operand) -> [u8; 3] {
     }
 }
 
-/// Repack a scalar (a Hamming count, a sector distance) on the real axis.
-fn scalar(v: f64) -> Operand {
-    Operand::Phasor(c64::new(v, 0.0))
-}
+use super::scalar;
 
 // --- the eight Operators: the six lifts call the existing `phical::q64`
 // function and repack, and the two new ones are built on those. ---

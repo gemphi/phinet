@@ -140,18 +140,9 @@ fn code(a: &Operand, depth: u32) -> u16 {
     (id(a) as u32 % (1u32 << depth)) as u16
 }
 
-/// Repack a scalar (a likelihood, a gain, a cost) on the real axis.
-fn scalar(v: f64) -> Operand {
-    Operand::Phasor(c64::new(v, 0.0))
-}
+use super::scalar;
 
-/// A yes-or-no answer on that same real axis: 1.0 for yes, 0.0 for no.
-fn truth(held: bool) -> Operand {
-    scalar(match held {
-        true => 1.0,
-        false => 0.0,
-    })
-}
+use super::truth;
 
 /// The split table of two counts — `[[n0, 0], [0, n1]]` — with its row and
 /// column sums, which are the two counts themselves.

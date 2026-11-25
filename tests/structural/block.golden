@@ -2,8 +2,12 @@
 # (tests/structural/block.rs, the ruling of 2026-11-24: duplication is a
 # defect, and a part does one job and nothing else). One group per run,
 # however long the run: a group that is another group sliding is not
-# counted. The sweep of 2026-11-24 took phiano, phient, phiton and phistd
-# from 101 groups to 81 by its own narrower scan; this is all ten crates.
-# A copy made raises the count and a copy removed lowers it: both fail the
-# run, so this file says what is left to do.
-85
+# counted. A copy made raises the count and a copy removed lowers it: both
+# fail the run, so this file says what is left to do.
+#
+# 85 when the scan landed (2026-11-24). 78 on 2026-11-25: the facet built
+# four ways in phiecs storage is `Storage::facet` over an `IntoPhasor`
+# phasor, the source file read three ways in phient is `sources::text`, and
+# the repack on the real axis six families each had is `family::scalar`
+# with `family::truth` beside it.
+78

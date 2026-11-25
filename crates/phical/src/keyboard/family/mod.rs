@@ -16,6 +16,24 @@
 //! family partition over the complete set.
 
 use super::operator::Operator;
+use super::types::Operand;
+use crate::c64;
+
+/// Repack a scalar on the real axis - a distance, an agreement, a
+/// likelihood, a gain, a cost, a margin, a loss, a Hamming count, a
+/// confidence, a bar, an index, a degree, an order. All six families said
+/// this for themselves, in six wordings of one line.
+fn scalar(v: f64) -> Operand {
+    Operand::Phasor(c64::new(v, 0.0))
+}
+
+/// A yes-or-no answer on that same real axis: 1.0 for yes, 0.0 for no.
+fn truth(held: bool) -> Operand {
+    scalar(match held {
+        true => 1.0,
+        false => 0.0,
+    })
+}
 
 pub mod circle;
 pub mod q64;

@@ -28,7 +28,6 @@
 //! score, 52 prior, 53 two_hop, 54 chance, 55 score_laws, 56 laws_epoch, 57
 //! inherit_epoch, 58 converse, 59 inherit, and 60–63 the four new in [`new`].
 
-use crate::c64;
 use crate::relate::{self, Triple};
 
 use super::super::arena::{Arena, Fault};
@@ -123,15 +122,10 @@ pub(super) fn triple(a: &[Operand]) -> Triple {
     Triple { about: row(&a[0]), kind: kind(&a[1]), other: row(&a[2]) }
 }
 
-/// Repack a scalar (a confidence, a count, a bar) on the real axis.
-pub(super) fn scalar(v: f64) -> Operand {
-    Operand::Phasor(c64::new(v, 0.0))
-}
-
-/// A yes-or-no answer on that same real axis: 1.0 for yes, 0.0 for no.
-pub(super) fn truth(held: bool) -> Operand {
-    scalar(if held { 1.0 } else { 0.0 })
-}
+// The repack on the real axis and the yes-or-no answer are the family's
+// (`family/mod.rs`), named here so this family's own files read them as
+// `super::scalar` and `super::truth` still.
+pub(super) use super::super::family::{scalar, truth};
 
 // --- the twelve lifts: each calls the existing `phical::relate` function
 // over the one told triple (or the count) its operands name. ---
