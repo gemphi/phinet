@@ -35,7 +35,6 @@
 //! split_cost, 32 halve, 33 cut, 34 mode, 35 inside, 36 sibling, 37 parent,
 //! 38 pay, 39 size.
 
-use crate::c64;
 // `base` is `phical::classes`, aliased so a lifted call reads apart from
 // this module's own row of the same name.
 use crate::classes as base;

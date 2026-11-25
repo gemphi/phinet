@@ -10,4 +10,8 @@
 # phasor, the source file read three ways in phient is `sources::text`, and
 # the repack on the real axis six families each had is `family::scalar`
 # with `family::truth` beside it.
-78
+#
+# 76 later the same day: the two `Ref` bodies nothing writes any more are
+# gone and the three it reads are one `Body<P>`, the bytes held in place by
+# `the_written_bytes_are_the_format`.
+76
