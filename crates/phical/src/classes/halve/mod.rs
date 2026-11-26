@@ -12,43 +12,26 @@
 //! (`pay`: the likelihood it gains against `split_cost`), so the
 //! data says how many classes there are. A class whose split does not pay
 //! stops growing; the code stops when no split pays, or at `MAX_DEPTH`.
+//!
+//! Resuming: `halve_from` takes each unit's path from an earlier run
+//! (`Halving::paths`). At each depth a unit starts in the half its path
+//! names, and a unit with no path there (a new one, or one under a class
+//! that had stopped) alternates as before; then the passes and the pay run
+//! as always. So what was learned is where the next run starts, and a
+//! class that stopped may split when the data grows to pay for it.
 
 use super::pay::settle;
 use super::table::{Pairs, Table};
 use super::{apply_move, likelihood, move_gain, WordCounts};
 use std::collections::{HashMap, HashSet};
 
+mod halving;
+mod settings;
 #[cfg(test)]
 mod tests;
 
-/// What the routine left: each unit's code, and the record of its growth.
-#[derive(Clone, Debug, Default)]
-pub struct Halving {
-    /// Each unit's code, `depth` bits; a class that stopped early is padded with 0 bits.
-    pub codes: Vec<u16>,
-    /// How many bits the code grew to.
-    pub depth: u32,
-    /// How many classes the code ends with: the number the data asked for.
-    pub classes: usize,
-    /// `passes[d]` is depth `d + 1`'s gain, pass by pass (Babbage: the differences the stop reads).
-    pub passes: Vec<Vec<f64>>,
-    /// The likelihood at each depth once its passes and splits are settled.
-    pub likelihood: Vec<f64>,
-    /// How many splits each depth kept.
-    pub kept: Vec<usize>,
-}
-
-impl Halving {
-    /// A unit's class with the code cut to `bits` bits (all of it when the
-    /// code is shorter).
-    pub fn cut(&self, unit: usize, bits: u32) -> u16 {
-        let c = self.codes[unit];
-        match self.depth > bits {
-            true => c >> (self.depth - bits),
-            false => c,
-        }
-    }
-}
+pub use halving::Halving;
+pub use settings::Settings;
 
 /// The most passes at one depth.
 pub const MAX_PASSES: usize = 20;
@@ -64,46 +47,6 @@ pub enum Grow {
     Fixed(u32),
     /// A class splits only while the split pays, up to `MAX_DEPTH`.
     Paid,
-}
-
-/// The six settings the halving reads, one struct so a word-height value
-/// carries unchanged to a sentence height and reads back for comparison
-/// (Requirement 9.1). The default equals today's consts exactly, so a run
-/// left at the default is byte-identical to the run before this struct
-/// existed: 53 word classes at depth 7, and
-/// `the_numbers_on_the_guide_do_not_move` stays green.
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Settings {
-    /// A target class count to stop at, or `0` for no target (the default):
-    /// `grow` alone says how many classes the data pays for.
-    pub target_classes: usize,
-    /// The most passes at one depth; `MAX_PASSES` by default.
-    pub max_passes: usize,
-    /// A pass gaining less than this share of the first pass's gain stops
-    /// the depth; `STOP` by default.
-    pub stop_fraction: f64,
-    /// A unit told fewer times than this does not move; `0` by default, so
-    /// every unit may move, as today.
-    pub min_unit_frequency: usize,
-    /// Added to each split's cost before the keep decision; `0.0` by
-    /// default, so no penalty is charged, as today.
-    pub split_cost_penalty: f64,
-    /// The seed for the move order; `0` by default, the fixed
-    /// most-told-first order the routine has always used.
-    pub move_order_seed: u64,
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Self {
-            target_classes: 0,
-            max_passes: MAX_PASSES,
-            stop_fraction: STOP,
-            min_unit_frequency: 0,
-            split_cost_penalty: 0.0,
-            move_order_seed: 0,
-        }
-    }
 }
 
 /// Each code its dense class id, in the order of the codes.
@@ -126,12 +69,15 @@ pub fn halve(units: usize, sequences: &[Vec<usize>], grow: Grow) -> Halving {
 /// six settings. At `Settings::default()` this is byte-identical to the
 /// routine before the struct existed; a non-default seed, frequency floor or
 /// cost penalty changes nothing yet unless it leaves its no-op value.
-pub fn halve_with(
-    units: usize,
-    sequences: &[Vec<usize>],
-    grow: Grow,
-    settings: &Settings,
-) -> Halving {
+pub fn halve_with(units: usize, sequences: &[Vec<usize>], grow: Grow, settings: &Settings) -> Halving {
+    halve_from(units, sequences, grow, settings, &[])
+}
+
+/// Grow a code as `halve_with` does, each unit starting in the half its
+/// `prior` path names at each depth it reaches (`Halving::paths` of an
+/// earlier run). A unit beyond `prior`, or past its path's end, alternates
+/// as a new unit does. With no prior this is `halve_with`.
+pub fn halve_from(units: usize, sequences: &[Vec<usize>], grow: Grow, settings: &Settings, prior: &[Vec<bool>]) -> Halving {
     let pairs = Pairs::count(units, sequences);
     // Most told first, the seed naming no reorder at `0` (the default) so the
     // order stays the one the routine has always used.
@@ -159,15 +105,17 @@ pub fn halve_with(
     // unit whose code is one of them does not move.
     let mut stopped: HashSet<u16> = HashSet::new();
     let mut out = Halving::default();
-    for _ in 1..=limit {
+    for depth in 1..=limit {
         let before = dense(&codes).0.len();
         stopped = stopped.iter().map(|s| s * 2).collect();
         let mut seen: HashMap<u16, usize> = HashMap::new();
         for &w in &order {
             let parent = codes[w];
-            codes[w] = match stopped.contains(&(parent * 2)) {
-                true => parent * 2,
-                false => {
+            let resumed = prior.get(w).and_then(|p| p.get(depth as usize - 1));
+            codes[w] = match (stopped.contains(&(parent * 2)), resumed) {
+                (true, _) => parent * 2,
+                (false, Some(&bit)) => parent * 2 + bit as u16,
+                (false, None) => {
                     let s = seen.entry(parent).or_default();
                     *s += 1;
                     parent * 2 + ((*s - 1) % 2) as u16

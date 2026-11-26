@@ -11,9 +11,13 @@
 //! after `<s>`. The routine then codes a sentence-opening `do` by what follows
 //! it there (`do you …`, a question's inversion) apart from `do` elsewhere
 //! (`i don't do …`), where one class per word had to hold both.
+//!
+//! Resuming (`resume`): each unit starts where a saved code put it (its
+//! path, `paths`), so a code learned one night grows the next instead of
+//! starting over; a word new to the text finds its class among the old.
 
 use crate::unit::Units;
-use phical::classes::{halve, Grow, Halving};
+use phical::classes::{halve_from, Grow, Halving, Settings};
 use std::collections::HashMap;
 
 /// The bits a mode cuts the code to at most: 6, for 64 classes.
@@ -35,21 +39,26 @@ pub struct Code {
     pub opening: bool,
     /// The routine's record: its depth, its classes, the likelihood gained pass by pass.
     pub halving: Halving,
+    /// The units in the order the routine read them, the edges first.
+    names: Vec<String>,
 }
 
 impl Code {
     /// Learn the code from the training sentences.
     pub fn learn(sentences: &[&[String]], grow: Grow) -> Code {
-        Self::learn_with(sentences, grow, false)
+        Self::resume(sentences, grow, false, &HashMap::new())
     }
 
     /// Learn the code with the opening sense: a word that opens at least two
     /// training sentences is coded there as a unit of its own (`^do`).
     pub fn learn_opening(sentences: &[&[String]], grow: Grow) -> Code {
-        Self::learn_with(sentences, grow, true)
+        Self::resume(sentences, grow, true, &HashMap::new())
     }
 
-    fn learn_with(sentences: &[&[String]], grow: Grow, opening: bool) -> Code {
+    /// Learn the code again from where a saved one left off: each unit
+    /// starts on its `prior` path (`paths` of the saved code), a unit with
+    /// none as a new one. With no prior this is `learn` or `learn_opening`.
+    pub fn resume(sentences: &[&[String]], grow: Grow, opening: bool, prior: &HashMap<String, Vec<bool>>) -> Code {
         let mut told: HashMap<String, usize> = HashMap::new();
         for s in sentences {
             for (i, w) in s.iter().enumerate() {
@@ -86,10 +95,12 @@ impl Code {
             seq.push(units.id(END));
             sequences.push(seq);
         }
-        let halving = halve(units.len(), &sequences, grow);
-        let codes: HashMap<String, u16> = units.names().iter().enumerate().map(|(i, n)| (n.clone(), halving.codes[i])).collect();
+        let names: Vec<String> = units.names().to_vec();
+        let start: Vec<Vec<bool>> = names.iter().map(|n| prior.get(n).cloned().unwrap_or_default()).collect();
+        let halving = halve_from(units.len(), &sequences, grow, &Settings::default(), &start);
+        let codes: HashMap<String, u16> = names.iter().enumerate().map(|(i, n)| (n.clone(), halving.codes[i])).collect();
         let unknown = codes[UNKNOWN];
-        Code { codes, told, unknown, opening, halving }
+        Code { codes, told, unknown, opening, halving, names }
     }
 
     /// A sentence written as classes cut to `bits` bits, each word as itself.
@@ -119,6 +130,13 @@ impl Code {
             true => code >> (self.halving.depth - bits),
             false => code,
         }
+    }
+
+    /// Every unit with its path in the tree and how often it was told, in
+    /// the order the routine read them: what a checkpoint saves.
+    pub fn paths(&self) -> Vec<(&str, Vec<bool>, usize)> {
+        let paths = self.halving.paths();
+        self.names.iter().zip(paths).map(|(n, p)| (n.as_str(), p, self.told.get(n).copied().unwrap_or(0))).collect()
     }
 
     /// How many words have a code of their own.

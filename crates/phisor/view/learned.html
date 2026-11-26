@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>phisor learning</title>
+<style>
+/* One column, a notebook read top to bottom: the nights, then the word classes, the kinds, and how tonight's trees grew. */
+:root {
+  --paper: #f4f6f8; --sheet: #ffffff; --ink: #1c2430; --soft: #5b6676; --rule: #dbe0e7;
+  --accent: #1d6a86; --accent-soft: #d8ebf2;
+  --l0: #3f7fbf; --l1: #d0782e; --l2: #7a5cc4; --l3: #9aa4b1;
+  --face: "Phi-Pill Open", "Phifing 4", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #10151c; --sheet: #171e27; --ink: #e3e8ef; --soft: #98a3b3; --rule: #2a3441;
+  --accent: #5fb4d3; --accent-soft: #1d3542; --l0: #6ea8e0; --l1: #e59a5c; --l2: #a58ae6; --l3: #6d7888; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --paper: #10151c; --sheet: #171e27; --ink: #e3e8ef; --soft: #98a3b3; --rule: #2a3441;
+  --accent: #5fb4d3; --accent-soft: #1d3542; --l0: #6ea8e0; --l1: #e59a5c; --l2: #a58ae6; --l3: #6d7888; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 300 15px/1.55 var(--face); }
+main { max-width: 1120px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 36px; }
+h1 { font-weight: 300; font-size: 30px; margin: 0; text-wrap: balance; }
+h2 { font-weight: 400; font-size: 20px; margin: 0 0 4px; }
+p.note { color: var(--soft); margin: 0 0 14px; max-width: 70ch; }
+.facts { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 10px; color: var(--soft); }
+.facts b { color: var(--ink); font-weight: 400; font-variant-numeric: tabular-nums; }
+.tabs { display: flex; gap: 6px; margin: 8px 0 14px; }
+.tabs button { font: inherit; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); padding: 4px 14px; border-radius: 999px; cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--sheet); }
+.tabs button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
+.chart { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+.chart h3 { font-size: 14px; font-weight: 400; margin: 0 0 6px; color: var(--soft); }
+.chart svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; gap: 12px; font-size: 12px; color: var(--soft); flex-wrap: wrap; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.classes { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+.class { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+.class header { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--soft); }
+.class header b { color: var(--accent); font-weight: 400; }
+.path { font-family: var(--mono); font-size: 12px; }
+.words { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 8px; }
+.words span { white-space: nowrap; }
+.words .sense { color: var(--accent); }
+.kind { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 4px 16px; padding: 12px 0; border-top: 1px solid var(--rule); }
+.kind .name { color: var(--soft); font-size: 13px; }
+.kind .name b { display: block; color: var(--ink); font-weight: 400; font-size: 15px; }
+.bars { display: grid; gap: 4px; }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--rule); max-width: 420px; }
+.bar span { height: 100%; }
+.templates { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.template { background: var(--accent-soft); border-radius: 6px; padding: 2px 8px; font-size: 13px; }
+.template .c { font-family: var(--mono); font-size: 11px; color: var(--soft); }
+details summary { cursor: pointer; color: var(--accent); margin-top: 10px; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 13px; }
+th, td { text-align: left; padding: 4px 14px 4px 0; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+th { font-weight: 400; color: var(--soft); }
+.empty { color: var(--soft); font-style: italic; }
+@media (max-width: 520px) { .kind { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: no-preference) { .tabs button { transition: background .15s; } }
+</style>
+</head>
+<body>
+<main>
+  <section>
+    <h1>What phisor has learned</h1>
+    <div class="facts" id="facts"></div>
+  </section>
+  <section>
+    <h2>Night by night</h2>
+    <p class="note">Each night adds new text, picks up from the last saved night and is scored on the guide's held-out sentences, whose labels it is never told. A line that climbs means the learning carried over. Questions and instructions are sensed by the kinds named for them on dev: by lift, each kind names the label it holds the largest share of (recorded from 27 November); by dev majority, the label most of its dev sentences carry, which never names a rare label like the guide's instructions.</p>
+    <div class="charts" id="charts"></div>
+  </section>
+  <section>
+    <h2>Word classes</h2>
+    <p class="note">The word code, grown as deep as the text pays for. Neighbouring cards share their first bits, so they are close in the tree. Words in blue are a word's opening sense: the word as the first of a sentence.</p>
+    <div class="tabs" data-for="classes"></div>
+    <div class="classes" id="classes"></div>
+  </section>
+  <section>
+    <h2>Kinds of sentence</h2>
+    <p class="note">Sentence templates grouped by the class pairs their sentences hold. The bars show how the guide's held-out sentences in each kind are labelled: what they are for (explain, instruct, answer) and how they end (stop, question, exclamation, line).</p>
+    <div class="legend" id="legend"></div>
+    <div class="tabs" data-for="kinds"></div>
+    <div id="kinds"></div>
+  </section>
+  <section>
+    <h2>How tonight's trees grew</h2>
+    <p class="note">Depth by depth: the splits that paid for themselves, the likelihood after them, and the gain of each pass.</p>
+    <div class="scroll" id="growth"></div>
+  </section>
+</main>
+<!--learned-->
+<script>
+const rows = id => ((document.getElementById(id) || {}).textContent || '').split('\n').filter(l => l.trim() && !l.startsWith('#')).map(l => l.split('\t'));
+const el = (tag, attrs = {}, ...kids) => { const e = document.createElement(tag); Object.entries(attrs).forEach(([k, v]) => k === 'class' ? e.className = v : e.setAttribute(k, v)); kids.flat().forEach(k => e.append(k instanceof Node ? k : document.createTextNode(k))); return e; };
+const MODES = [16, 32, 64];
+const nights = rows('night').map(r => ({ stamp: r[0], sources: +r[1], sentences: +r[2], words: +r[3], classes: +r[4], depth: +r[5], likelihood: +r[6], seconds: +r[7], start: r[8 + 7 * 3] || 'not recorded',
+  modes: MODES.map((c, i) => { const b = 8 + 7 * i; return { classes: +r[b], templates: +r[b + 1], kinds: +r[b + 2], function: +r[b + 3], mark: +r[b + 4], question: +r[b + 5], instruct: +r[b + 6], questionLift: r[30 + 2 * i] === undefined ? NaN : +r[30 + 2 * i], instructLift: r[31 + 2 * i] === undefined ? NaN : +r[31 + 2 * i] }; }) }));
+const last = nights[nights.length - 1];
+const taken = rows('taken');
+const fmt = n => n.toLocaleString('en');
+
+document.getElementById('facts').append(...(last ? [
+  ['night', last.stamp], ['nights so far', nights.length], ['sources taken', `${last.sources} of the queue`], ['training sentences', fmt(last.sentences)],
+  ['word classes', `${last.classes} at depth ${last.depth}`], ['started', last.start], ['units coded', fmt(last.words)], ['run time', `${Math.round(last.seconds)} s`]
+].map(([k, v]) => el('span', {}, `${k} `, el('b', {}, String(v)))) : [el('span', { class: 'empty' }, 'No night has run yet.')]));
+
+const colours = ['var(--l0)', 'var(--l1)', 'var(--l2)', 'var(--l3)'];
+function chart(title, series, unit) {
+  const W = 260, H = 120, L = 34, R = 8, T = 8, B = 20, all = series.flatMap(s => s.values).filter(v => isFinite(v));
+  let lo = Math.min(...all), hi = Math.max(...all); if (!all.length) { lo = 0; hi = 1; } if (hi - lo < 1e-9) { lo -= 1; hi += 1; }
+  const n = Math.max(1, ...series.map(s => s.values.length)), x = i => L + (n === 1 ? (W - L - R) / 2 : i * (W - L - R) / (n - 1)), y = v => T + (hi - v) * (H - T - B) / (hi - lo);
+  const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg'), add = (tag, a) => { const e = document.createElementNS(ns, tag); Object.entries(a).forEach(([k, v]) => e.setAttribute(k, v)); svg.append(e); return e; };
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', title);
+  [lo, (lo + hi) / 2, hi].forEach(v => { add('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: 'var(--rule)', fill: 'none' }); add('text', { x: L - 4, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 10, fill: 'var(--soft)' }).textContent = v.toFixed(unit === 'x' ? 2 : 0); });
+  add('text', { x: L, y: H - 4, 'font-size': 10, fill: 'var(--soft)' }).textContent = nights[0] ? nights[0].stamp : '';
+  if (n > 1) add('text', { x: W - R, y: H - 4, 'font-size': 10, fill: 'var(--soft)', 'text-anchor': 'end' }).textContent = last.stamp;
+  series.forEach((s, k) => { const held = s.values.map((v, i) => [i, v]).filter(([, v]) => isFinite(v)), pts = held.map(([i, v]) => `${x(i)},${y(v)}`).join(' ');
+    if (held.length > 1) add('polyline', { points: pts, fill: 'none', stroke: s.colour || colours[k], 'stroke-width': 2 });
+    held.forEach(([i, v]) => add('circle', { cx: x(i), cy: y(v), r: i === s.values.length - 1 ? 3.5 : 2, fill: s.colour || colours[k] })); });
+  const legend = series.length > 1 ? el('div', { class: 'legend' }, series.map((s, k) => el('span', {}, el('i', { style: `background:${s.colour || colours[k]}` }), s.name))) : '';
+  return el('div', { class: 'chart' }, el('h3', {}, title), svg, legend);
+}
+const perMode = key => MODES.map((c, i) => ({ name: `mode ${c}`, values: nights.map(n => n.modes[i][key]) }));
+document.getElementById('charts').append(...(nights.length ? [
+  chart('Questions sensed by lift, F1 %', perMode('questionLift'), '%'), chart('Instructions sensed by lift, F1 %', perMode('instructLift'), '%'),
+  chart('Questions sensed by dev majority, F1 %', perMode('question'), '%'), chart('Instructions sensed by dev majority, F1 %', perMode('instruct'), '%'),
+  chart('Function purity %', perMode('function'), '%'), chart('Mark purity %', perMode('mark'), '%'),
+  chart('Word classes', [{ name: 'classes', values: nights.map(n => n.classes) }]), chart('Training sentences', [{ name: 'sentences', values: nights.map(n => n.sentences) }]),
+  chart('Kinds', perMode('kinds')), chart('Likelihood per word pair', [{ name: 'likelihood', values: nights.map(n => n.likelihood) }], 'x')
+] : [el('p', { class: 'empty' }, 'The record is empty.')]));
+
+const depth = last ? last.depth : 0;
+const code = rows('code').filter(r => r.length >= 3).map(([name, path, told]) => ({ name, path: path === '-' ? '' : path, told: +told }));
+const classOf = (path, bits) => { const b = Math.min(bits, depth); return b ? parseInt((path + '0'.repeat(depth)).slice(0, b), 2) : 0; };
+const members = bits => { const m = new Map(); code.forEach(w => { const c = classOf(w.path, bits); if (!m.has(c)) m.set(c, []); m.get(c).push(w); }); m.forEach(ws => ws.sort((a, b) => b.told - a.told)); return m; };
+const bitsOf = c => Math.log2(c);
+function showClasses(c) {
+  const m = members(bitsOf(c)), box = document.getElementById('classes'); box.replaceChildren();
+  [...m.keys()].sort((a, b) => a - b).forEach(k => { const ws = m.get(k), b = Math.min(bitsOf(c), depth);
+    box.append(el('div', { class: 'class' }, el('header', {}, el('b', {}, `c${k}`), el('span', { class: 'path' }, b ? k.toString(2).padStart(b, '0') : '-'), el('span', {}, `${fmt(ws.length)} units`)),
+      el('div', { class: 'words' }, ws.slice(0, 16).map(w => el('span', { class: w.name.startsWith('^') ? 'sense' : '' }, w.name))))); });
+}
+const labelNames = [['explain', 'instruct', 'answer'], ['stop', 'question', 'exclamation', 'line']];
+document.getElementById('legend').append(...labelNames.flat().map((n, i) => el('span', {}, el('i', { style: `background:${colours[i < 3 ? i : i - 3]}` }), n)));
+function bar(counts) { const t = counts.reduce((a, b) => a + b, 0) || 1; return el('div', { class: 'bar', title: counts.join(' / ') }, counts.map((v, i) => el('span', { style: `width:${100 * v / t}%;background:${colours[i]}` }))); }
+function showKinds(c) {
+  const m = members(bitsOf(c)), top = k => (m.get(k) || []).slice(0, 3).map(w => w.name).join(' ');
+  const kinds = new Map(); rows(`kind-${c}`).forEach(([name, path, kind]) => { if (/^c\d/.test(name)) { if (!kinds.has(kind)) kinds.set(kind, []); kinds.get(kind).push(name); } });
+  const labels = new Map(rows(`label-${c}`).map(([k, f, mk]) => [k, [f.split(',').map(Number), mk.split(',').map(Number)]]));
+  const held = k => labels.has(k) ? labels.get(k)[0].reduce((a, b) => a + b, 0) : 0;
+  const order = [...kinds.keys()].sort((a, b) => held(b) - held(a) || kinds.get(b).length - kinds.get(a).length);
+  const card = k => { const [f, mk] = labels.get(k) || [[0, 0, 0], [0, 0, 0, 0]];
+    return el('div', { class: 'kind' }, el('div', { class: 'name' }, el('b', {}, `kind ${k}`), `${held(k)} held out · ${kinds.get(k).length} templates`),
+      el('div', {}, el('div', { class: 'bars' }, bar(f), bar(mk)), el('div', { class: 'templates' }, kinds.get(k).slice(0, 8).map(t => el('span', { class: 'template' },
+        t.split(' ').filter(p => /^c\d+$/.test(p)).map((p, i) => [i ? ' · ' : '', top(+p.slice(1)) || '?', ' ', el('span', { class: 'c' }, p)]).flat(), ' …'))))); };
+  const box = document.getElementById('kinds'); box.replaceChildren(...order.slice(0, 30).map(card));
+  if (order.length > 30) box.append(el('details', {}, el('summary', {}, `${order.length - 30} more kinds`), order.slice(30).map(card)));
+  if (!order.length) box.append(el('p', { class: 'empty' }, 'No kinds saved for this mode.'));
+}
+function tabs(name, show) { const box = document.querySelector(`.tabs[data-for="${name}"]`); let current = 16;
+  const draw = () => { box.replaceChildren(...MODES.map(c => { const b = el('button', { type: 'button', 'aria-pressed': String(c === current) }, `${c} classes`); b.onclick = () => { current = c; draw(); show(c); }; return b; })); };
+  draw(); show(current); }
+tabs('classes', showClasses); tabs('kinds', showKinds);
+
+const growth = rows('growth');
+const gbox = document.getElementById('growth');
+if (growth.length) gbox.append(el('table', {}, el('tr', {}, ['tree', 'depth', 'splits kept', 'likelihood', 'passes', 'gain pass by pass'].map(h => el('th', {}, h))),
+  growth.map(([tree, d, kept, lik, gains]) => { const g = (gains || '').split(',').filter(Boolean).map(Number);
+    return el('tr', {}, el('td', {}, tree), el('td', {}, d), el('td', {}, kept), el('td', {}, fmt(Math.round(+lik))), el('td', {}, String(g.length)), el('td', {}, g.slice(0, 6).map(v => fmt(Math.round(v))).join(' · ') + (g.length > 6 ? ' …' : ''))); })));
+else gbox.append(el('p', { class: 'empty' }, 'No growth saved yet.'));
+</script>
+</body>
+</html>

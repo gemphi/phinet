@@ -17,6 +17,11 @@ Paths are under `src/`. The plan and the full checklist: [docs/phisor/plan.md](.
 - [x] Feynman's run (2026-11-23): `measure::mode_input` and `examples/feynman.rs`; docs/phisor/kinds.md, "Feynman's run"
 - [x] Learned phases (2026-11-23): `measure::phase` and `phical::circle::intensity`; docs/phisor/kinds.md, "Learned phases"
 - [ ] Bentov's rank-frequency slopes (a least-squares slope, asked of the parent)
+- [x] Learning accumulates, a night at a time (2026-11-25): `checkpoint` (the queue, a night's paths, the record), `phical::classes::halve_from` and `Halving::paths`, `Code::resume`, `Kinds::resume`, `guide::more` and `Split::with_more`, `kind::sensing`; `examples/nightly`, `nightly.ps1`, the Task Scheduler task "phisor nightly" at 02:00; the page `data/learn/learned.html` from `view/learned.html`; docs/phisor/learn.md
+- [x] Instructions fell with Tatoeba, to 0 on the fourth night (2026-11-27): the kinds still gather them (one kind holds a third), but a kind answered only to its dev majority and dev holds about 50 instructions; `kind::Rule::Lift` names a kind by the label it holds the largest share of, recorded beside the majority each night (docs/phisor/learn.md, "Sensing a rare label")
+- [ ] A rare label needs a measure with no naming step: lift avoids the zero (instructions 17.9% at mode 64, 2026-11-27) but costs precision (questions 69.5% → 55.6%); the held-out average precision of the kinds ranked by their dev share would not flip on one kind. Decide on dev, not on the held-out numbers
+- [ ] Save the learned phases each night too (`measure::phase`), and draw them on the page
+- [ ] The queue runs out after about 14 nights (27 sources, two a night): add text to `data/learn/source.tsv` before then
 - [x] The order-dependent tests (2026-11-24): the lexicon primes the canonical files once under test before any query or prime (`lexicon::prime`, `prime_canonical`), the five copied priming blocks are gone, and the copula question reads a spanning subject (`spanning_subject`), which the primed reader exposed; 308 tests pass in parallel and serial runs
 
 ## After it
@@ -33,7 +38,7 @@ Paths are under `src/`. The plan and the full checklist: [docs/phisor/plan.md](.
 
 ## Docs
 
-- [ ] One page per module in `phinet/docs/phisor/` as each lands (today: `ir.md`)
+- [ ] One page per module in `phinet/docs/phisor/` as each lands (today: `ir.md`, `guide.md`, `code.md`, `kind.md`, `learn.md`)
 
 ## The loop (2026-11-07)
 

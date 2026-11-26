@@ -49,6 +49,7 @@
 //! | [`guide`] | the English guide: its units' sentences, each with its function and mark, the Key's answers, docs/203's split |
 //! | [`code`] | a word as its class at 16, 32, 64: the hash (the null), the given dictionary, the learned code |
 //! | [`kind`] | a sentence's variation (fixed shapes or grown templates), the kinds found by the river, the labels read against them, family resemblance |
+//! | [`checkpoint`] | what was learned, kept between nights: the queue of text, each tree's paths, the nights' record |
 //! | [`gold`] | the 150 frozen gold frames: the act height's yardstick, fingerprinted before the learner ran on it |
 //! | [`ladder`] | the Ladder's six heights, run in all three arms: a text written in a mode, structure only and no words |
 //! | [`units`] | names as unit ids: what phisor hands the one routine, `phical::classes::halve` |
@@ -60,6 +61,7 @@
 //! The plan, the order and the measures: `phinet/docs/phisor/plan.md`.
 
 pub mod abstraction;
+pub mod checkpoint;
 pub mod code;
 pub mod gold;
 pub mod ground;

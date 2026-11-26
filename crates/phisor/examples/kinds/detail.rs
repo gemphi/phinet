@@ -4,39 +4,19 @@
 //! its labels and an example.
 
 use phisor::guide::{Function, Mark, Part, Sentence, Split};
-use phisor::kind::{mark_of, resemblance, table, Kinds};
-use phistd::stats::{f1, mean, z_score};
+use phisor::kind::{resemblance, Kinds};
+use phistd::stats::{mean, z_score};
 use std::collections::HashMap;
 
-type Label = Box<dyn Fn(&Sentence) -> Option<usize>>;
-
-/// For each label: the kinds whose dev sentences mostly carry it sense it;
-/// their F1 on the held-out sentences. No label chose a kind's shape; dev
-/// only names which kinds answer to which label. Dev holds no answers (the
-/// Key is never told), so no kind can answer to `answer` here.
+/// For each label: the kinds that sense it (named on dev) and their F1 on
+/// the held-out sentences (`kind::sensing`).
 pub fn sensing(kinds: &Kinds, split: &Split) {
     println!("| label | kinds that sense it (chosen on dev) | held out | sensed | hit | F1 |");
     println!("|---|---|---|---|---|---|");
-    let sets: [(&str, usize, Label); 2] = [
-        ("function", Function::ALL.len(), Box::new(|s: &Sentence| Function::ALL.iter().position(|&f| f == s.function))),
-        ("mark", Mark::ALL.len(), Box::new(mark_of)),
-    ];
-    for (set, n, label) in sets.iter() {
-        let dev = table(kinds, split, Part::Dev, *n, |s| label(s));
-        let held = table(kinds, split, Part::Test, *n, |s| label(s));
-        // Each kind answers to its dev majority; a kind dev never saw answers to nothing.
-        let answer: Vec<Option<usize>> = dev.iter().map(|r| r.iter().enumerate().filter(|(_, &c)| c > 0.0).max_by(|a, b| a.1.total_cmp(b.1)).map(|(j, _)| j)).collect();
-        for j in 0..*n {
-            let sensers: Vec<usize> = (0..answer.len()).filter(|&k| answer[k] == Some(j)).collect();
-            let expected: f64 = held.iter().map(|r| r[j]).sum::<f64>() + 0.0;
-            let predicted: f64 = sensers.iter().map(|&k| held[k].iter().sum::<f64>()).sum::<f64>() + 0.0;
-            let hit: f64 = sensers.iter().map(|&k| held[k][j]).sum::<f64>() + 0.0;
-            let name = match *set {
-                "function" => Function::ALL[j].name(),
-                _ => Mark::ALL[j].name(),
-            };
-            println!("| {set}: {name} | {} | {expected:.0} | {predicted:.0} | {hit:.0} | {:.1}% |", sensers.len(), 100.0 * f1(hit, predicted as usize, expected as usize));
-        }
+    let [function, mark] = phisor::kind::sensing(kinds, split, phisor::kind::Rule::Majority);
+    let names = Function::ALL.iter().map(|f| ("function", f.name())).chain(Mark::ALL.iter().map(|m| ("mark", m.name())));
+    for ((set, name), s) in names.zip(function.iter().chain(&mark)) {
+        println!("| {set}: {name} | {} | {:.0} | {:.0} | {:.0} | {:.1}% |", s.kinds, s.expected, s.predicted, s.hit, 100.0 * s.f1());
     }
 }
 

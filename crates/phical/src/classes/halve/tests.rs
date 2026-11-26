@@ -1,4 +1,4 @@
-use super::{dense, halve, halve_with, Grow, Settings};
+use super::{dense, halve, halve_from, halve_with, Grow, Halving, Settings};
 
 /// The same uneven draw `halving_tests` uses: three determiners (0, 1, 2)
 /// and three nouns (3, 4, 5), alternating, so the counts look like text.
@@ -67,4 +67,37 @@ fn the_default_fields_equal_the_consts() {
     assert_eq!(s.min_unit_frequency, 0);
     assert_eq!(s.split_cost_penalty, 0.0);
     assert_eq!(s.move_order_seed, 0);
+}
+
+/// Two runs part the units alike when two units share a class in one exactly
+/// when they share one in the other.
+fn same_partition(a: &[u16], b: &[u16]) -> bool {
+    (0..a.len()).all(|u| (0..a.len()).all(|v| (a[u] == a[v]) == (b[u] == b[v])))
+}
+
+/// A class that stopped early is padded with 0 bits; its path ends where no
+/// other class shares its bits.
+#[test]
+fn a_path_names_its_class_without_the_padding() {
+    let h = Halving { codes: vec![0b000, 0b000, 0b100, 0b101, 0b110], depth: 3, classes: 4, ..Halving::default() };
+    let paths = h.paths();
+    assert_eq!(paths[0], [false]);
+    assert_eq!(paths[2], [true, false, false]);
+    assert_eq!(paths[3], [true, false, true]);
+    assert_eq!(paths[4], [true, true]);
+}
+
+/// Resumed from its own paths, a run keeps the classes it learned; a unit
+/// with no path (a new one) finds its class among them.
+#[test]
+fn a_run_resumed_from_its_paths_keeps_its_classes_and_places_a_new_unit() {
+    let seqs = alternating(200);
+    let first = halve(6, &seqs, Grow::Paid);
+    let again = halve_from(6, &seqs, Grow::Paid, &Settings::default(), &first.paths());
+    assert_eq!(again.classes, first.classes);
+    assert!(same_partition(&first.codes, &again.codes), "{:?} against {:?}", first.codes, again.codes);
+    let mut prior = first.paths();
+    prior[5] = Vec::new();
+    let placed = halve_from(6, &seqs, Grow::Paid, &Settings::default(), &prior);
+    assert!(same_partition(&first.codes, &placed.codes), "{:?} against {:?}", first.codes, placed.codes);
 }

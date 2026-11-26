@@ -6,9 +6,10 @@
 graph TB
     subgraph crate["phisor"]
         ir["ir<br/>Act · Force · Frame · Filler · Template · show"]
-        guide["guide<br/>units · key · split: Sentence, Function, Mark, Split"]
+        guide["guide<br/>units · key · split: Sentence, Function, Mark, Split<br/>more: other text, training only (Split::with_more)"]
         code["code<br/>Coder: hash · given · learned (Code) · show"]
-        kind["kind<br/>shape (Twin, grown, opening) · Kinds · read · resemblance"]
+        kind["kind<br/>shape (Twin, grown, opening) · Kinds · read · resemblance · sense<br/>Kinds::resume from saved paths"]
+        checkpoint["checkpoint<br/>source: the queue, what was taken · state: a night's paths<br/>record: night.tsv, growth.tsv (docs/phisor/learn.md)"]
         units["units<br/>Units: names as ids"]
         english["english (planned)<br/>closed · chunk · clause · realise · morph"]
         learn["learn (planned)<br/>the one loop · position · moves"]
@@ -20,6 +21,8 @@ graph TB
     kind --> code
     kind --> units
     kind --> guide
+    checkpoint --> code
+    checkpoint --> kind
     english --> ir
     english --> learn
     ground --> ir
@@ -27,7 +30,7 @@ graph TB
     measure --> kind
     measure --> machine
     X_phiton["phiton (crate)<br/>p64 Level · classify_str · PosDictionary"]
-    X_phical["phical (crate)<br/>classes: halve · Grow · Halving · split_cost<br/>liskov::staged"]
+    X_phical["phical (crate)<br/>classes: halve · halve_from · Grow · Halving (paths) · split_cost<br/>liskov::staged"]
     X_phistd["phistd (crate)<br/>stats: purity · mutual_information · z_score · f1"]
     X_phiecs["phiecs (crate)<br/>speak::tokens · Row · World"]
     X_phiclm["phiclm (crate)<br/>lisp::Machine · Host · judge"]

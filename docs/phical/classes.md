@@ -43,7 +43,8 @@ flowchart TD
 flowchart TD
     seq["units in sequences<br/>Vec of Vec of usize"] --> pairs["table: Pairs::count<br/>out · inn sparse per unit · told · total"]
     pairs --> order["order: most told first"]
-    order --> depth["each depth, up to MAX_DEPTH 12<br/>every class still growing splits in two<br/>a unit starts in the half its rank alternates it into"]
+    prior["halve_from: each unit's path from an earlier run<br/>Halving::paths · empty for a new unit"] --> depth
+    order --> depth["each depth, up to MAX_DEPTH 12<br/>every class still growing splits in two<br/>a unit starts in the half its path names,<br/>else the half its rank alternates it into"]
     depth --> build["Table::build over dense class ids"]
     build --> pass["a pass: every unit, most told first<br/>move to its sibling iff move_gain #gt; 0 · apply_move"]
     pass --> stop{"the pass gained ≤ STOP 1e-3 of the first<br/>or MAX_PASSES 20"}
@@ -54,7 +55,7 @@ flowchart TD
     settle -->|"some kept"| next
     settle -->|"none kept"| back["take the bit back · stop"]
     next --> depth
-    back --> out["Halving<br/>codes · depth · classes · passes · likelihood · kept · cut(unit, bits)"]
+    back --> out["Halving<br/>codes · depth · classes · passes · likelihood · kept · cut(unit, bits)<br/>paths(): each unit's bits down to where its class stopped"]
     next -->|"at the limit"| out
 ```
 
@@ -63,13 +64,15 @@ graph LR
     t1["one_bit_parts_what_comes_before_from_what_comes_after"] --> f1["Grow::Fixed(1)"]
     t2["every_kept_move_gains_and_the_code_is_nested"] --> f3["Grow::Fixed(3) · cut to 1 bit"]
     t3["the_data_says_how_many_classes_it_pays_for<br/>determiners and nouns: 2 classes, depth 1"] --> paid["Grow::Paid"]
+    t4["a_path_names_its_class_without_the_padding"] --> paths["Halving::paths"]
+    t5["a_run_resumed_from_its_paths_keeps_its_classes_and_places_a_new_unit"] --> from["halve_from"]
 ```
 
 ## Who calls it
 
 ```mermaid
 graph LR
-    phisor["phisor<br/>words from their sentences · kinds from the river of templates<br/>Units interned there"] --> halve["phical::classes<br/>halve · Grow · Halving"]
+    phisor["phisor<br/>words from their sentences · kinds from the river of templates<br/>Units interned there · resumed nightly from saved paths"] --> halve["phical::classes<br/>halve · halve_from · Grow · Halving"]
     halve --> gain["move_gain · apply_move · likelihood"]
     halve -->|"no cap: split while it pays"| cost2["split_cost"]
     phisor --> stats["phistd::stats<br/>purity · mutual_information · z_score"]

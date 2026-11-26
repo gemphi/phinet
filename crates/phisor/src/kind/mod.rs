@@ -14,10 +14,12 @@
 //! | `learn` | `Reading`: the river's sequences, or the inside's template × class-pair pairs |
 //! | `read` | the held-out sentences' kinds; the tables the labels and the river are read from |
 //! | `resemblance` | Wittgenstein's family resemblance, counted within a kind |
+//! | `sense` | which kinds answer to which label (named on dev, scored held out) and their F1 |
 
 mod learn;
 mod read;
 mod resemblance;
+mod sense;
 mod shape;
 #[cfg(test)]
 mod tests;
@@ -25,13 +27,14 @@ mod tests;
 pub use learn::{features, Reading};
 pub use read::{mark_of, pairs_table, river, table, Tables};
 pub use resemblance::{resemblance, Resemblance};
+pub use sense::{sense, sensing, Rule, Sense};
 pub use shape::{grown, grown_length, opening, openings, shape, Twin};
 
 use crate::code::Coder;
 use crate::guide::Split;
 use crate::unit::Units;
 use learn::{END, START};
-use phical::classes::{halve, Grow, Halving};
+use phical::classes::{halve_from, Grow, Halving, Settings};
 use phiton::p64::variants::Level;
 use std::collections::HashMap;
 
@@ -66,6 +69,12 @@ impl Kinds {
     /// written by `coder` at `level`, its template read as `twin`, the
     /// templates grouped by `reading`.
     pub fn learn(split: &Split, coder: &Coder, level: Level, twin: Twin, reading: Reading, grow: Grow) -> Kinds {
+        Self::resume(split, coder, level, twin, reading, grow, &HashMap::new())
+    }
+
+    /// Learn the kinds again from where saved ones left off: each template
+    /// and feature starts on its `prior` path (`paths`), a new one as new.
+    pub fn resume(split: &Split, coder: &Coder, level: Level, twin: Twin, reading: Reading, grow: Grow, prior: &HashMap<String, Vec<bool>>) -> Kinds {
         let written: Vec<Vec<u16>> = split.sentences.iter().map(|s| coder.write(&s.words, level)).collect();
         let runs = split.training_runs();
         let told_openings = openings(runs.iter().flatten().map(|&i| written[i].as_slice()));
@@ -101,7 +110,8 @@ impl Kinds {
             Reading::River => learn::river(&runs, &unit, &mut units),
             Reading::Inside => learn::inside(&runs, &unit, &written, &mut units),
         };
-        let halving = halve(units.len(), &sequences, grow);
+        let start: Vec<Vec<bool>> = units.names().iter().map(|n| prior.get(n).cloned().unwrap_or_default()).collect();
+        let halving = halve_from(units.len(), &sequences, grow, &Settings::default(), &start);
         let mut codes: Vec<u16> = halving.codes.clone();
         codes.sort_unstable();
         codes.dedup();
@@ -165,6 +175,12 @@ impl Kinds {
     /// The templates' names and kinds, in unit order.
     pub fn template_kinds(&self) -> (&[String], &[usize]) {
         (&self.units.names()[3..self.end], &self.kind[3..self.end])
+    }
+
+    /// Every unit (the edges, the templates, the features) with its path
+    /// in the tree and its kind: what a checkpoint saves.
+    pub fn paths(&self) -> Vec<(&str, Vec<bool>, usize)> {
+        self.units.names().iter().zip(self.halving.paths()).zip(&self.kind).map(|((n, p), &k)| (n.as_str(), p, k)).collect()
     }
 
     /// How many kinds hold at least one template.

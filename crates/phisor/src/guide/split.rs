@@ -42,6 +42,15 @@ impl Split {
         Split { sentences, parts }
     }
 
+    /// The guide's split with `more` sentences after it, every one in
+    /// training: more text is told, never measured (`guide::more`). Give
+    /// each source its own unit, so no run spans two.
+    pub fn with_more(mut self, more: Vec<Sentence>) -> Self {
+        self.parts.extend(std::iter::repeat_n(Part::Train, more.len()));
+        self.sentences.extend(more);
+        self
+    }
+
     /// The indices of one part.
     pub fn of(&self, part: Part) -> Vec<usize> {
         (0..self.parts.len()).filter(|&i| self.parts[i] == part).collect()

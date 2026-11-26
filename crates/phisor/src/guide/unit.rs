@@ -30,7 +30,7 @@ fn without_item(l: &str) -> &str {
 
 /// A line's pieces, each with the mark that ended it (`Line` for the last
 /// piece when the line ends without one).
-fn pieces(body: &str) -> Vec<(&str, Mark)> {
+pub(super) fn pieces(body: &str) -> Vec<(&str, Mark)> {
     let mut out = Vec::new();
     let mut start = 0;
     for (i, c) in body.char_indices() {

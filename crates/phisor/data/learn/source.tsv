@@ -1,0 +1,31 @@
+# The queue phisor learns from, a night at a time (src/checkpoint/source.rs).
+# name<TAB>path: relative to the phinet folder, or absolute. A night takes the next
+# ones not yet in taken.tsv and learns from every source taken so far.
+# Tatoeba: English sentences, CC-BY 2.0 FR (tatoeba.org), cached in phi-old/_corpus.
+tatoeba-1	../phi-old/_corpus/tatoeba/sample80k.txt
+tatoeba-2	../phi-old/_corpus/tatoeba/sample80k_2.txt
+tatoeba-3	../phi-old/_corpus/tatoeba/sample80k_3.txt
+tatoeba-4	../phi-old/_corpus/tatoeba/sample80k_4.txt
+tatoeba-5	../phi-old/_corpus/tatoeba/sample80k_5.txt
+tatoeba-6	../phi-old/_corpus/tatoeba/sample80k_6.txt
+tatoeba-7	../phi-old/_corpus/tatoeba/sample80k_7.txt
+tatoeba-8	../phi-old/_corpus/tatoeba/sample80k_8.txt
+tatoeba-9	../phi-old/_corpus/tatoeba/sample80k_9.txt
+tatoeba-10	../phi-old/_corpus/tatoeba/sample80k_10.txt
+tatoeba-11	../phi-old/_corpus/tatoeba/sample80k_11.txt
+tatoeba-12	../phi-old/_corpus/tatoeba/sample80k_12.txt
+tatoeba-13	../phi-old/_corpus/tatoeba/sample80k_13.txt
+tatoeba-14	../phi-old/_corpus/tatoeba/sample80k_14.txt
+tatoeba-15	../phi-old/_corpus/tatoeba/sample80k_15.txt
+tatoeba-16	../phi-old/_corpus/tatoeba/sample80k_16.txt
+tatoeba-17	../phi-old/_corpus/tatoeba/sample80k_17.txt
+tatoeba-18	../phi-old/_corpus/tatoeba/sample80k_18.txt
+simplewiki	../phi-old/_corpus/simplewiki/all.txt
+emma	crates/phiano/data/corpora/austen/emma.txt
+persuasion	crates/phiano/data/corpora/austen/persuasion.txt
+sense_and_sensibility	crates/phiano/data/corpora/austen/sense_and_sensibility.txt
+carroll-alice	crates/phiano/data/corpora/contrast/carroll-alice.txt
+chesterton-ball	crates/phiano/data/corpora/contrast/chesterton-ball.txt
+chesterton-brown	crates/phiano/data/corpora/contrast/chesterton-brown.txt
+chesterton-thursday	crates/phiano/data/corpora/contrast/chesterton-thursday.txt
+sketch_of_the_analytical_engine	crates/phiano/data/corpora/lovelace/sketch_of_the_analytical_engine.txt

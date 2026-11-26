@@ -333,7 +333,7 @@ So a first word with an opening sense is written twice (`Code::write`): first in
 
 ## Next, in the order worth doing
 
-1. **Done: kinds from inside the sentence** (above, 2026-11-23). Reading inside is the better reading at every arm and mode; the river stays as the measure of the flow between kinds.
+1. **Done: kinds from inside the sentence** (above, 2026-11-23). Reading inside is the better reading in 27 of the grid's 28 rows (the one exception is the hash's both-ends template at mode 32, 52.1% against 52.4%); the river stays as the measure of the flow between kinds.
 2. **Done: c12** (above, 2026-11-24). The opener read on two channels, its opening sense and itself, senses questions and instructions both at mode 64 (61.4% and 55.7% F1). That is above the hand-made dictionary on every measure.
 3. **Done: learned phases** (above, 2026-11-23). They add about a point for the learned code, and as much for the hash. Interference that pays would need a target closer to what the sentences are for than the kinds themselves.
 4. Lovelace's test, and the act read from English (step 5 of the plan).
