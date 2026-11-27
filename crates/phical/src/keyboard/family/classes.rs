@@ -94,18 +94,7 @@ fn op(
     inverse: Inverse,
     compute: fn(&[Operand], &mut Arena) -> Result<Operand, Fault>,
 ) -> Operator {
-    Operator {
-        index,
-        name,
-        family: Family::Classes,
-        arity: operands.len() as u8,
-        operands,
-        result,
-        idempotent: false,
-        inverse,
-        gate: None,
-        compute,
-    }
+    super::row(Family::Classes, index, name, operands.len() as u8, operands, result, false, inverse, compute)
 }
 
 /// A count — a bigram total, a likelihood — on a phasor's real axis.

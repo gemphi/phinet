@@ -66,18 +66,7 @@ fn op(
     result: Type,
     compute: fn(&[Operand], &mut Arena) -> Result<Operand, Fault>,
 ) -> Operator {
-    Operator {
-        index,
-        name,
-        family: Family::Liskov,
-        arity: operands.len() as u8,
-        operands,
-        result,
-        idempotent: false,
-        inverse: Inverse::None,
-        gate: None,
-        compute,
-    }
+    super::row(Family::Liskov, index, name, operands.len() as u8, operands, result, false, Inverse::None, compute)
 }
 
 /// The one-channel Function a phasor operand names: the phasor itself, as a

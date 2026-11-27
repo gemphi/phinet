@@ -4,6 +4,7 @@
 //! and the Mode rows are one code cut at 4, 5 and 6 bits.
 
 use super::*;
+use crate::c64;
 use crate::classes as base;
 
 use super::super::super::arena::Arena;

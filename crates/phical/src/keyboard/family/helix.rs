@@ -82,18 +82,7 @@ fn op(
     result: Type,
     compute: fn(&[Operand], &mut Arena) -> Result<Operand, Fault>,
 ) -> Operator {
-    Operator {
-        index,
-        name,
-        family: Family::Helix,
-        arity: operands.len() as u8,
-        operands,
-        result,
-        idempotent: false,
-        inverse: Inverse::None,
-        gate: None,
-        compute,
-    }
+    super::row(Family::Helix, index, name, operands.len() as u8, operands, result, false, Inverse::None, compute)
 }
 
 /// The channel a class operand names: the dense class id modulo the 64

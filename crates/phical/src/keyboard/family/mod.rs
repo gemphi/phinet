@@ -15,9 +15,42 @@
 //! [`table`](super::operator::table) can assert the index bijection and the
 //! family partition over the complete set.
 
-use super::operator::Operator;
-use super::types::Operand;
+use super::arena::{Arena, Fault};
+use super::operator::{Family, Inverse, Operator};
+use super::types::{Operand, Type};
 use crate::c64;
+
+/// One row of a family's keyboard.
+///
+/// The arity is the operand list's length, so the two cannot drift apart -
+/// except for Circle, which declares an arity of its own where an operand
+/// list of one stands for a variadic row. Five families wrote this literal
+/// out, differing in the family they named and nothing else.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn row(
+    family: Family,
+    index: u8,
+    name: &'static str,
+    arity: u8,
+    operands: &'static [Type],
+    result: Type,
+    idempotent: bool,
+    inverse: Inverse,
+    compute: fn(&[Operand], &mut Arena) -> Result<Operand, Fault>,
+) -> Operator {
+    Operator {
+        index,
+        name,
+        family,
+        arity,
+        operands,
+        result,
+        idempotent,
+        inverse,
+        gate: None,
+        compute,
+    }
+}
 
 /// Repack a scalar on the real axis - a distance, an agreement, a
 /// likelihood, a gain, a cost, a margin, a loss, a Hamming count, a

@@ -91,18 +91,7 @@ fn op(
     inverse: Inverse,
     compute: fn(&[Operand], &mut Arena) -> Result<Operand, Fault>,
 ) -> Operator {
-    Operator {
-        index,
-        name,
-        family: Family::Q64,
-        arity: operands.len() as u8,
-        operands,
-        result,
-        idempotent: false,
-        inverse,
-        gate: None,
-        compute,
-    }
+    super::row(Family::Q64, index, name, operands.len() as u8, operands, result, false, inverse, compute)
 }
 
 /// The argument (phase) of a phasor operand, in [−π, π].

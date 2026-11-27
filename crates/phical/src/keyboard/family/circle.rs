@@ -90,18 +90,7 @@ fn op(
     idempotent: bool,
     compute: fn(&[Operand], &mut Arena) -> Result<Operand, Fault>,
 ) -> Operator {
-    Operator {
-        index,
-        name,
-        family: Family::Circle,
-        arity,
-        operands,
-        result: Type::Phasor,
-        idempotent,
-        inverse: Inverse::None,
-        gate: None,
-        compute,
-    }
+    super::row(Family::Circle, index, name, arity, operands, Type::Phasor, idempotent, Inverse::None, compute)
 }
 
 /// The identity's computation: return the one operand unchanged. [`apply`]

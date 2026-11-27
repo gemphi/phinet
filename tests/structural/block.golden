@@ -46,4 +46,13 @@
 # `u32` the file format stores. One `Lexicon<I: Id>` now, `Vocab` an alias
 # over it; the facet's copy of `len`/`is_empty` left a group of four that
 # three types still stand in. 152 phiecs tests, the format pin among them.
-65
+#
+# 64 the same day: five of phical's six families each wrote out the row
+# literal that builds one Operator, differing in the family they named and
+# nothing else. `family::row` builds it and each family binds its own name
+# in a line. 124 tests, the index bijection over all 64 operators among
+# them. Two groups the scan still names are not defects: a parameter list
+# repeated by a wrapper that binds one argument (phient's `cycle` over
+# `cycle_with`) is how Rust spells a default, and the accessors two types
+# write for one trait are what a trait impl is.
+64
