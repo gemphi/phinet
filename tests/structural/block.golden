@@ -2,8 +2,11 @@
 # (tests/structural/block.rs, the ruling of 2026-11-24: duplication is a
 # defect, and a part does one job and nothing else). One group per run,
 # however long the run: a group that is another group sliding is not
-# counted. A copy made raises the count and a copy removed lowers it: both
-# fail the run, so this file says what is left to do.
+# counted. A copy made can raise the count and a copy removed can lower it,
+# and either way the run fails, so this file says what is left to do. The
+# count is of groups and not of copies: taking one copy out of a group of
+# four leaves the group, so work can land here and move nothing (2026-11-27,
+# the facet's interner leaving the `self.words` group of four).
 #
 # 85 when the scan landed (2026-11-24). 78 on 2026-11-25: the facet built
 # four ways in phiecs storage is `Storage::facet` over an `IntoPhasor`
@@ -37,4 +40,10 @@
 # found the file's own claim wrong: the weighted construction was
 # documented as order-blind and reads 0.453, not 1.0, because the
 # normalisation keeps a direction the heavier word turns.
+#
+# 65 holds on 2026-11-27 while a copy goes: the crate interned words twice,
+# here for the ECS over an opaque `Word` and in `phasor::facet` over the
+# `u32` the file format stores. One `Lexicon<I: Id>` now, `Vocab` an alias
+# over it; the facet's copy of `len`/`is_empty` left a group of four that
+# three types still stand in. 152 phiecs tests, the format pin among them.
 65

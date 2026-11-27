@@ -139,8 +139,8 @@ mod tests {
         assert_eq!(
             found, pinned,
             "{found} blocks of {BLOCK} lines stand in more than one place, {pinned} pinned in {GOLDEN}.\n\
-             A copy made raises the count, a copy removed lowers it: read the groups, say the block \
-             once, and write the new count in the golden file.\n{}",
+             The count is of groups, not of copies: a group goes when its last repeat does. Read \
+             the groups, say the block once, and write the new count in the golden file.\n{}",
             named(&groups, 6)
         );
     }
