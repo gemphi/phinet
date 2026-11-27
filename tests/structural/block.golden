@@ -22,4 +22,19 @@
 # had none for it. Eight groups, not the one the TODO named: the step
 # told and then recorded, the candidate sort, the fold to the shorter way
 # round the circle and the answer built from the words went with it.
-68
+#
+# 66 the same day: the v1 and v2 bodies said the same five string-keyed
+# fields twice and the loader spread them out at both call sites - one
+# `StringKeyed`, handed to `from_string_keyed` whole. v2's
+# `#[serde(default)]` went with its copy: bincode is positional and reads
+# every field in order, so it had never fired.
+#
+# 65 the same day: phient's two context constructions were one sum
+# written twice, in one file - the words summed into the channels and
+# each channel normalised back to the unit circle. They differ only in
+# what a word brings to the sum (`Brought`: a share of its amplitude, or
+# a roll by the golden angle for its place). The test that went with it
+# found the file's own claim wrong: the weighted construction was
+# documented as order-blind and reads 0.453, not 1.0, because the
+# normalisation keeps a direction the heavier word turns.
+65
