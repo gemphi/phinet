@@ -10,12 +10,9 @@ use solve::*;
 
 use phiton::units::TWO_PI;
 use phiecs::phasor::facet::Facet;
-use phient::generate::ContextWaveBuffer;
 use crate::eval::Diagnostic;
-use crate::pathfinding::{ReasoningChain, ReasoningEngine, ReasoningStep, REASONING_MAX_STEPS};
-use phiton::p64::words::Tokenizer;
+use crate::pathfinding::{ReasoningChain, ReasoningEngine, REASONING_MAX_STEPS};
 use serde::Serialize;
-use std::f64::consts::PI;
 
 #[derive(Debug, Clone, Copy, Serialize)]
 pub enum EffortLevel {

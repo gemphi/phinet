@@ -14,4 +14,12 @@
 # 76 later the same day: the two `Ref` bodies nothing writes any more are
 # gone and the three it reads are one `Body<P>`, the bytes held in place by
 # `the_written_bytes_are_the_format`.
-76
+#
+# 68 on 2026-11-27, from one dedup: philog's engine walk, its walk under
+# an effort limit and its walk swept from a sector were three copies of
+# one walk, differing in where they aim and the words they say themselves
+# in - `walk::walk` over a `walk::Aim`, with five tests where the crate
+# had none for it. Eight groups, not the one the TODO named: the step
+# told and then recorded, the candidate sort, the fold to the shorter way
+# round the circle and the answer built from the words went with it.
+68

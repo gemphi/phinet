@@ -38,6 +38,7 @@ pub mod abstraction;
 pub mod interject;
 pub mod eval;
 pub mod paths;
+pub mod walk;
 pub mod comparison;
 
 pub use chain::Chain;
